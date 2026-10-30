@@ -13,6 +13,7 @@ export interface StackFrame {
   name: string;
   location: SourceLocation;
 }
+export type VariableSnapshot = Extract<TraceEvent, { type: 'snapshot' }>;
 export type TraceEvent = { timestamp: number; location: SourceLocation; frameId: number } & (
   | { type: 'line' }
   | { type: 'call'; functionName: string; parentFrameId: number | null }

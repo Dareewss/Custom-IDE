@@ -116,7 +116,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - sys.settrace pauses at breakpoints using Atomics.
 - Continue and Step Over resume correctly; Stop works while paused.
 
-## [ ] T19 — Variable inspector
+## [x] T19 — Variable inspector
 
 - Paused frame locals/globals appear in Variables.
 - Safe serialization caps depth, size and cycles.

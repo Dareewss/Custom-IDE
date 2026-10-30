@@ -17,6 +17,8 @@ import { ProjectManager } from './features/projects/ProjectManager';
 import { IconButton } from './shared/IconButton';
 import { useUI } from './shared/ui-store';
 import { DebugControls } from './features/debugger/DebugControls';
+import { Variables } from './features/debugger/Variables';
+import { CallStack } from './features/debugger/CallStack';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -66,6 +68,8 @@ export function App() {
         }
         console={<Console />}
         problems={<Problems />}
+        variables={<Variables />}
+        callStack={<CallStack />}
       />
     </>
   );

@@ -24,7 +24,7 @@ def _atlas_trace(frame, event, arg):
     if event == 'call':
         trace.update(type='call', functionName=frame.f_code.co_name, parentFrameId=id(frame.f_back) if frame.f_back and frame.f_back.f_code.co_filename.startswith('/project/') else None)
     elif event == 'return':
-        trace.update(type='return', value=_atlas_simple_value(arg))
+        trace.update(type='return', value=_atlas_safe_value(arg))
     elif event == 'exception':
         trace.update(type='exception', name=arg[0].__name__, message=str(arg[1])[:300])
     else:
@@ -40,6 +40,8 @@ def _atlas_trace(frame, event, arg):
             parent = parent.f_back
         should_step = _atlas_step_depth is not None and depth <= _atlas_step_depth
         if frame.f_lineno in _atlas_bp.get(location['path'], []) or should_step:
-            command = _atlas_pause(_atlas_json.dumps(location))
+            snapshot = dict(timestamp=_atlas_time.perf_counter() * 1000, location=location, frameId=id(frame), type='snapshot', locals=_atlas_scope(frame.f_locals), globals=_atlas_scope(frame.f_globals), stack=_atlas_stack(frame))
+            _atlas_emit(_atlas_json.dumps(snapshot))
+            command = _atlas_pause(_atlas_json.dumps(snapshot))
             _atlas_step_depth = depth if command == 2 else None
     return _atlas_trace

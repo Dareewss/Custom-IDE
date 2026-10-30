@@ -21,4 +21,5 @@
 | 2026-10-30 | T15                       | 983b6f1                                | feat(projects): manage persistent recent workspaces; lint, typecheck, tests and build passed.                  |
 | 2026-10-30 | T16                       | c3fa1a4                                | feat(projects): import and export validated ZIP archives in a worker; lint, typecheck, tests and build passed. |
 | 2026-10-30 | T17                       | 656e6ee                                | feat(templates): add five executable Python starter projects; lint, typecheck, tests and build passed.         |
-| 2026-10-30 | T18                       | COMPLETING_COMMIT                      | feat(debugger): persist breakpoints and pause step with Atomics; lint, typecheck, tests and build passed.      |
+| 2026-10-30 | T18                       | 5fd5ef5                                | feat(debugger): persist breakpoints and pause step with Atomics; lint, typecheck, tests and build passed.      |
+| 2026-10-30 | T19                       | COMPLETING_COMMIT                      | feat(debugger): inspect bounded variable snapshots and call stacks; lint, typecheck, tests and build passed.   |

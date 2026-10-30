@@ -1006,3 +1006,92 @@ svg {
 .run-status.paused {
   color: #dfc485;
 }
+.variables {
+  padding: 8px 19px 20px;
+  font-size: 12px;
+}
+.pause-caption {
+  color: var(--muted);
+  font-size: 10px;
+  padding: 1px 0 12px;
+}
+.variable-scope > summary {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+  padding: 8px 0;
+  cursor: pointer;
+}
+.variable-scope > summary span {
+  margin-left: 7px;
+  font-size: 9px;
+}
+.variable-row,
+.variable-node > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 15px;
+  padding: 5px 8px;
+  border-bottom: 1px solid #91a0a909;
+  font:
+    12px/1.6 Consolas,
+    monospace;
+}
+.variable-node > summary {
+  cursor: pointer;
+}
+.variable-node > summary::before {
+  content: '›';
+  color: var(--muted);
+}
+.variable-node[open] > summary::before {
+  content: '⌄';
+}
+.variable-name {
+  color: #8fc3dd;
+  min-width: 90px;
+  overflow-wrap: anywhere;
+}
+.variable-value {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.variable-type {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.variable-children {
+  margin-left: 18px;
+  border-left: 1px solid var(--border);
+  padding-left: 8px;
+}
+.call-stack {
+  padding: 10px 17px;
+}
+.call-stack button {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 9px;
+  text-align: left;
+}
+.call-stack strong {
+  font:
+    12px Consolas,
+    monospace;
+  font-weight: 400;
+}
+.call-stack button > span:last-child {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 11px;
+}
+.frame-index {
+  color: var(--accent);
+  font:
+    10px Consolas,
+    monospace;
+}

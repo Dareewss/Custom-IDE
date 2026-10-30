@@ -2,7 +2,8 @@ import type { RunRequest, RunnerMessage } from './protocol';
 import { normalizePath, type FileTree } from '../fs/vfs';
 import { readMailbox } from './mailbox';
 import debugScript from '../trace/debugger.py?raw';
-import type { TraceEvent, SourceLocation } from '../trace/events';
+import type { TraceEvent, VariableSnapshot } from '../trace/events';
+import serializerScript from '../trace/serializer.py?raw';
 
 function send(message: RunnerMessage) {
   self.postMessage(message);
@@ -67,12 +68,12 @@ async function execute(
       if (!mailbox) return 1;
       const control = new Int32Array(mailbox, 0, 4);
       Atomics.store(control, 0, 0);
-      send({ type: 'paused', location: JSON.parse(text) as SourceLocation });
+      send({ type: 'paused', snapshot: JSON.parse(text) as VariableSnapshot });
       Atomics.wait(control, 0, 0);
       return Atomics.load(control, 2);
     },
   });
-  python.runPython(debugScript);
+  python.runPython(serializerScript + '\n' + debugScript);
   send({ type: 'status', status: 'running' });
   const start = performance.now();
   const result: unknown = await python.runPythonAsync(`

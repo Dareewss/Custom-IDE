@@ -1,6 +1,6 @@
 import type { FileTree } from '../fs/vfs';
 import type { Diagnostic } from '../language/adapter';
-import type { TraceEvent, SourceLocation } from '../trace/events';
+import type { TraceEvent, VariableSnapshot } from '../trace/events';
 export type RunRequest = {
   type: 'run';
   tree: FileTree;
@@ -10,7 +10,7 @@ export type RunRequest = {
 };
 export type RunnerMessage =
   | { type: 'trace'; event: TraceEvent }
-  | { type: 'paused'; location: SourceLocation }
+  | { type: 'paused'; snapshot: VariableSnapshot }
   | { type: 'diagnostic'; diagnostic: Diagnostic }
   | { type: 'input' }
   | { type: 'status'; status: 'loading' | 'running' }

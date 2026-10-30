@@ -5,7 +5,7 @@ import { useUI } from '../../shared/ui-store';
 import { languageForPath, python } from '../../core/language/adapter';
 import { createMailbox, writeMailbox } from '../../core/workers/mailbox';
 import { useDiagnostics } from '../editor/diagnostics';
-import type { SourceLocation, TraceEvent } from '../../core/trace/events';
+import type { SourceLocation, TraceEvent, VariableSnapshot } from '../../core/trace/events';
 import { navigateTo } from '../editor/navigation';
 
 export interface OutputEntry {
@@ -14,6 +14,7 @@ export interface OutputEntry {
   text: string;
 }
 interface RunState {
+  snapshot: VariableSnapshot | null;
   pauseLocation: SourceLocation | null;
   trace: TraceEvent[];
   startedAt: number;
@@ -24,6 +25,7 @@ interface RunState {
   elapsed: number;
 }
 export const useRunner = create<RunState>(() => ({
+  snapshot: null,
   pauseLocation: null,
   trace: [],
   startedAt: 0,
@@ -47,6 +49,7 @@ export function stopRun() {
     useRunner.setState({
       status: 'stopped',
       pauseLocation: null,
+      snapshot: null,
       awaitingInput: false,
       exitCode: null,
       elapsed: Date.now() - s.startedAt,
@@ -65,7 +68,7 @@ export function continueRun(step = false) {
   Atomics.store(control, 2, step ? 2 : 1);
   Atomics.store(control, 0, 1);
   Atomics.notify(control, 0);
-  useRunner.setState({ status: 'running', pauseLocation: null });
+  useRunner.setState({ status: 'running', pauseLocation: null, snapshot: null });
 }
 export function submitInput(text: string) {
   if (!mailbox || !useRunner.getState().awaitingInput) return;
@@ -84,7 +87,7 @@ export function appendOutput(stream: OutputEntry['stream'], text: string) {
   }));
 }
 python.runner = async (entry, tree) => {
-  useRunner.setState({ trace: [], pauseLocation: null });
+  useRunner.setState({ trace: [], pauseLocation: null, snapshot: null });
   useDiagnostics.setState({ runtime: [] });
   worker?.terminate();
   settle?.();
@@ -110,8 +113,13 @@ python.runner = async (entry, tree) => {
       if (message.type === 'trace')
         useRunner.setState((s) => ({ trace: [...s.trace.slice(-4999), message.event] }));
       if (message.type === 'paused') {
-        useRunner.setState({ status: 'paused', pauseLocation: message.location });
-        navigateTo(message.location);
+        useRunner.setState({
+          status: 'paused',
+          pauseLocation: message.snapshot.location,
+          snapshot: message.snapshot,
+        });
+        navigateTo(message.snapshot.location);
+        if (useUI.getState().panel === 'Console') useUI.getState().setPanel('Variables');
       }
       if (message.type === 'diagnostic') useDiagnostics.setState({ runtime: [message.diagnostic] });
       if (message.type === 'input') useRunner.setState({ awaitingInput: true });
