@@ -62,7 +62,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Syntax and runtime failures create Monaco markers.
 - Problems list shows current file errors and navigates to them.
 
-## [ ] T10 — Clickable stack traces
+## [x] T10 — Clickable stack traces
 
 - Pure traceback parser extracts Python file, line and column.
 - Traceback links open the correct project file and location.

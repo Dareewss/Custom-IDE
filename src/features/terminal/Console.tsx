@@ -3,9 +3,16 @@ import { submitInput } from '../runner/store';
 import { useEffect, useRef, useState } from 'react';
 import { CornerDownLeft, Trash2 } from 'lucide-react';
 import { IconButton } from '../../shared/IconButton';
+import { TracebackText } from './TracebackText';
 
 export function Console() {
   const output = useRunner((s) => s.output);
+  const groups: typeof output = [];
+  for (const entry of output) {
+    const last = groups.at(-1);
+    if (last?.stream === entry.stream) last.text += entry.text;
+    else groups.push({ ...entry });
+  }
   const awaitingInput = useRunner((s) => s.awaitingInput);
   const [input, setInput] = useState('');
   const [follow, setFollow] = useState(true);
@@ -31,9 +38,9 @@ export function Console() {
       </div>
       <div className="console-output" role="log" aria-label="Program output">
         {output.length ? (
-          output.map((line) => (
+          groups.map((line) => (
             <span key={line.id} className={`output-${line.stream}`}>
-              {line.text}
+              {line.stream === 'stderr' ? <TracebackText text={line.text} /> : line.text}
             </span>
           ))
         ) : (

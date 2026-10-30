@@ -721,3 +721,13 @@ svg {
   font-size: 10px;
   margin-top: 3px;
 }
+.trace-link {
+  padding: 0;
+  font: inherit;
+  color: #e8aaaa;
+  text-decoration: underline;
+  text-decoration-color: #e8aaaa60;
+  text-underline-offset: 3px;
+  text-align: left;
+  white-space: pre-wrap;
+}
