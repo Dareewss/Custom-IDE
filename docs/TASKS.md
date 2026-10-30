@@ -74,7 +74,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Completions are lazy-loaded and include contextual project symbols.
 - Python snippets insert usable code templates.
 
-## [ ] T12 — Formatter
+## [x] T12 — Formatter
 
 - A real Python formatter runs in a worker.
 - Format Document updates the current file and reports errors.

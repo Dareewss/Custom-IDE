@@ -731,3 +731,25 @@ svg {
   text-align: left;
   white-space: pre-wrap;
 }
+.format-save {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-right: 7px;
+}
+.format-save input {
+  accent-color: var(--accent);
+}
+.toolbar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  margin: 0 5px;
+}
+@media (max-width: 900px) {
+  .format-save {
+    display: none;
+  }
+}

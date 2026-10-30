@@ -8,6 +8,7 @@ import { RunButton } from './features/runner/RunButton';
 import { Console } from './features/terminal/Console';
 import { RunStatus } from './features/runner/RunStatus';
 import { Problems } from './features/editor/Problems';
+import { FormatButton } from './features/editor/FormatButton';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -24,7 +25,12 @@ export function App() {
           <span>{saved}</span>
         </>
       }
-      actions={<RunButton />}
+      actions={
+        <>
+          <FormatButton />
+          <RunButton />
+        </>
+      }
       console={<Console />}
       problems={<Problems />}
     />

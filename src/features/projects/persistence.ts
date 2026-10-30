@@ -2,12 +2,15 @@ import { create } from 'zustand';
 import { getRepository, type ProjectSnapshot } from '../../core/fs/database';
 import { useWorkspace } from '../explorer/store';
 import { useUI } from '../../shared/ui-store';
+import { formatFile } from '../editor/formatter';
+import { useSettings } from '../settings/store';
 
 export const usePersistence = create<{
   state: 'Restoring' | 'Saving' | 'Saved' | 'Save failed';
   hydrated: boolean;
 }>(() => ({ state: 'Restoring', hydrated: false }));
 let queue: Promise<void> = Promise.resolve();
+let formatting: Promise<void> | null = null;
 export function snapshot(): ProjectSnapshot {
   const { projectId, projectName, tree, tabs, active } = useWorkspace.getState();
   return {
@@ -21,6 +24,21 @@ export function snapshot(): ProjectSnapshot {
   };
 }
 export async function persistCurrent(): Promise<void> {
+  if (useSettings.getState().formatOnSave) {
+    if (!formatting)
+      formatting = (async () => {
+        for (const path of useWorkspace.getState().dirty) {
+          try {
+            await formatFile(path);
+          } catch (error) {
+            useUI.getState().reportError(`Format on save: ${String(error)}`);
+          }
+        }
+      })().finally(() => {
+        formatting = null;
+      });
+    await formatting;
+  }
   const data = snapshot();
   usePersistence.setState({ state: 'Saving' });
   const save = queue.catch(() => {}).then(() => getRepository().save(data));
