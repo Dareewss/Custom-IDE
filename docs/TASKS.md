@@ -104,7 +104,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Import validates paths and rejects traversal and oversized archives.
 - Round-trip and invalid-archive tests pass.
 
-## [ ] T17 — Project templates
+## [x] T17 — Project templates
 
 - Hello World and Input/Output templates run.
 - Functions & Classes and Algorithms templates run.

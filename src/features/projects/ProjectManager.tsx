@@ -7,6 +7,7 @@ import { getRepository, type ProjectSnapshot } from '../../core/fs/database';
 import { useWorkspace } from '../explorer/store';
 import { createProject, openProject, renameProject, deleteProject } from './actions';
 import { ZipActions } from './ZipActions';
+import { templates } from './templates';
 
 export function ProjectManager() {
   const open = useUI((s) => s.modal === 'projects');
@@ -18,6 +19,7 @@ export function ProjectManager() {
     project?: ProjectSnapshot;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [templateId, setTemplateId] = useState('hello');
   const refresh = useCallback(async () => setProjects(await getRepository().list()), []);
   const close = () => useUI.setState({ modal: null });
   useEffect(() => {
@@ -130,7 +132,8 @@ export function ProjectManager() {
           onClose={() => setAction(null)}
           onSubmit={async (name) => {
             if (action.kind === 'create') {
-              await createProject(name);
+              const template = templates.find((item) => item.id === templateId) ?? templates[0];
+              await createProject(name, template.tree, template.entry);
               close();
             } else if (action.kind === 'rename')
               await renameProject(action.project!.projectId, name);
@@ -141,7 +144,23 @@ export function ProjectManager() {
             }
             await refresh();
           }}
-        />
+        >
+          {action.kind === 'create' && (
+            <label className="field">
+              Starting point
+              <select value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+                {templates.map((template) => (
+                  <option value={template.id} key={template.id}>
+                    {template.name}
+                  </option>
+                ))}
+              </select>
+              <span className="muted">
+                {templates.find((item) => item.id === templateId)?.description}
+              </span>
+            </label>
+          )}
+        </FormDialog>
       )}
     </>
   );

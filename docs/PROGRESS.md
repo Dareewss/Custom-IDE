@@ -19,4 +19,5 @@
 | 2026-10-30 | T13                       | 4bae27c                                | feat(commands): add searchable commands quick open and shortcuts; lint, typecheck, tests and build passed.     |
 | 2026-10-30 | T14                       | d13bfd7                                | feat(settings): persist validated editor preferences and themes; lint, typecheck, tests and build passed.      |
 | 2026-10-30 | T15                       | 983b6f1                                | feat(projects): manage persistent recent workspaces; lint, typecheck, tests and build passed.                  |
-| 2026-10-30 | T16                       | COMPLETING_COMMIT                      | feat(projects): import and export validated ZIP archives in a worker; lint, typecheck, tests and build passed. |
+| 2026-10-30 | T16                       | c3fa1a4                                | feat(projects): import and export validated ZIP archives in a worker; lint, typecheck, tests and build passed. |
+| 2026-10-30 | T17                       | COMPLETING_COMMIT                      | feat(templates): add five executable Python starter projects; lint, typecheck, tests and build passed.         |
