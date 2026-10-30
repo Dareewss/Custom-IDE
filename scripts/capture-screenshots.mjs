@@ -53,11 +53,20 @@ try {
     .click();
   await page.screenshot({ path: 'docs/screenshots/debugger.png' });
   await page.getByRole('button', { name: 'Stop (Shift+F5)', exact: true }).click();
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  const transparency = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  await transparency.press('Home');
+  for (let i = 0; i < 50; i++) await transparency.press('ArrowRight');
+  await page.screenshot({ path: 'docs/screenshots/settings.png' });
+  await transparency.press('Home');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.setViewportSize({ width: 375, height: 812 });
   await page.reload();
   await expect(page.locator('.monaco-editor')).toBeVisible();
   await page.screenshot({ path: 'docs/screenshots/compact.png' });
-  console.log('Captured workspace, debugger and compact-layout screenshots from real execution.');
+  console.log(
+    'Captured workspace, debugger, transparency settings and compact screenshots from real execution.',
+  );
 } finally {
   await browser.close();
 }

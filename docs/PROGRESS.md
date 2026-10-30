@@ -31,4 +31,5 @@ Post-Phase-1 enhancements follow the additional tasks in TASKS.md.
 | 2026-10-30 | T19                       | 532aa65           | feat(debugger): inspect bounded variable snapshots and call stacks; lint, typecheck, tests and build passed.        |
 | 2026-10-30 | T20                       | cbd4631           | feat(polish): complete Phase 1 recovery accessibility and production QA; lint, typecheck, tests and build passed.   |
 | 2026-10-30 | T21                       | 0e8a497           | feat(workspace): redesign app chrome around glass panel references; lint, typecheck, tests and build passed.        |
-| 2026-10-30 | T22                       | COMPLETING_COMMIT | feat(app): add standalone installation offline execution and safe updates; lint, typecheck, tests and build passed. |
+| 2026-10-30 | T22                       | f87b1f4           | feat(app): add standalone installation offline execution and safe updates; lint, typecheck, tests and build passed. |
+| 2026-10-30 | T23                       | COMPLETING_COMMIT | feat(appearance): add background transparency and flat dark surfaces; lint, typecheck, tests and build passed.      |

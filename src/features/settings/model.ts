@@ -1,4 +1,5 @@
 export interface Settings {
+  backgroundTransparency: number;
   fontSize: number;
   tabSize: number;
   theme: 'dark' | 'light';
@@ -8,6 +9,7 @@ export interface Settings {
   formatOnSave: boolean;
 }
 export const defaultSettings: Settings = {
+  backgroundTransparency: 0,
   fontSize: 14,
   tabSize: 4,
   theme: 'dark',
@@ -18,7 +20,11 @@ export const defaultSettings: Settings = {
 };
 export function parseSettings(input: unknown): Settings {
   const value = input && typeof input === 'object' ? (input as Record<string, unknown>) : {};
-  const number = (key: 'fontSize' | 'tabSize' | 'autosaveDelay', min: number, max: number) =>
+  const number = (
+    key: 'fontSize' | 'tabSize' | 'autosaveDelay' | 'backgroundTransparency',
+    min: number,
+    max: number,
+  ) =>
     typeof value[key] === 'number' &&
     Number.isFinite(value[key]) &&
     Number.isInteger(value[key]) &&
@@ -27,6 +33,7 @@ export function parseSettings(input: unknown): Settings {
       ? value[key]
       : defaultSettings[key];
   return {
+    backgroundTransparency: number('backgroundTransparency', 0, 100),
     fontSize: number('fontSize', 10, 32),
     tabSize: number('tabSize', 1, 8),
     autosaveDelay: number('autosaveDelay', 100, 10000),

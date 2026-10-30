@@ -141,7 +141,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Provide a real installation action or actionable browser-specific instructions, with installed/offline/update states handled accurately.
 - Preserve projects, worker execution and cross-origin isolation; verify app behavior in the browser and document installation and hosting requirements.
 
-## [ ] T23 — Flat dark surfaces and background transparency
+## [x] T23 — Flat dark surfaces and background transparency
 
 - Remove decorative gradients and use neutral dark surfaces that match the user's transparency clarification.
 - Add a labeled, persisted 0–100% background transparency slider: 0 is opaque, 100 is transparent; text, icons and controls retain full opacity.

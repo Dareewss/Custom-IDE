@@ -2,8 +2,8 @@
 
 Local validation date: 2026-10-30 (Europe/Bucharest).
 
-Release result: lint, strict typecheck and build pass; 32 Vitest tests, 4 Python
-serializer tests and all 10 production-browser scenarios pass. Desktop workspace,
+Release result: lint, strict typecheck and build pass; 33 Vitest tests, 4 Python
+serializer tests and all 11 production-browser scenarios pass. Desktop workspace,
 paused-debugger and 375px screenshots were rendered and visually reviewed.
 
 ## Automated checks
@@ -15,7 +15,7 @@ paused-debugger and 375px screenshots were rendered and visually reviewed.
   settings validation, shared-memory UTF-8 transfer and trace contracts.
 - Python unittest: serialization cycle/depth/size limits, internal-name filtering,
   hostile repr/attribute hooks and descriptors.
-- Ten Playwright scenarios against the production preview: Code/Split/Focus layouts, rail tools, multi-file execution,
+- Eleven Playwright scenarios against the production preview: flat dark background transparency endpoints, unchanged foreground opacity, slider keyboard/reload behavior, Code/Split/Focus layouts, rail tools, multi-file execution,
   stdin/stdout/stderr, errors/source links, breakpoint persistence, stepping and
   inspection, infinite-loop Stop/Restart, real Ruff/Jedi workers, syntax diagnostics,
   settings, palettes, ZIP download/re-import, file/project operations, output floods

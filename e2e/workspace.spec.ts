@@ -25,6 +25,43 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Manage projects', exact: true })).toBeVisible();
 });
 
+test('uses flat dark surfaces and persists background-only transparency from 0 to 100', async ({
+  page,
+}) => {
+  await importProject(page, { 'main.py': 'print("Text remains visible")\n' }, 'Transparency');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.workspace')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('.editor-card')).toHaveCSS('background-image', 'none');
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  await expect(slider).toHaveValue('0');
+  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgb(10, 12, 15)');
+  await slider.press('End');
+  await expect(slider).toHaveValue('100');
+  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgba(10, 12, 15, 0)');
+  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgba(17, 19, 23, 0)');
+  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(20, 22, 26, 0)');
+  await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.view-lines')).toHaveCSS('opacity', '1');
+  await expect(page.getByRole('button', { name: 'Run file', exact: true })).toHaveCSS(
+    'opacity',
+    '1',
+  );
+  await slider.press('Home');
+  await slider.press('ArrowRight');
+  await expect(slider).toHaveValue('1');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  await expect(
+    page.getByRole('slider', { name: 'Background transparency', exact: true }),
+  ).toHaveValue('1');
+  await page.getByRole('slider', { name: 'Background transparency', exact: true }).press('Home');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Run file', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('exit 0');
+});
+
 async function offlineReady(page: Page) {
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
@@ -169,7 +206,10 @@ test('stops infinite loops and restarts with fresh filesystem state', async ({ p
     'Output limit',
   );
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
-  await expect(page.getByRole('log')).toContainText('Output limited to 1,000,000 characters');
+  await expect(page.getByRole('status')).toContainText('Running', { timeout: 20000 });
+  await expect(page.getByRole('log')).toContainText('Output limited to 1,000,000 characters', {
+    timeout: 20000,
+  });
   await page.getByRole('button', { name: 'Stop (Shift+F5)', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Stopped');
 });

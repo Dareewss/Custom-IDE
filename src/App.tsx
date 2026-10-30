@@ -31,6 +31,13 @@ export function App() {
   const active = useWorkspace((s) => s.active);
   const cursor = useCursor();
   const theme = useSettings((s) => s.theme);
+  const transparency = useSettings((s) => s.backgroundTransparency);
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--workspace-opacity',
+      String((100 - transparency) / 100),
+    );
+  }, [transparency]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);

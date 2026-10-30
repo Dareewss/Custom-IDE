@@ -1,5 +1,7 @@
 # Decisions
 
+- 2026-10-30: T23 removes decorative gradients and makes neutral dark workspace background colors depend on a persisted 0–100% transparency value; text/control opacity is never changed. Browser/PWA OS-window transparency is unavailable, so settings explain the limit instead of simulating desktop translucency.
+
 - 2026-10-30: T22 implements the user's confirmed installable web app preference with a standalone manifest, an actionable installation flow, versioned application caching and explicit save-before-update behavior; no native .exe wrapper is needed.
 
 - 2026-10-30: T21 follows the user's dark glass workspace references: charcoal surfaces, restrained purple/cyan ambient light, lime actions and vivid syntax; the design search's landing-page pattern is inapplicable to a full-screen IDE.

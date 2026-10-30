@@ -48,6 +48,13 @@ for browser installation behavior.
 
 ## Using the workspace
 
+Settings → **Background transparency** controls workspace surfaces from **0% (fully opaque)**
+to **100% (fully transparent)**. Code, icons and controls retain their opacity. The default
+appearance uses flat, neutral dark colors with no decorative gradients. The value
+persists across reloads. Browser app windows keep an opaque OS surface, so this
+does not make your desktop wallpaper visible through the window; that would need
+a native wrapper with transparent-window support.
+
 The reference-inspired app shell uses floating dark panels, a project switcher and a
 navigation rail. Choose **Code** for a bottom console, **Split** for a right-hand live
 workbench, or **Focus** for an uninterrupted editor. The search and debugger rail

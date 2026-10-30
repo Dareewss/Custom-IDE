@@ -3,6 +3,7 @@ import { X, SlidersHorizontal } from 'lucide-react';
 import { useSettings } from './store';
 import { useUI } from '../../shared/ui-store';
 import { IconButton } from '../../shared/IconButton';
+import './transparency.css';
 
 export function SettingsDialog() {
   const open = useUI((s) => s.modal === 'settings');
@@ -79,6 +80,36 @@ export function SettingsDialog() {
             onChange={(e) => settings.setSetting('autosaveDelay', Number(e.target.value))}
           />
         </label>
+      </div>
+      <div className="transparency-control">
+        <div className="transparency-heading">
+          <label htmlFor="background-transparency">Background transparency</label>
+          <output htmlFor="background-transparency">{settings.backgroundTransparency}%</output>
+        </div>
+        <input
+          id="background-transparency"
+          type="range"
+          min={0}
+          max={100}
+          step={1}
+          value={settings.backgroundTransparency}
+          aria-valuetext={`${settings.backgroundTransparency}% transparent`}
+          aria-describedby="transparency-description"
+          onChange={(event) =>
+            settings.setSetting('backgroundTransparency', Number(event.target.value))
+          }
+        />
+        <div className="transparency-scale">
+          <span>0% · Opaque</span>
+          <span>100% · Transparent</span>
+        </div>
+        <p id="transparency-description">
+          Only workspace backgrounds fade. Text, icons and controls stay fully visible.
+        </p>
+        <p className="transparency-platform-note">
+          Browser app windows cannot show your desktop through the window. This setting changes the
+          backgrounds inside the app.
+        </p>
       </div>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
         <label className="setting-toggle" key={key}>
