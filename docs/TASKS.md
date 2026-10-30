@@ -8,7 +8,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Tailwind, Zustand, Motion and feature/core folders are installed.
 - ESLint, Prettier, Vitest and CI run lint/typecheck/tests/build.
 
-## [ ] T1 — App shell
+## [x] T1 — App shell
 
 - Activity bar, explorer, editor, bottom panel and status bar render.
 - Sidebar and bottom panel resize with keyboard-accessible handles.

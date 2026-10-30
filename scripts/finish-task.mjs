@@ -15,7 +15,8 @@ if (!tasks.includes(`## [ ] ${task} —`)) throw new Error('Task missing or alre
 writeFileSync(taskPath, tasks.replace(`## [ ] ${task} —`, `## [x] ${task} —`));
 const progressPath = 'docs/PROGRESS.md';
 const last = run('git', ['rev-parse', '--short', 'HEAD'], true).trim();
-let progress = readFileSync(progressPath, 'utf8').replaceAll('COMPLETING_COMMIT', last);
+const originalProgress = readFileSync(progressPath, 'utf8');
+let progress = originalProgress.replaceAll('COMPLETING_COMMIT', last);
 progress += `| 2026-10-30 | ${task} | COMPLETING_COMMIT | ${message}; lint, typecheck, tests and build passed. |\n`;
 writeFileSync(progressPath, progress);
 run('npm', ['run', 'format']);
@@ -23,6 +24,7 @@ try {
   run('npm', ['run', 'check']);
 } catch (error) {
   writeFileSync(taskPath, tasks);
+  writeFileSync(progressPath, originalProgress);
   throw error;
 }
 run('git', ['add', '-A']);

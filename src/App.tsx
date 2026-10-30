@@ -1,3 +1,5 @@
+import { Shell } from './shared/Shell';
+
 export function App() {
-  return <main aria-label="Code Atlas workspace">Code Atlas</main>;
+  return <Shell />;
 }
