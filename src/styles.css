@@ -571,3 +571,57 @@ svg {
   inset: 0;
   z-index: 40;
 }
+.editor-tabs {
+  min-height: 36px;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.file-tab {
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--border);
+  border-top: 1px solid transparent;
+  color: var(--muted);
+  padding-right: 8px;
+  flex-shrink: 0;
+}
+.file-tab.active {
+  background: var(--bg);
+  color: var(--text);
+  border-top-color: var(--accent);
+}
+.file-tab > button:first-child {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  font-size: 11px;
+  min-width: 104px;
+}
+.tab-close {
+  width: 21px;
+  height: 22px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+}
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 30px;
+  padding: 0 20px;
+  color: var(--muted);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+.breadcrumbs span:last-child {
+  color: var(--text);
+}
+.monaco-host {
+  flex: 1;
+  min-height: 0;
+}

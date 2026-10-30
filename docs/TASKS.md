@@ -20,7 +20,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Explorer supports context actions and keyboard navigation.
 - Tests cover path normalization, collisions, recursive operations and invalid moves.
 
-## [ ] T3 — Monaco editor and tabs
+## [x] T3 — Monaco editor and tabs
 
 - Files open in locally bundled Monaco models.
 - Tabs close, switch, reorder and show unsaved changes.
