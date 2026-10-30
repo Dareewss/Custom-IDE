@@ -6,7 +6,6 @@ function send(message: RunnerMessage) {
   self.postMessage(message);
 }
 async function execute(tree: FileTree, entry: string, mailbox?: SharedArrayBuffer) {
-  const start = performance.now();
   send({ type: 'status', status: 'loading' });
   const runtimeURL = new URL('/runtime/pyodide/', self.location.origin).href;
   const module = (await import(/* @vite-ignore */ `${runtimeURL}pyodide.mjs`)) as {
@@ -51,6 +50,7 @@ async function execute(tree: FileTree, entry: string, mailbox?: SharedArrayBuffe
   python.FS.chdir('/project');
   python.globals.set('_atlas_entry', `/project/${normalizePath(entry)}`);
   send({ type: 'status', status: 'running' });
+  const start = performance.now();
   const exitCode: unknown = await python.runPythonAsync(`
 import sys, os, runpy, traceback, importlib
 sys.path.insert(0, '/project')

@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { startPersistence, usePersistence } from './features/projects/persistence';
 import { RunButton } from './features/runner/RunButton';
 import { Console } from './features/terminal/Console';
+import { RunStatus } from './features/runner/RunStatus';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -16,7 +17,12 @@ export function App() {
       explorer={<Explorer />}
       editor={<EditorArea />}
       projectName={name}
-      status={<span>{saved}</span>}
+      status={
+        <>
+          <RunStatus />
+          <span>{saved}</span>
+        </>
+      }
       actions={<RunButton />}
       console={<Console />}
     />

@@ -50,7 +50,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - input() blocks on shared memory and resumes with entered text.
 - Clear, auto-scroll and missing-isolation feedback work.
 
-## [ ] T8 — Execution controls
+## [x] T8 — Execution controls
 
 - Run, Stop and Restart control worker lifecycle.
 - Status reports loading/running/finished/error, exit code and elapsed time.
