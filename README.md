@@ -1,7 +1,4 @@
-# Code Atlas
-
-A browser-based Python IDE. Phase 1 is tracked in [docs/TASKS.md](docs/TASKS.md).
-The visualization and language roadmap is in [docs/ROADMAP.md](docs/ROADMAP.md).
+# Custom-IDE
 
 ## Development
 
@@ -15,18 +12,7 @@ npm run dev
 `npm run check` runs lint, strict type checking, tests and a production build.
 `npm run preview` serves the production build locally.
 
-## Deployment headers
 
-Both development and preview servers send:
-
-```text
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-```
-
-Your production host must also send these headers and serve over HTTPS (localhost is
-allowed for development). SharedArrayBuffer, Python stdin and debugger pause require
-cross-origin isolation. Runtime assets are served from the same origin.
 
 ## Architecture
 
