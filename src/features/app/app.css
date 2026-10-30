@@ -3,8 +3,8 @@
   align-items: center;
   gap: 6px;
   padding: 7px 10px;
-  border: 1px solid #c0f78938;
-  background: #c0f7890b;
+  border: 1px solid #ff003538;
+  background: #ff00350b;
   border-radius: 7px;
   color: var(--accent);
   font-size: 11px;
@@ -78,10 +78,10 @@
 }
 .install-steps li > span {
   padding: 5px;
-  background: #c0f7890c;
+  background: #ff00350c;
   color: var(--accent);
   font-size: 9px;
-  border: 1px solid #c0f7891c;
+  border: 1px solid #ff00351c;
   border-radius: 5px;
   margin-top: 1px;
 }

@@ -2,16 +2,16 @@
 
 :root {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  color: #d8dfe3;
-  background: #111416;
+  color: #eeeff2;
+  background: #0e131f;
   color-scheme: dark;
-  --bg: #111416;
-  --surface: #171b1e;
-  --raised: #20262a;
-  --border: #2a3135;
-  --text: #d8dfe3;
-  --muted: #91a0a9;
-  --accent: #91d4ae;
+  --bg: #0e131f;
+  --surface: #0e131f;
+  --raised: #38405f;
+  --border: #59546c61;
+  --text: #eeeff2;
+  --muted: #8b939c;
+  --accent: #ff0035;
 }
 
 body {
@@ -146,7 +146,7 @@ svg {
 }
 .icon-button[aria-pressed='true'] {
   color: var(--accent);
-  background: #91d4ae12;
+  background: #ff003512;
 }
 .workbench {
   display: flex;
@@ -177,7 +177,7 @@ svg {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #284336;
+  background: #38405f;
   color: var(--accent);
   display: grid;
   place-items: center;
@@ -470,7 +470,7 @@ svg {
 }
 .tree-row.active {
   color: var(--text);
-  background: #91d4ae0d;
+  background: #ff00350d;
 }
 .tree-row[aria-selected='true'] {
   box-shadow: inset 2px 0 var(--accent);
@@ -529,14 +529,14 @@ svg {
 }
 .primary-button {
   background: var(--accent);
-  color: #10291c;
+  color: #0e131f;
   padding: 7px 14px;
   border-radius: 5px;
   font-weight: 600;
   font-size: 12px;
 }
 .primary-button:hover:not(:disabled) {
-  background: #a9e6c3;
+  background: #ff365f;
 }
 .secondary-button {
   border: 1px solid var(--border);
@@ -626,9 +626,9 @@ svg {
   min-height: 0;
 }
 .run-button {
-  background: #91d4ae14;
+  background: #ff003514;
   color: var(--accent);
-  border: 1px solid #91d4ae30;
+  border: 1px solid #ff003530;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -839,7 +839,7 @@ svg {
   cursor: pointer;
 }
 [cmdk-item][data-selected='true'] {
-  background: #91d4ae14;
+  background: #ff003514;
   color: var(--accent);
 }
 [cmdk-item] span {
@@ -883,7 +883,7 @@ svg {
   --border: #d0d9df;
   --text: #24353f;
   --muted: #526874;
-  --accent: #256b46;
+  --accent: #b00028;
 }
 .settings-dialog {
   width: min(510px, 94vw);
@@ -1032,7 +1032,7 @@ svg {
   align-items: baseline;
   gap: 15px;
   padding: 5px 8px;
-  border-bottom: 1px solid #91a0a909;
+  border-bottom: 1px solid #8b939c09;
   font:
     12px/1.6 Consolas,
     monospace;
@@ -1160,9 +1160,9 @@ svg {
   }
 }
 :root[data-theme='light'] .run-button {
-  color: #256b46;
-  background: #256b4612;
-  border-color: #256b4640;
+  color: #b00028;
+  background: #b0002812;
+  border-color: #b0002840;
 }
 :root[data-theme='light'] .python-icon,
 :root[data-theme='light'] .variable-name {

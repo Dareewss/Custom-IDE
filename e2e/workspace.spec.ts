@@ -35,12 +35,12 @@ test('uses flat dark surfaces and persists background-only transparency from 0 t
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
   await expect(slider).toHaveValue('0');
-  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgb(10, 12, 15)');
+  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgb(14, 19, 31)');
   await slider.press('End');
   await expect(slider).toHaveValue('100');
-  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgba(10, 12, 15, 0)');
-  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgba(17, 19, 23, 0)');
-  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(20, 22, 26, 0)');
+  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
+  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
+  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
   await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   await expect(page.locator('.view-lines')).toHaveCSS('opacity', '1');
   await expect(page.getByRole('button', { name: 'Run file', exact: true })).toHaveCSS(

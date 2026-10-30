@@ -21,10 +21,6 @@ try {
     'algorithms/search.py',
     'def binary_search(numbers, target):\n    """Find a value in a sorted list, one decision at a time."""\n    low, high = 0, len(numbers) - 1\n\n    while low <= high:\n        middle = (low + high) // 2\n        value = numbers[middle]\n        print(f"Searching {low}..{high} · checking {value}")\n\n        if value == target:\n            return middle\n        if value < target:\n            low = middle + 1\n        else:\n            high = middle - 1\n\n    return -1\n',
   );
-  zip.file(
-    'README.md',
-    '# Binary search lab\n\nRun main.py to search a sorted list.\nAdd a breakpoint in algorithms/search.py to see each decision.\n',
-  );
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   await page.getByLabel('Import ZIP file', { exact: true }).setInputFiles({
     name: 'Binary search lab.zip',

@@ -13,7 +13,7 @@ try {
       deviceScaleFactor: 1,
     });
     await page.setContent(
-      `<style>html,body{margin:0;width:100%;height:100%;background:#101719}svg{display:block;width:100%;height:100%}</style>${svg}`,
+      `<style>html,body{margin:0;width:100%;height:100%;background:#0e131f}svg{display:block;width:100%;height:100%}</style>${svg}`,
     );
     const png = await page.screenshot(
       [180, 192, 512].includes(size) ? { path: `public/icons/atlas-${size}.png` } : {},
