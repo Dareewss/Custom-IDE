@@ -10,9 +10,12 @@ import { FormDialog } from '../../shared/FormDialog';
 import { exportProject } from '../projects/ZipActions';
 import { useCursor } from '../editor/navigation';
 
+const setMode = (paletteMode: 'commands' | 'files' | null) => useUI.setState({ paletteMode });
+const setQuery = (paletteQuery: string) => useUI.setState({ paletteQuery });
+
 export function CommandPalette() {
-  const [mode, setMode] = useState<'commands' | 'files' | null>(null);
-  const [query, setQuery] = useState('');
+  const mode = useUI((s) => s.paletteMode);
+  const query = useUI((s) => s.paletteQuery);
   const [create, setCreate] = useState<'file' | 'folder' | null>(null);
   const s = useWorkspace();
   const open = (next: 'commands' | 'files') => {
@@ -88,6 +91,11 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    ...(['code', 'split', 'focus'] as const).map((layout) => ({
+      name: `${layout[0].toUpperCase() + layout.slice(1)} layout`,
+      shortcut: '',
+      run: () => useUI.getState().setLayout(layout),
+    })),
     { name: 'Continue debugging', shortcut: 'F5', run: () => continueRun() },
     { name: 'Step Over', shortcut: 'F10', run: () => continueRun(true) },
     {

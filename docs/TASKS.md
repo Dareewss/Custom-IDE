@@ -127,3 +127,16 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Keyboard shortcuts, empty/loading/error states and error boundary work.
 - Production build and automated tests pass; browser smoke checks are recorded.
 - README documents startup, headers, screenshots and docs/QA.md manual checklist.
+
+## [x] T21 — Reference-inspired application workspace
+
+- Rework the full-screen shell into framed glass panels, a Discord-style navigation rail, a project switcher and vivid accessible code colors using the supplied visual references.
+- Code, Split and Focus layouts operate on the real editor, console and inspector; navigation and quick actions remain functional without simulated collaborators or previews.
+- Dark/light themes, keyboard focus, reduced motion, responsive layout and all existing Python workflows continue to work.
+- Run quality gates, production browser checks and visually review updated screenshots before committing and pushing.
+
+## [ ] T22 — Standalone application experience
+
+- Add installable application metadata, local icons and a standalone window experience, honoring the user's packaging preference.
+- Provide a real installation action or actionable browser-specific instructions, with installed/offline/update states handled accurately.
+- Preserve projects, worker execution and cross-origin isolation; verify app behavior in the browser and document installation and hosting requirements.

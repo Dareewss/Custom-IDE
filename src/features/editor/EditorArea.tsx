@@ -1,8 +1,9 @@
 import { lazy, Suspense } from 'react';
-import { FileCode2, X, Code2 } from 'lucide-react';
+import { FileCode2, X, Box, FolderPlus, ArrowUpRight } from 'lucide-react';
 import { useWorkspace } from '../explorer/store';
 import { basename } from '../../core/fs/vfs';
 import { motion, useReducedMotion } from 'motion/react';
+import { useUI } from '../../shared/ui-store';
 
 const CodeEditor = lazy(() => import('./CodeEditor'));
 export function EditorArea() {
@@ -89,28 +90,43 @@ export function EditorArea() {
           transition={{ duration: reducedMotion ? 0 : 0.2 }}
         >
           <div className="welcome-mark">
-            <Code2 size={50} strokeWidth={1} />
+            <Box size={38} strokeWidth={1.2} />
           </div>
-          <span className="eyebrow">YOUR WORKSPACE, YOUR POSSIBILITIES</span>
-          <h1>Let’s make something.</h1>
+          <span className="eyebrow">CODE ATLAS WORKSPACE</span>
+          <h1>Start with a file.</h1>
           <p>
-            Open a file from the explorer to begin.
+            Open your code. Run an experiment.
             <br />
-            Every idea starts with a line of code.
+            Everything you need is right here.
           </p>
-          {Object.values(s.tree).some((node) => node.kind === 'file') ? (
+          <div className="welcome-actions">
+            {Object.values(s.tree).some((node) => node.kind === 'file') ? (
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  const path = Object.keys(s.tree).find((p) => s.tree[p].kind === 'file');
+                  if (path) s.open(path);
+                }}
+              >
+                <ArrowUpRight size={13} />
+                Open a project file
+              </button>
+            ) : (
+              <p className="muted">Create your first file with New file in the explorer.</p>
+            )}
             <button
-              className="secondary-button"
-              onClick={() => {
-                const path = Object.keys(s.tree).find((p) => s.tree[p].kind === 'file');
-                if (path) s.open(path);
-              }}
+              className="primary-button"
+              onClick={() => useUI.setState({ modal: 'projects' })}
             >
-              Open a project file
+              <FolderPlus size={13} />
+              Browse projects
             </button>
-          ) : (
-            <p className="muted">Create your first file with New file in the explorer.</p>
-          )}
+          </div>
+          <div className="welcome-shortcut">
+            <kbd>Ctrl</kbd>
+            <kbd>P</kbd>
+            <span>to find any file</span>
+          </div>
         </motion.div>
       )}
     </>

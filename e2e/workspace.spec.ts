@@ -25,6 +25,31 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Manage projects', exact: true })).toBeVisible();
 });
 
+test('switches Code, Split and Focus layouts and opens rail tools', async ({ page }) => {
+  await importProject(page, { 'main.py': 'print("Workspace ready")\n' });
+  const modes = page.getByRole('group', { name: 'Workspace layout', exact: true });
+  await expect(modes.getByRole('button', { name: 'Split', exact: true })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.locator('.output-card.docked')).toBeVisible();
+  await modes.getByRole('button', { name: 'Code', exact: true }).click();
+  await expect(
+    page.getByRole('separator', { name: 'Resize bottom panel', exact: true }),
+  ).toBeVisible();
+  await modes.getByRole('button', { name: 'Focus', exact: true }).click();
+  await expect(page.locator('.sidebar')).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Output panel' })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Search files', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Quick open file' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await modes.getByRole('button', { name: 'Split', exact: true }).click();
+  await page.getByRole('button', { name: 'Debugger', exact: true }).click();
+  await expect(page.getByRole('tabpanel', { name: 'Variables' })).toBeVisible();
+  await page.getByRole('button', { name: 'Open project switcher', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Project manager' })).toBeVisible();
+});
+
 test('runs multi-file Python with stdin, both streams, diagnostics and source links', async ({
   page,
 }) => {

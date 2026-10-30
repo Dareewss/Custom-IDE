@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useSyncExternalStore, type ReactNode } from 'react';
 import {
   Box,
   Files,
@@ -6,14 +6,18 @@ import {
   PanelLeft,
   Terminal,
   X,
-  ChevronRight,
-  Circle,
+  ChevronDown,
+  Search,
+  Bug,
+  Columns2,
   Code2,
+  Maximize2,
+  Focus,
 } from 'lucide-react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
-import { motion, useReducedMotion } from 'motion/react';
-import { useUI, type PanelTab } from './ui-store';
+import { useUI, type WorkspaceLayout } from './ui-store';
 import { IconButton } from './IconButton';
+import { OutputDock } from './OutputDock';
 
 interface ShellProps {
   languageName?: string;
@@ -28,40 +32,84 @@ interface ShellProps {
   navigation?: ReactNode;
   status?: ReactNode;
   projectName?: string;
+  appControls?: ReactNode;
 }
+const subscribe = (notify: () => void) => {
+  window.addEventListener('resize', notify);
+  return () => window.removeEventListener('resize', notify);
+};
+const getWide = () => window.innerWidth >= 1100;
 
 export function Shell(props: ShellProps) {
   const ui = useUI();
-  const reduced = useReducedMotion();
+  const wide = useSyncExternalStore(subscribe, getWide, () => true);
+  const docked = ui.layout === 'split' && wide;
   const content = {
     Console: props.console,
+    Problems: props.problems,
     Variables: props.variables,
     'Call Stack': props.callStack,
-    Problems: props.problems,
   };
+  const layouts: { id: WorkspaceLayout; label: string; icon: ReactNode }[] = [
+    { id: 'code', label: 'Code', icon: <Code2 size={14} /> },
+    { id: 'split', label: 'Split', icon: <Columns2 size={14} /> },
+    { id: 'focus', label: 'Focus', icon: <Focus size={14} /> },
+  ];
   return (
-    <main className="workspace" aria-label="Code Atlas workspace">
+    <main className="workspace" data-layout={ui.layout} aria-label="Code Atlas workspace">
       <header className="titlebar">
-        <a className="brand" href="#" aria-label="Code Atlas home">
-          <Box size={23} />
-          <span>
-            code<span className="brand-light">atlas</span>
-            <span className="phase-badge">IDE</span>
+        <button
+          className="brand"
+          onClick={() => useUI.setState({ modal: 'projects' })}
+          aria-label="Code Atlas home"
+        >
+          <span className="brand-symbol">
+            <Box size={23} strokeWidth={1.6} />
           </span>
-        </a>
-        <div className="workspace-title">
-          <span className="workspace-dot" />
-          {props.projectName ?? 'Untitled workspace'}
-          <ChevronRight size={13} />
-          <span>Workspace</span>
+          <span className="brand-wordmark">
+            Code Atlas<small>Personal workspace</small>
+          </span>
+        </button>
+        <span className="header-divider" />
+        <button
+          className="workspace-title"
+          aria-label="Open project switcher"
+          onClick={() => useUI.setState({ modal: 'projects' })}
+        >
+          <Box size={15} />
+          <span className="project-switcher-name">{props.projectName ?? 'Untitled workspace'}</span>
+          <ChevronDown size={14} />
+        </button>
+        <div className="layout-switch" role="group" aria-label="Workspace layout">
+          {layouts.map((layout) => (
+            <button
+              key={layout.id}
+              aria-pressed={ui.layout === layout.id}
+              onClick={() => ui.setLayout(layout.id)}
+            >
+              {layout.icon}
+              <span>{layout.label}</span>
+            </button>
+          ))}
         </div>
-        {props.palette}
+        <div className="header-search">{props.palette}</div>
         <div className="title-actions">
+          {props.appControls}
           <IconButton label="Toggle explorer" onClick={ui.toggleSidebar}>
             <PanelLeft size={16} />
           </IconButton>
           <IconButton label="Toggle bottom panel" onClick={ui.toggleBottom}>
             <PanelBottom size={16} />
+          </IconButton>
+          <IconButton
+            label="Enter fullscreen"
+            disabled={!document.fullscreenEnabled}
+            onClick={() => {
+              if (document.fullscreenElement) void document.exitFullscreen().catch(ui.reportError);
+              else void document.documentElement.requestFullscreen().catch(ui.reportError);
+            }}
+          >
+            <Maximize2 size={16} />
           </IconButton>
         </div>
       </header>
@@ -69,33 +117,57 @@ export function Shell(props: ShellProps) {
         <nav className="activitybar" aria-label="Workspace views">
           <div>
             <IconButton label="Explorer" aria-pressed={ui.sidebar} onClick={ui.toggleSidebar}>
-              <Files size={22} />
+              <Files size={23} />
             </IconButton>
-            <IconButton label="Console" onClick={() => ui.setPanel('Console')}>
-              <Terminal size={21} />
+            <IconButton label="Search files" onClick={() => ui.openPalette('files')}>
+              <Search size={23} />
+            </IconButton>
+            <span className="rail-divider" />
+            <IconButton
+              label="Debugger"
+              aria-pressed={ui.bottom && ui.panel === 'Variables'}
+              onClick={() => ui.setPanel('Variables')}
+            >
+              <Bug size={22} />
+            </IconButton>
+            <IconButton
+              label="Console"
+              aria-pressed={ui.bottom && ui.panel === 'Console'}
+              onClick={() => ui.setPanel('Console')}
+            >
+              <Terminal size={22} />
             </IconButton>
           </div>
           <div>
             {props.navigation}
-            <span className="local-badge" title="Local workspace">
-              L
-            </span>
+            <span className="rail-divider" />
+            <button
+              className="local-badge"
+              aria-label="Open local workspace settings"
+              onClick={() => useUI.setState({ modal: 'settings' })}
+            >
+              CA
+            </button>
           </div>
         </nav>
         <Group orientation="horizontal" className="main-group">
           {ui.sidebar && (
             <>
-              <Panel defaultSize="245px" minSize="175px" maxSize="440px">
+              <Panel defaultSize="244px" minSize="185px" maxSize="420px">
                 <aside className="sidebar">
                   <div className="section-heading">
-                    EXPLORER<span className="small-tag">LOCAL</span>
+                    Explorer
+                    <IconButton label="Hide explorer" onClick={ui.toggleSidebar}>
+                      <PanelLeft size={15} />
+                    </IconButton>
                   </div>
-                  {props.explorer ?? (
-                    <p className="muted padded">Your project files will appear here.</p>
-                  )}
+                  {props.explorer}
                   <div className="sidebar-foot">
                     <span className="workspace-dot" />
-                    Browser workspace
+                    <span>
+                      Local workspace<small>Saved on this device</small>
+                    </span>
+                    <Box size={14} />
                   </div>
                 </aside>
               </Panel>
@@ -103,84 +175,38 @@ export function Shell(props: ShellProps) {
             </>
           )}
           <Panel minSize="200px">
-            <div className="editor-column">
-              <div className="editor-toolbar">
-                <span className="eyebrow">
-                  <Code2 size={14} /> EDITOR
-                </span>
-                <div className="toolbar-actions">{props.actions}</div>
-              </div>
-              <Group orientation="vertical">
-                <Panel minSize="120px" defaultSize="72%">
+            <Group className="editor-layout" orientation={docked ? 'horizontal' : 'vertical'}>
+              <Panel minSize={docked ? '250px' : '120px'} defaultSize={docked ? '68%' : '72%'}>
+                <div className="editor-card">
+                  <div className="editor-toolbar">
+                    <span className="editor-section-label">
+                      <Code2 size={14} />
+                      <span>Workspace</span>
+                      <span className="editor-language">{props.languageName ?? 'Python'}</span>
+                    </span>
+                    <div className="toolbar-actions">{props.actions}</div>
+                  </div>
                   <section className="editor-surface" aria-label="Editor">
-                    {props.editor ?? (
-                      <motion.div
-                        initial={{ opacity: 0, y: reduced ? 0 : 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="welcome"
-                      >
-                        <div className="welcome-mark">
-                          <Box size={54} strokeWidth={1} />
-                        </div>
-                        <span className="eyebrow">A LITTLE SPACE TO BUILD BIG THINGS</span>
-                        <h1>Your next idea starts here.</h1>
-                        <p>
-                          A focused workspace for your code, your experiments,
-                          <br />
-                          and everything you’re about to figure out.
-                        </p>
-                        <div className="welcome-note">
-                          <Circle size={8} fill="currentColor" />
-                          Local by design. Yours to explore.
-                        </div>
-                      </motion.div>
-                    )}
+                    {props.editor}
                   </section>
-                </Panel>
-                {ui.bottom && (
-                  <>
-                    <Separator className="separator horizontal" aria-label="Resize bottom panel" />
-                    <Panel minSize="100px" defaultSize="28%">
-                      <section className="bottom-panel" aria-label="Output panel">
-                        <div className="panel-header">
-                          <div className="panel-tabs" role="tablist" aria-label="Output views">
-                            {(['Console', 'Problems', 'Variables', 'Call Stack'] as PanelTab[]).map(
-                              (tab) => (
-                                <button
-                                  key={tab}
-                                  role="tab"
-                                  aria-selected={ui.panel === tab}
-                                  onClick={() => ui.setPanel(tab)}
-                                >
-                                  {tab}
-                                </button>
-                              ),
-                            )}
-                          </div>
-                          <IconButton label="Close bottom panel" onClick={ui.toggleBottom}>
-                            <X size={14} />
-                          </IconButton>
-                        </div>
-                        <div className="panel-body" role="tabpanel" aria-label={ui.panel}>
-                          {content[ui.panel] ?? (
-                            <div className="panel-empty">
-                              <Terminal size={16} />
-                              <span>
-                                {ui.panel === 'Console'
-                                  ? 'Your program output will appear here.'
-                                  : ui.panel === 'Problems'
-                                    ? 'No problems to show.'
-                                    : 'Start a debug session to inspect execution.'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </section>
-                    </Panel>
-                  </>
-                )}
-              </Group>
-            </div>
+                </div>
+              </Panel>
+              {ui.bottom && (
+                <>
+                  <Separator
+                    className={`separator ${docked ? 'vertical' : 'horizontal'}`}
+                    aria-label={docked ? 'Resize workbench' : 'Resize bottom panel'}
+                  />
+                  <Panel
+                    defaultSize={docked ? '340px' : '28%'}
+                    minSize={docked ? '292px' : '130px'}
+                    maxSize={docked ? '520px' : undefined}
+                  >
+                    <OutputDock content={content} docked={docked} />
+                  </Panel>
+                </>
+              )}
+            </Group>
           </Panel>
         </Group>
       </div>
@@ -191,12 +217,12 @@ export function Shell(props: ShellProps) {
             Code Atlas
           </span>
           <span className="workspace-dot" />
-          Local workspace
+          All changes stay local
         </div>
         <div>
           {props.status ?? <span>Ready</span>}
           <span>UTF-8</span>
-          <span>{props.languageName ?? 'No file'}</span>
+          <span className="status-language">{props.languageName ?? 'No file'}</span>
         </div>
       </footer>
       {ui.error && (

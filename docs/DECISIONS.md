@@ -1,5 +1,8 @@
 # Decisions
 
+- 2026-10-30: T21 follows the user's dark glass workspace references: charcoal surfaces, restrained purple/cyan ambient light, lime actions and vivid syntax; the design search's landing-page pattern is inapplicable to a full-screen IDE.
+- 2026-10-30: Use the right-hand reference panel for real Python output and inspection, with working Code/Split/Focus layouts; do not simulate a phone preview, AI chat or collaboration features.
+
 - 2026-10-30: Preserve the author's README title and license edits received during T14; rebase without force-pushing.
 - 2026-10-30: Self-host npm Pyodide and integrity-pinned PyPI Jedi/Parso wheels; use a separate lazy language worker so completion never shares a blocked execution worker.
 - 2026-10-30: Use Ruff WASM for formatting; persist settings in validated localStorage and project sessions in IndexedDB.

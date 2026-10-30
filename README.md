@@ -30,6 +30,12 @@ stdin and debugger pauses. Vite dev and preview set both. See
 
 ## Using the workspace
 
+The reference-inspired app shell uses floating dark panels, a project switcher and a
+navigation rail. Choose **Code** for a bottom console, **Split** for a right-hand live
+workbench, or **Focus** for an uninterrupted editor. The search and debugger rail
+buttons open the real file palette and variable inspector. Narrow windows stack the
+workbench below the editor automatically.
+
 Open `main.py` and choose **Run file**. The folder icon opens the project manager:
 create one of five templates, switch recent projects, rename/delete projects, or
 import/export ZIPs. Explorer actions support folders, rename, move and delete;
