@@ -118,7 +118,11 @@ export function SettingsDialog() {
             <Sparkles size={15} />
             Liquid glass
           </strong>
-          <small>Reflective edges and softer panels. Lower transparency for more contrast.</small>
+          <small>
+            {window.codeAtlasDesktop?.nativeGlass
+              ? 'Live desktop refraction, processed locally. Use 50–85% for the lens effect; 100% is clear. Windows captures omit this window while live glass runs—use the camera button to copy it with the effect.'
+              : 'Reflective glass finish. Live desktop refraction is available in the Windows 11 desktop app.'}
+          </small>
         </span>
         <input
           id="glass-effect"

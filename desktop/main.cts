@@ -11,6 +11,7 @@ import {
 import { join, resolve } from 'node:path';
 import { release } from 'node:os';
 import { serveDesktop } from './server.js';
+import { attachDesktopGlass } from './glass.cjs';
 
 app.setName('Code Atlas');
 app.setPath(
@@ -26,7 +27,6 @@ let normalBounds: Rectangle | null = null;
 let resizing: { edge: string; x: number; y: number; bounds: Rectangle } | null = null;
 let stopServer: (() => void) | undefined;
 const nativeGlass = process.platform === 'win32' && Number(release().split('.')[2]) >= 22621;
-let material: 'none' | 'acrylic' = 'none';
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
@@ -75,11 +75,16 @@ else {
         },
       });
       window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+      attachDesktopGlass(window, origin);
       window.webContents.on('will-navigate', (event, url) => {
         if (new URL(url).origin !== origin) event.preventDefault();
       });
-      window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) =>
-        callback(false),
+      window.webContents.session.setPermissionRequestHandler((contents, permission, callback) =>
+        callback(
+          permission === 'display-capture' &&
+            contents === window?.webContents &&
+            contents.getURL().startsWith(`${origin}/`),
+        ),
       );
       const trusted = (event: Electron.IpcMainEvent) =>
         window &&
@@ -101,14 +106,6 @@ else {
           )
             return;
           if (nativeTheme.themeSource !== theme) nativeTheme.themeSource = theme;
-          const next = glass && transparency > 0 && transparency < 100 ? 'acrylic' : 'none';
-          if (nativeGlass && next !== material) {
-            window.setBackgroundMaterial(next);
-            // Switching system materials resets the WebContents base color on Windows.
-            // Restore alpha so disabling acrylic at 100% cannot leave an opaque canvas.
-            window.setBackgroundColor('#00000000');
-            material = next;
-          }
         },
       );
       ipcMain.on('atlas:window', (event, action: unknown) => {

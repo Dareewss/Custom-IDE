@@ -3,6 +3,20 @@ import { contextBridge, ipcRenderer } from 'electron';
 const bridge: CodeAtlasDesktop = {
   platform: process.platform,
   nativeGlass: process.argv.includes('--atlas-native-glass=1'),
+  copyScreenshot: () => ipcRenderer.invoke('atlas:glass-screenshot'),
+  openGlassSource: () => ipcRenderer.invoke('atlas:glass-open'),
+  closeGlassSource: (session) => ipcRenderer.send('atlas:glass-close', session),
+  onGlassGeometry: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, geometry: DesktopGlassGeometry) =>
+      callback(geometry);
+    ipcRenderer.on('atlas:glass-geometry', listener);
+    return () => ipcRenderer.removeListener('atlas:glass-geometry', listener);
+  },
+  onGlassVisible: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, visible: boolean) => callback(visible);
+    ipcRenderer.on('atlas:glass-visible', listener);
+    return () => ipcRenderer.removeListener('atlas:glass-visible', listener);
+  },
   setAppearance: (glass, transparency, theme) =>
     ipcRenderer.send('atlas:appearance', glass, transparency, theme),
   minimize: () => ipcRenderer.send('atlas:window', 'minimize'),

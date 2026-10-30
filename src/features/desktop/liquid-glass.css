@@ -1,4 +1,55 @@
 /* Reflections belong to the rim; background alpha remains controlled by the slider. */
+.live-glass-canvas {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+:root[data-optical-glass='ready'] .live-glass-canvas {
+  display: block;
+}
+.workspace {
+  z-index: 1;
+}
+:root[data-optical-glass='ready']
+  :is(.workspace, .titlebar, .activitybar, .sidebar, .editor-card, .output-card) {
+  background: transparent !important;
+}
+:root[data-optical-glass='ready'] :is(.titlebar, .activitybar) {
+  backdrop-filter: none;
+}
+:root[data-optical-glass='ready']
+  :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card)::before {
+  display: none;
+}
+.glass-error {
+  position: fixed;
+  bottom: 35px;
+  left: 90px;
+  z-index: 80;
+  padding: 12px;
+  max-width: 560px;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.glass-live-label {
+  display: none;
+  position: fixed;
+  bottom: 7px;
+  left: 47%;
+  z-index: 4;
+  font-size: 9px;
+  color: var(--muted);
+  pointer-events: auto;
+}
+:root[data-optical-glass='ready'] .glass-live-label {
+  display: inline;
+}
 :root[data-theme='light'] {
   color-scheme: light;
 }
@@ -138,4 +189,23 @@
     :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card)::before {
     background: none;
   }
+}
+:root[data-optical-glass='ready']
+  :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card) {
+  background: transparent !important;
+  border-color: transparent;
+  border-radius: 24px;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+:root[data-optical-glass='ready'] .titlebar {
+  border-radius: 32px;
+}
+:root[data-optical-glass='ready'] .activitybar {
+  border-radius: 28px;
+}
+:root[data-optical-glass='ready']
+  :is(.title-actions, .layout-switch, .workspace-title, .command-trigger) {
+  background: var(--surface);
+  border-radius: 9px;
 }

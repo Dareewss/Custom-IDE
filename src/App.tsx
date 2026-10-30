@@ -24,6 +24,7 @@ import { useCursor } from './features/editor/navigation';
 import { startAppLifecycle } from './features/app/install';
 import { AppControls, InstallDialog } from './features/app/AppControls';
 import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
+import { LiveGlass } from './features/desktop/LiveGlass';
 
 export function App() {
   useDesktopLifecycle();
@@ -65,6 +66,7 @@ export function App() {
     );
   return (
     <>
+      <LiveGlass />
       <SettingsDialog />
       <InstallDialog />
       <ProjectManager />

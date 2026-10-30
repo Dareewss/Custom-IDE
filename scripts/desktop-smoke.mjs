@@ -73,12 +73,33 @@ try {
     if (value === 50) for (let i = 0; i < 50; i++) await slider.press('ArrowLeft');
     await expect(slider).toHaveValue(String(value));
     await page.getByRole('button', { name: 'Done', exact: true }).click();
-    const targetAlpha = Math.round(((100 - value) * 255) / 100);
-    console.log(`Transparency ${value}%: native alpha ${(await native()).alpha}`);
-    // Soft panel shadows also composite at intermediate values. Endpoints stay exact.
-    await expect
-      .poll(async () => Math.abs((await native()).alpha - targetAlpha))
-      .toBeLessThanOrEqual(value === 50 ? 4 : 0);
+    if (
+      value === 50 &&
+      (await page.evaluate(
+        () =>
+          window.codeAtlasDesktop.nativeGlass &&
+          !matchMedia('(prefers-reduced-transparency: reduce)').matches,
+      ))
+    ) {
+      await expect(page.locator('html')).toHaveAttribute('data-optical-glass', 'ready', {
+        timeout: 20000,
+      });
+      expect(
+        await app.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows()[0].isContentProtected(),
+        ),
+      ).toBe(true);
+    } else {
+      await expect
+        .poll(async () => (await native()).alpha)
+        .toBe(value === 0 ? 255 : value === 100 ? 0 : 130);
+      if (value !== 50)
+        expect(
+          await app.evaluate(({ BrowserWindow }) =>
+            BrowserWindow.getAllWindows()[0].isContentProtected(),
+          ),
+        ).toBe(false);
+    }
     expect((await native()).opacity).toBe(1);
     await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   }
@@ -99,6 +120,21 @@ try {
   await expect.poll(async () => (await native()).bounds.width).toBeLessThan(oldBounds.width);
   expect((await native()).alpha).toBe(0);
 
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  const liveSlider = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  await liveSlider.press('End');
+  for (let i = 0; i < 25; i++) await liveSlider.press('ArrowLeft');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  if (
+    await page.evaluate(
+      () =>
+        window.codeAtlasDesktop.nativeGlass &&
+        !matchMedia('(prefers-reduced-transparency: reduce)').matches,
+    )
+  )
+    await expect(page.locator('html')).toHaveAttribute('data-optical-glass', 'ready', {
+      timeout: 20000,
+    });
   const zip = new JSZip();
   zip.file('main.py', 'from helper import greet\nname = input("Name? ")\ngreet(name)\n');
   zip.file('helper.py', 'def greet(name):\n    print("Native hello " + name)\n');
