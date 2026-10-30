@@ -8,6 +8,31 @@ loader.config({ monaco });
 monaco.languages.register({ id: 'python', extensions: ['.py', '.pyw'] });
 monaco.languages.setLanguageConfiguration('python', conf);
 monaco.languages.setMonarchTokensProvider('python', language);
+monaco.languages.registerCompletionItemProvider('python', {
+  provideCompletionItems(model, position) {
+    const word = model.getWordUntilPosition(position);
+    const range = {
+      startLineNumber: position.lineNumber,
+      endLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endColumn: word.endColumn,
+    };
+    return {
+      suggestions: [
+        { label: 'def', body: 'def ${1:name}(${2:args}):\n\t${0:pass}' },
+        { label: 'for', body: 'for ${1:item} in ${2:items}:\n\t${0:pass}' },
+        { label: 'class', body: 'class ${1:Name}:\n\tdef __init__(self):\n\t\t${0:pass}' },
+        { label: 'ifmain', body: 'if __name__ == "__main__":\n\t${0:main()}' },
+      ].map(({ label, body }) => ({
+        label,
+        insertText: body,
+        kind: monaco.languages.CompletionItemKind.Snippet,
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+        range,
+      })),
+    };
+  },
+});
 monaco.editor.defineTheme('atlas-dark', {
   base: 'vs-dark',
   inherit: true,
