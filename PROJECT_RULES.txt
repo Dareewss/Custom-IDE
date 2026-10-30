@@ -1,0 +1,22 @@
+CODE ATLAS — PERSISTENT PROJECT RULES
+User instruction, 2026-10-30 (Europe/Bucharest).
+
+Never add, commit or push files with a .md extension, including uppercase variants.
+Markdown instructions and progress documents may remain local, ignored by Git.
+Remove previously tracked Markdown files from the current GitHub repository tree.
+Do not force-add ignored Markdown or rewrite repository history.
+This policy applies throughout the project and overrides earlier instructions to
+publish AGENTS.md, README.md or docs/*.md. Keep local engineering records current.
+
+Work on main. Use Conventional Commits and never force push. Before each commit,
+run lint, strict typecheck, tests and production build; fix failures first.
+Finish, verify, commit and push each logical task. No secrets or build output.
+
+The official palette is #0E131F, #38405F, #59546C, #8B939C and #FF0035.
+The desktop app must provide actual background-only native transparency:
+0% opaque, 100% reveals the desktop/windows behind it, foreground fully visible.
+Preserve Python worker isolation, persisted projects and accessible controls.
+
+Local enforcement: .githooks/pre-commit rejects staged Markdown additions.
+CI enforcement: scripts/check-repository.mjs rejects tracked Markdown files.
+Enable the local hook after cloning: git config core.hooksPath .githooks

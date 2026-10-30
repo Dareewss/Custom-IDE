@@ -1,5 +1,7 @@
 node_modules/
 dist/
+desktop-out/
+release/
 coverage/
 .env
 .env.*
@@ -12,3 +14,4 @@ public/runtime/
 __pycache__/
 *.pyc
 .checks.log
+*.[mM][dD]
