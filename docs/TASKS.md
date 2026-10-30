@@ -32,7 +32,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Python indentation and snippets are configured.
 - LanguageAdapter and reusable trace event contracts are defined.
 
-## [ ] T5 — Autosave and persistence
+## [x] T5 — Autosave and persistence
 
 - Debounced IndexedDB saves restore project and open tabs.
 - Pending edits flush on visibility change and project switch.
