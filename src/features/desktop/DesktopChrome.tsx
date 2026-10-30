@@ -4,6 +4,7 @@ import { IconButton } from '../../shared/IconButton';
 import { persistCurrent } from '../projects/persistence';
 import { useUI } from '../../shared/ui-store';
 import './desktop.css';
+import './liquid-glass.css';
 
 export function useDesktopLifecycle() {
   useEffect(() => {

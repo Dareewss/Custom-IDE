@@ -1,6 +1,8 @@
 type DesktopResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 interface CodeAtlasDesktop {
   readonly platform: string;
+  readonly nativeGlass: boolean;
+  setAppearance: (glass: boolean, transparency: number, theme: 'dark' | 'light') => void;
   minimize: () => void;
   toggleExpand: () => void;
   close: () => void;

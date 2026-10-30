@@ -34,6 +34,16 @@ export function App() {
   const cursor = useCursor();
   const theme = useSettings((s) => s.theme);
   const transparency = useSettings((s) => s.backgroundTransparency);
+  const glass = useSettings((s) => s.glassEffect);
+  useEffect(() => {
+    document.documentElement.dataset.glass = String(glass);
+    const reduced = window.matchMedia('(prefers-reduced-transparency: reduce)');
+    const sync = () =>
+      window.codeAtlasDesktop?.setAppearance(glass && !reduced.matches, transparency, theme);
+    sync();
+    reduced.addEventListener('change', sync);
+    return () => reduced.removeEventListener('change', sync);
+  }, [glass, transparency, theme]);
   useEffect(() => {
     document.documentElement.style.setProperty(
       '--workspace-opacity',

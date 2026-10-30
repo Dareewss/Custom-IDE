@@ -1,5 +1,15 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, screen, type Rectangle } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  Menu,
+  nativeTheme,
+  screen,
+  type Rectangle,
+} from 'electron';
 import { join, resolve } from 'node:path';
+import { release } from 'node:os';
 import { serveDesktop } from './server.js';
 
 app.setName('Code Atlas');
@@ -15,6 +25,8 @@ let rendererReady = false;
 let normalBounds: Rectangle | null = null;
 let resizing: { edge: string; x: number; y: number; bounds: Rectangle } | null = null;
 let stopServer: (() => void) | undefined;
+const nativeGlass = process.platform === 'win32' && Number(release().split('.')[2]) >= 22621;
+let material: 'none' | 'acrylic' = 'none';
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
@@ -36,6 +48,7 @@ else {
       origin = local.origin;
       stopServer = () => local.server.close();
       Menu.setApplicationMenu(null);
+      nativeTheme.themeSource = 'dark';
       const area = screen.getPrimaryDisplay().workArea;
       window = new BrowserWindow({
         title: 'Code Atlas',
@@ -58,6 +71,7 @@ else {
           sandbox: true,
           nodeIntegration: false,
           backgroundThrottling: process.env.CODE_ATLAS_TEST_MODE !== '1',
+          additionalArguments: [`--atlas-native-glass=${nativeGlass ? 1 : 0}`],
         },
       });
       window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -72,6 +86,31 @@ else {
         event.sender === window.webContents &&
         event.senderFrame === window.webContents.mainFrame &&
         event.senderFrame.url.startsWith(`${origin}/`);
+      ipcMain.on(
+        'atlas:appearance',
+        (event, glass: unknown, transparency: unknown, theme: unknown) => {
+          if (
+            !trusted(event) ||
+            !window ||
+            typeof glass !== 'boolean' ||
+            typeof transparency !== 'number' ||
+            !Number.isInteger(transparency) ||
+            transparency < 0 ||
+            transparency > 100 ||
+            (theme !== 'dark' && theme !== 'light')
+          )
+            return;
+          if (nativeTheme.themeSource !== theme) nativeTheme.themeSource = theme;
+          const next = glass && transparency > 0 && transparency < 100 ? 'acrylic' : 'none';
+          if (nativeGlass && next !== material) {
+            window.setBackgroundMaterial(next);
+            // Switching system materials resets the WebContents base color on Windows.
+            // Restore alpha so disabling acrylic at 100% cannot leave an opaque canvas.
+            window.setBackgroundColor('#00000000');
+            material = next;
+          }
+        },
+      );
       ipcMain.on('atlas:window', (event, action: unknown) => {
         if (!trusted(event) || !window) return;
         if (action === 'ready') rendererReady = true;

@@ -1,5 +1,6 @@
 export interface Settings {
   backgroundTransparency: number;
+  glassEffect: boolean;
   fontSize: number;
   tabSize: number;
   theme: 'dark' | 'light';
@@ -10,6 +11,7 @@ export interface Settings {
 }
 export const defaultSettings: Settings = {
   backgroundTransparency: 0,
+  glassEffect: true,
   fontSize: 14,
   tabSize: 4,
   theme: 'dark',
@@ -34,6 +36,8 @@ export function parseSettings(input: unknown): Settings {
       : defaultSettings[key];
   return {
     backgroundTransparency: number('backgroundTransparency', 0, 100),
+    glassEffect:
+      typeof value.glassEffect === 'boolean' ? value.glassEffect : defaultSettings.glassEffect,
     fontSize: number('fontSize', 10, 32),
     tabSize: number('tabSize', 1, 8),
     autosaveDelay: number('autosaveDelay', 100, 10000),

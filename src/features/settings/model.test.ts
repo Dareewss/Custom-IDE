@@ -8,7 +8,13 @@ it('preserves transparency endpoints and rejects invalid persisted values', () =
     expect(parseSettings({ backgroundTransparency: value }).backgroundTransparency).toBe(0);
 });
 it('round-trips valid settings', () => {
-  const settings = { ...defaultSettings, fontSize: 18, theme: 'light', wordWrap: true };
+  const settings = {
+    ...defaultSettings,
+    fontSize: 18,
+    theme: 'light',
+    wordWrap: true,
+    glassEffect: false,
+  };
   expect(parseSettings(JSON.parse(JSON.stringify(settings)))).toEqual(settings);
 });
 it('rejects invalid persisted values', () => {
@@ -19,6 +25,7 @@ it('rejects invalid persisted values', () => {
       autosaveDelay: NaN,
       theme: 'pink',
       minimap: 'true',
+      glassEffect: 'false',
     }),
   ).toEqual(defaultSettings);
   expect(parseSettings(null)).toEqual(defaultSettings);

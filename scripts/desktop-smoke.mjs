@@ -68,11 +68,13 @@ try {
   for (const value of [100, 50, 0, 100]) {
     await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
     const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
+    await expect(page.getByRole('switch', { name: 'Liquid glass', exact: true })).toBeChecked();
     await slider.press(value === 0 ? 'Home' : 'End');
     if (value === 50) for (let i = 0; i < 50; i++) await slider.press('ArrowLeft');
     await expect(slider).toHaveValue(String(value));
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     const targetAlpha = Math.round(((100 - value) * 255) / 100);
+    console.log(`Transparency ${value}%: native alpha ${(await native()).alpha}`);
     // Soft panel shadows also composite at intermediate values. Endpoints stay exact.
     await expect
       .poll(async () => Math.abs((await native()).alpha - targetAlpha))

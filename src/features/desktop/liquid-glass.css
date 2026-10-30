@@ -1,0 +1,141 @@
+/* Reflections belong to the rim; background alpha remains controlled by the slider. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-glass='true'] :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card) {
+  position: relative;
+  border-color: #8b939c52;
+  box-shadow:
+    inset 0 1px 0 #ffffff20,
+    inset 0 -1px 0 #ffffff08,
+    0 8px 28px rgb(0 0 0 / calc(var(--workspace-opacity) * 0.12));
+}
+:root[data-glass='true']
+  :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(
+    130deg,
+    #ffffff73 0%,
+    #ffffff08 24%,
+    #8b939c38 53%,
+    #ffffff05 76%,
+    #ffffff38 100%
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+:root[data-glass='true'] :is(.titlebar, .activitybar) {
+  backdrop-filter: blur(16px) saturate(1.15);
+}
+:root[data-glass='true'] :is(.workspace-title, .layout-switch, .command-trigger) {
+  border-color: #8b939c4a;
+  box-shadow:
+    inset 0 1px 0 #ffffff12,
+    inset 0 -1px 0 #00000020;
+}
+:root[data-glass='true'] .layout-switch button[aria-pressed='true'] {
+  background: #59546c66;
+  box-shadow:
+    inset 0 1px 0 #ffffff22,
+    0 2px 7px #00000024;
+}
+:root[data-glass='true'] .workspace {
+  text-shadow: 0 1px 2px #00000070;
+}
+:root[data-theme='light'][data-glass='true'] .workspace {
+  text-shadow: none;
+}
+:root[data-desktop='true'] .settings-dialog::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+.glass-setting {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  position: relative;
+}
+.glass-setting-copy {
+  flex: 1;
+}
+.glass-setting strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.glass-setting strong svg {
+  color: var(--muted);
+}
+.glass-setting small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+  margin-top: 5px;
+  max-width: 320px;
+}
+.glass-setting input {
+  position: absolute;
+  right: 0;
+  width: 44px;
+  height: 32px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.glass-switch-track {
+  width: 38px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 20px;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+.glass-switch-track > span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: transform 160ms ease;
+}
+.glass-setting input:checked + .glass-switch-track {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.glass-setting input:checked + .glass-switch-track > span {
+  transform: translateX(16px);
+  background: var(--on-accent);
+}
+.glass-setting input:focus-visible + .glass-switch-track {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-switch-track > span {
+    transition: none;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-glass='true'] :is(.titlebar, .activitybar) {
+    backdrop-filter: none;
+  }
+  :root[data-glass='true']
+    :is(.titlebar, .activitybar, .sidebar, .editor-card, .output-card)::before {
+    background: none;
+  }
+}

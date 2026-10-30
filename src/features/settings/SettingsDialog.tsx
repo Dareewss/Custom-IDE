@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { X, SlidersHorizontal } from 'lucide-react';
+import { X, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { useSettings } from './store';
 import { useUI } from '../../shared/ui-store';
 import { IconButton } from '../../shared/IconButton';
@@ -112,6 +112,26 @@ export function SettingsDialog() {
             : 'To see your desktop through the background, open the Code Atlas desktop app. Browser windows only change their in-page backgrounds.'}
         </p>
       </div>
+      <label className="glass-setting" htmlFor="glass-effect">
+        <span className="glass-setting-copy">
+          <strong id="glass-effect-label">
+            <Sparkles size={15} />
+            Liquid glass
+          </strong>
+          <small>Reflective edges and softer panels. Lower transparency for more contrast.</small>
+        </span>
+        <input
+          id="glass-effect"
+          type="checkbox"
+          role="switch"
+          aria-labelledby="glass-effect-label"
+          checked={settings.glassEffect}
+          onChange={(event) => settings.setSetting('glassEffect', event.target.checked)}
+        />
+        <span className="glass-switch-track" aria-hidden="true">
+          <span />
+        </span>
+      </label>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
         <label className="setting-toggle" key={key}>
           <span>

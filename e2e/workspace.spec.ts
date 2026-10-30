@@ -34,6 +34,10 @@ test('uses flat dark surfaces and persists background-only transparency from 0 t
   await expect(page.locator('.editor-card')).toHaveCSS('background-image', 'none');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  const glass = page.getByRole('switch', { name: 'Liquid glass', exact: true });
+  await expect(glass).toBeChecked();
+  await glass.uncheck();
+  await expect(page.locator('html')).toHaveAttribute('data-glass', 'false');
   await expect(slider).toHaveValue('0');
   await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgb(14, 19, 31)');
   await slider.press('End');
@@ -56,6 +60,8 @@ test('uses flat dark surfaces and persists background-only transparency from 0 t
   await expect(
     page.getByRole('slider', { name: 'Background transparency', exact: true }),
   ).toHaveValue('1');
+  await expect(page.getByRole('switch', { name: 'Liquid glass', exact: true })).not.toBeChecked();
+  await page.getByRole('switch', { name: 'Liquid glass', exact: true }).check();
   await page.getByRole('slider', { name: 'Background transparency', exact: true }).press('Home');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
