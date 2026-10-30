@@ -2,7 +2,7 @@
 
 Each task is finished only after acceptance checks and a separate verified commit; push whenever a remote is available.
 
-## [ ] T0 — Project setup
+## [x] T0 — Project setup
 
 - Strict React/TypeScript Vite app starts and builds.
 - Tailwind, Zustand, Motion and feature/core folders are installed.

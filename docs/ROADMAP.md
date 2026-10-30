@@ -1,8 +1,8 @@
 # Code Atlas roadmap
 
-
 Phase 1 — Good IDE
 Features
+
 - Monaco code editor
 - Python support first
 - syntax highlighting
@@ -25,7 +25,7 @@ Features
 - formatter
 - basic project templates
 - later: Java, JavaScript, C++, C#
-Tech
+  Tech
 - React
 - TypeScript
 - Vite
@@ -36,8 +36,8 @@ Tech
 - Web Workers
 - Python runtime / interpreter integration
 - Tree-sitter
-Phase 2 — 3D Code Overview
-Features
+  Phase 2 — 3D Code Overview
+  Features
 - convert project structure into 3D
 - files represented visually
 - classes represented visually
@@ -56,7 +56,7 @@ Features
 - isolate functions/classes
 - automatic graph layout
 - 3D minimap
-Tech
+  Tech
 - React Three Fiber
 - Three.js
 - Drei
@@ -65,8 +65,8 @@ Tech
 - Tree-sitter
 - Web Workers
 - TypeScript
-Phase 3 — Live Execution Visualization
-Features
+  Phase 3 — Live Execution Visualization
+  Features
 - Run in Visual Mode
 - Pause
 - Resume
@@ -87,7 +87,7 @@ Features
 - program state history
 - time-travel execution
 - execution replay
-Tech
+  Tech
 - Custom Execution Trace Engine
 - Tree-sitter
 - Web Workers
@@ -97,8 +97,8 @@ Tech
 - React Spring
 - TypeScript
 - QuickJS WASM later for JavaScript execution
-Phase 4 — 3D Debugging
-Features
+  Phase 4 — 3D Debugging
+  Features
 - breakpoints
 - conditional breakpoints
 - Step Into
@@ -125,7 +125,7 @@ Features
 - null references
 - stack overflow visualization
 - C/C++ memory errors later
-Tech
+  Tech
 - Custom Debug Engine
 - Custom Execution Trace Engine
 - Web Workers
@@ -137,8 +137,8 @@ Tech
 - WebAssembly
 - Language Adapters
 - debugger protocol integrations later
-Phase 5 — Full Polish + Multi-Language + Self Learning
-Features
+  Phase 5 — Full Polish + Multi-Language + Self Learning
+  Features
 - Python
 - Java
 - JavaScript
@@ -167,7 +167,7 @@ Features
 - custom debugger adapter
 - custom syntax highlighting
 - custom 3D mapping
-Self Learning
+  Self Learning
 - Learning Mode toggle
 - explain error
 - explain current execution
@@ -181,7 +181,7 @@ Self Learning
 - practice based on mistakes
 - learning progress
 - beginner explanations
-Tech
+  Tech
 - React
 - TypeScript
 - Vite
@@ -206,11 +206,11 @@ Tech
 - Playwright
 - ESLint
 - GitHub Actions
-Full Tech Stack
-Frontend
-React
-TypeScript
-Vite
+  Full Tech Stack
+  Frontend
+  React
+  TypeScript
+  Vite
 
 Editor
 Monaco Editor
