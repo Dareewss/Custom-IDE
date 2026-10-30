@@ -68,7 +68,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Traceback links open the correct project file and location.
 - Tests cover syntax errors, chained traces and non-project paths.
 
-## [ ] T11 — Autocomplete
+## [x] T11 — Autocomplete
 
 - Language-service worker supplies working Python completions.
 - Completions are lazy-loaded and include contextual project symbols.

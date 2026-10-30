@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
+import './completion';
 import { useWorkspace } from '../explorer/store';
 import { languageForPath } from '../../core/language/adapter';
 import { useDiagnostics } from './diagnostics';

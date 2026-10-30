@@ -1,0 +1,16 @@
+[
+  {
+    "name": "jedi",
+    "version": "0.20.1",
+    "file": "jedi-0.20.1-py2.py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/be/c7/71eb0d51cdcbb63b857c931aa4e9218b078b5d9f8ecd383b234f28fe7b0f/jedi-0.20.1-py2.py3-none-any.whl",
+    "sha256": "0fb16d86c4a4c73c37ba518c77419975e30fcc620658a8d14fbb5720cdd34142"
+  },
+  {
+    "name": "parso",
+    "version": "0.8.6",
+    "file": "parso-0.8.6-py2.py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/b6/61/fae042894f4296ec49e3f193aff5d7c18440da9e48102c3315e1bc4519a7/parso-0.8.6-py2.py3-none-any.whl",
+    "sha256": "2c549f800b70a5c4952197248825584cb00f033b29c692671d3bf08bf380baff"
+  }
+]
