@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { appWorkerPlugin } from './scripts/app-worker-plugin.ts';
 
 const headers = {
   'Cross-Origin-Opener-Policy': 'same-origin',
@@ -8,7 +9,7 @@ const headers = {
 };
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), appWorkerPlugin()],
   server: { headers },
   preview: { headers },
   worker: { format: 'es' },

@@ -1,5 +1,7 @@
 # Decisions
 
+- 2026-10-30: T22 implements the user's confirmed installable web app preference with a standalone manifest, an actionable installation flow, versioned application caching and explicit save-before-update behavior; no native .exe wrapper is needed.
+
 - 2026-10-30: T21 follows the user's dark glass workspace references: charcoal surfaces, restrained purple/cyan ambient light, lime actions and vivid syntax; the design search's landing-page pattern is inapplicable to a full-screen IDE.
 - 2026-10-30: Use the right-hand reference panel for real Python output and inspection, with working Code/Split/Focus layouts; do not simulate a phone preview, AI chat or collaboration features.
 

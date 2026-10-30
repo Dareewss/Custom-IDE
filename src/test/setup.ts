@@ -13,6 +13,16 @@ vi.stubGlobal(
 );
 
 afterEach(cleanup);
+vi.stubGlobal('matchMedia', (media: string) => ({
+  media,
+  matches: false,
+  onchange: null,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  addListener: vi.fn(),
+  removeListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+}));
 
 if (typeof HTMLDialogElement !== 'undefined')
   Object.defineProperties(HTMLDialogElement.prototype, {

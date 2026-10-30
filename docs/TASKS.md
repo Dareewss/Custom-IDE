@@ -135,8 +135,15 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Dark/light themes, keyboard focus, reduced motion, responsive layout and all existing Python workflows continue to work.
 - Run quality gates, production browser checks and visually review updated screenshots before committing and pushing.
 
-## [ ] T22 — Standalone application experience
+## [x] T22 — Standalone application experience
 
 - Add installable application metadata, local icons and a standalone window experience, honoring the user's packaging preference.
 - Provide a real installation action or actionable browser-specific instructions, with installed/offline/update states handled accurately.
 - Preserve projects, worker execution and cross-origin isolation; verify app behavior in the browser and document installation and hosting requirements.
+
+## [ ] T23 — Flat dark surfaces and background transparency
+
+- Remove decorative gradients and use neutral dark surfaces that match the user's transparency clarification.
+- Add a labeled, persisted 0–100% background transparency slider: 0 is opaque, 100 is transparent; text, icons and controls retain full opacity.
+- Clearly explain the browser/PWA limitation: desktop-through-window transparency requires native window support.
+- Verify endpoints, reload persistence, keyboard slider adjustment and Python workflows; refresh screenshots and run all quality gates before commit/push.

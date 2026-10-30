@@ -25,6 +25,57 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Manage projects', exact: true })).toBeVisible();
 });
 
+async function offlineReady(page: Page) {
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller)
+      await new Promise<void>((resolve) =>
+        navigator.serviceWorker.addEventListener('controllerchange', () => resolve(), {
+          once: true,
+        }),
+      );
+  });
+}
+test('provides a valid standalone manifest, icons and installation guide', async ({ page }) => {
+  await offlineReady(page);
+  const manifest = await (await page.request.get('/manifest.webmanifest')).json();
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.icons.map((icon: { sizes: string }) => icon.sizes)).toEqual([
+    '192x192',
+    '512x512',
+  ]);
+  const cdp = await page.context().newCDPSession(page);
+  const parsed = await cdp.send('Page.getAppManifest');
+  expect(parsed.errors.filter((error) => error.critical)).toEqual([]);
+  await page.getByRole('button', { name: 'Install app', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Install Code Atlas', exact: true })).toContainText(
+    'Open in Chrome or Edge',
+  );
+  await expect(page.getByRole('dialog', { name: 'Install Code Atlas', exact: true })).toContainText(
+    'Workspace available offline',
+  );
+  await page.getByRole('button', { name: 'Back to workspace', exact: false }).click();
+});
+test('restores projects and executes cached Python with the network offline', async ({
+  page,
+  context,
+}) => {
+  await offlineReady(page);
+  await importProject(page, { 'main.py': 'print("Offline Python ready")\n' }, 'Offline workspace');
+  await page.getByRole('button', { name: 'Run file', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('exit 0');
+  await page.keyboard.press('Control+s');
+  await expect(page.locator('.statusbar')).toContainText('Saved');
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.locator('.app-connectivity')).toContainText('Offline');
+  await expect(page.locator('.workspace-title')).toContainText('Offline workspace');
+  expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
+  await page.getByRole('button', { name: 'Run file', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('exit 0', { timeout: 20000 });
+  await expect(page.getByRole('log')).toContainText('Offline Python ready');
+});
+
 test('switches Code, Split and Focus layouts and opens rail tools', async ({ page }) => {
   await importProject(page, { 'main.py': 'print("Workspace ready")\n' });
   const modes = page.getByRole('group', { name: 'Workspace layout', exact: true });
@@ -123,28 +174,31 @@ test('stops infinite loops and restarts with fresh filesystem state', async ({ p
   await expect(page.getByRole('status')).toContainText('Stopped');
 });
 
-test('reports missing isolation headers for stdin and debugging while plain Python still runs', async ({
-  page,
-}) => {
-  await page.route('http://127.0.0.1:4173/', async (route) => {
-    const response = await route.fetch();
-    const headers = response.headers();
-    delete headers['cross-origin-opener-policy'];
-    delete headers['cross-origin-embedder-policy'];
-    await route.fulfill({ response, headers });
+test.describe('Without cross-origin isolation', () => {
+  test.use({ serviceWorkers: 'block' });
+  test('reports missing isolation headers for stdin and debugging while plain Python still runs', async ({
+    page,
+  }) => {
+    await page.route('http://127.0.0.1:4173/', async (route) => {
+      const response = await route.fetch();
+      const headers = response.headers();
+      delete headers['cross-origin-opener-policy'];
+      delete headers['cross-origin-embedder-policy'];
+      await route.fulfill({ response, headers });
+    });
+    await page.reload();
+    expect(await page.evaluate(() => crossOriginIsolated)).toBe(false);
+    await importProject(page, { 'main.py': 'print(42)\n' }, 'No isolation');
+    await page.getByRole('button', { name: 'Run file', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('exit 0');
+    await importProject(page, { 'main.py': 'input("Name? ")\n' }, 'Input without isolation');
+    await page.getByRole('button', { name: 'Run file', exact: true }).click();
+    await expect(page.getByRole('log')).toContainText('COOP/COEP');
+    await expect(page.getByRole('status')).toContainText('exit 1');
+    await breakpoint(page, 1);
+    await page.getByRole('button', { name: 'Run file', exact: true }).click();
+    await expect(page.getByRole('log')).toContainText('Debugging requires cross-origin isolation');
   });
-  await page.reload();
-  expect(await page.evaluate(() => crossOriginIsolated)).toBe(false);
-  await importProject(page, { 'main.py': 'print(42)\n' }, 'No isolation');
-  await page.getByRole('button', { name: 'Run file', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('exit 0');
-  await importProject(page, { 'main.py': 'input("Name? ")\n' }, 'Input without isolation');
-  await page.getByRole('button', { name: 'Run file', exact: true }).click();
-  await expect(page.getByRole('log')).toContainText('COOP/COEP');
-  await expect(page.getByRole('status')).toContainText('exit 1');
-  await breakpoint(page, 1);
-  await page.getByRole('button', { name: 'Run file', exact: true }).click();
-  await expect(page.getByRole('log')).toContainText('Debugging requires cross-origin isolation');
 });
 
 test('formats Python, completes contextually, validates syntax and persists settings', async ({

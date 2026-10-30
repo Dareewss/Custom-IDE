@@ -21,6 +21,8 @@ import { Variables } from './features/debugger/Variables';
 import { CallStack } from './features/debugger/CallStack';
 import { languageForPath } from './core/language/adapter';
 import { useCursor } from './features/editor/navigation';
+import { startAppLifecycle } from './features/app/install';
+import { AppControls, InstallDialog } from './features/app/AppControls';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -33,6 +35,7 @@ export function App() {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
   useEffect(startPersistence, []);
+  useEffect(startAppLifecycle, []);
   if (!hydrated)
     return (
       <main className="restore-screen" aria-label="Code Atlas workspace">
@@ -44,8 +47,10 @@ export function App() {
   return (
     <>
       <SettingsDialog />
+      <InstallDialog />
       <ProjectManager />
       <Shell
+        appControls={<AppControls />}
         languageName={active ? (languageForPath(active)?.id ?? 'Plain text') : 'No file'}
         navigation={
           <>

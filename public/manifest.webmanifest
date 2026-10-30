@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Code Atlas",
+  "short_name": "Code Atlas",
+  "description": "Your Python workspace. Edit, run and debug in a focused app window.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0f11",
+  "theme_color": "#101719",
+  "lang": "en",
+  "categories": ["developer", "productivity", "education"],
+  "icons": [
+    {
+      "src": "/icons/atlas-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/atlas-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

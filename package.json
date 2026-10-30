@@ -15,7 +15,8 @@
     "predev": "node scripts/prepare-runtime.mjs",
     "prebuild": "node scripts/prepare-runtime.mjs",
     "test:e2e": "playwright test",
-    "screenshots": "node scripts/capture-screenshots.mjs"
+    "screenshots": "node scripts/capture-screenshots.mjs",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@astral-sh/ruff-wasm-web": "^0.17.3",

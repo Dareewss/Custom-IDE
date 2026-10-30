@@ -28,6 +28,24 @@ and `Cross-Origin-Embedder-Policy: require-corp`. These enable SharedArrayBuffer
 stdin and debugger pauses. Vite dev and preview set both. See
 [deployment configuration](docs/DEPLOYMENT.md).
 
+## Install as an app
+
+Open Code Atlas in Chrome or Edge, click **Install app** in the header, then use
+**Install now** when the browser offers it. If this is an embedded preview, the
+guide explains how to open the same address in your browser and install from its
+menu. Launching the installed app opens a dedicated window without an address bar.
+Safari on iPhone/iPad uses Share → Add to Home Screen.
+
+The production app caches its editor and application shell. Python execution,
+autocomplete and formatting become available offline after each tool is used
+online once. Projects remain in IndexedDB across browser and installed windows on
+the same origin. **Update ready** saves the current workspace before reloading.
+Run `npm run build` and `npm run preview` to try the installable production app;
+development mode does not register a service worker.
+
+See [MDN's standalone app guide](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Create_a_standalone_app)
+for browser installation behavior.
+
 ## Using the workspace
 
 The reference-inspired app shell uses floating dark panels, a project switcher and a

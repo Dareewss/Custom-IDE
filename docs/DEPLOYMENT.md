@@ -1,5 +1,11 @@
 # Deployment
 
+The build also emits `manifest.webmanifest`, local PNG/SVG icons and a versioned
+`sw.js`. Serve HTML, `sw.js` and the manifest with revalidation/no-cache, and preserve
+COOP/COEP headers on cached responses. Fingerprinted assets may use immutable caching.
+The service worker caches the app shell eagerly, then caches Python/WASM tools as
+they are used; it never stores project source files in the network cache.
+
 Run `npm ci` and `npm run build`; serve `dist/` at the origin root. The build includes
 same-origin Python runtime files, pinned Jedi/Parso wheels and worker/WASM assets.
 Do not commit `dist/` or `public/runtime/`; they are generated from locked dependencies.
