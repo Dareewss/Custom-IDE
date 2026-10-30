@@ -14,7 +14,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Sidebar and bottom panel resize with keyboard-accessible handles.
 - Dark default, clear focus and reduced-motion behavior work.
 
-## [ ] T2 — Virtual file system and explorer
+## [x] T2 — Virtual file system and explorer
 
 - Pure VFS supports file/folder create, rename, delete and move with validation.
 - Explorer supports context actions and keyboard navigation.

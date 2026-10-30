@@ -427,3 +427,147 @@ svg {
     animation-duration: 0.01ms !important;
   }
 }
+.explorer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  height: 34px;
+}
+.explorer-heading > div {
+  display: flex;
+}
+.project-label {
+  min-width: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 550;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.file-tree {
+  overflow: auto;
+  flex: 1;
+  padding-top: 5px;
+}
+.tree-row {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  width: 100%;
+  height: 29px;
+  text-align: left;
+  padding-right: 13px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tree-row > span:not(.tree-indent):not(.dirty-dot) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-row.active {
+  color: var(--text);
+  background: #91d4ae0d;
+}
+.tree-row[aria-selected='true'] {
+  box-shadow: inset 2px 0 var(--accent);
+}
+.tree-indent {
+  width: 12px;
+  flex-shrink: 0;
+}
+.python-icon {
+  color: #81b6d6;
+}
+.dirty-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.dialog {
+  width: min(430px, 92vw);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 100px #0009;
+}
+.dialog::backdrop {
+  background: #0008;
+  backdrop-filter: blur(3px);
+}
+.dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.dialog-heading h2 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 500;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 12px;
+  margin: 16px 0;
+}
+.dialog-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.primary-button {
+  background: var(--accent);
+  color: #10291c;
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 12px;
+}
+.primary-button:hover:not(:disabled) {
+  background: #a9e6c3;
+}
+.secondary-button {
+  border: 1px solid var(--border);
+  padding: 7px 13px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.error-text {
+  color: #ff9696;
+  font-size: 12px;
+}
+.context-menu {
+  position: fixed;
+  z-index: 41;
+  width: 182px;
+  padding: 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 8px 30px #0007;
+}
+.context-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 11px;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.menu-dismiss {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
