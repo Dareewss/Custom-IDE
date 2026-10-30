@@ -6,6 +6,7 @@ import { FormDialog } from '../../shared/FormDialog';
 import { getRepository, type ProjectSnapshot } from '../../core/fs/database';
 import { useWorkspace } from '../explorer/store';
 import { createProject, openProject, renameProject, deleteProject } from './actions';
+import { ZipActions } from './ZipActions';
 
 export function ProjectManager() {
   const open = useUI((s) => s.modal === 'projects');
@@ -53,6 +54,7 @@ export function ProjectManager() {
         </div>
         <p className="muted settings-intro">Pick up where you left off, or start something new.</p>
         <div className="project-manager-actions">
+          <ZipActions />
           <button className="primary-button" onClick={() => setAction({ kind: 'create' })}>
             <Plus size={14} />
             New project

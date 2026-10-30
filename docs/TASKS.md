@@ -98,7 +98,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Recent projects show last-opened time and restore their files.
 - Switching projects flushes pending edits and isolates sessions.
 
-## [ ] T16 — ZIP import and export
+## [x] T16 — ZIP import and export
 
 - Export creates a real ZIP preserving project structure.
 - Import validates paths and rejects traversal and oversized archives.

@@ -7,6 +7,7 @@ import { formatActive } from '../editor/formatter';
 import { persistCurrent } from '../projects/persistence';
 import { useUI } from '../../shared/ui-store';
 import { FormDialog } from '../../shared/FormDialog';
+import { exportProject } from '../projects/ZipActions';
 
 export function CommandPalette() {
   const [mode, setMode] = useState<'commands' | 'files' | null>(null);
@@ -54,6 +55,7 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    { name: 'Export project as ZIP', shortcut: '', run: exportProject },
     { name: 'Manage projects', shortcut: '', run: () => useUI.setState({ modal: 'projects' }) },
     { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },
     { name: 'Run active file', shortcut: 'F5', run: runActive },
