@@ -7,6 +7,13 @@ import './app.css';
 
 export function AppControls() {
   const app = useAppState();
+  if (window.codeAtlasDesktop)
+    return (
+      <span className="installed-badge">
+        <Check size={13} />
+        Desktop app
+      </span>
+    );
   return (
     <>
       <span className="app-connectivity" aria-label="Connection status">

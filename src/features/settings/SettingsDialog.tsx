@@ -107,8 +107,9 @@ export function SettingsDialog() {
           Only workspace backgrounds fade. Text, icons and controls stay fully visible.
         </p>
         <p className="transparency-platform-note">
-          Browser app windows cannot show your desktop through the window. This setting changes the
-          backgrounds inside the app.
+          {window.codeAtlasDesktop
+            ? 'Desktop window: 100% reveals your desktop or the windows behind this app. 0% hides them completely.'
+            : 'To see your desktop through the background, open the Code Atlas desktop app. Browser windows only change their in-page backgrounds.'}
         </p>
       </div>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (

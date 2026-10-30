@@ -54,7 +54,7 @@ export function startAppLifecycle() {
   const controllerChange = () => {
     if (applyingUpdate) window.location.reload();
   };
-  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  if ('serviceWorker' in navigator && import.meta.env.PROD && !window.codeAtlasDesktop) {
     navigator.serviceWorker.addEventListener('controllerchange', controllerChange);
     registrationTask ??= navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
     void registrationTask

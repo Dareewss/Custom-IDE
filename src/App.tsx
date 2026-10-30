@@ -23,8 +23,10 @@ import { languageForPath } from './core/language/adapter';
 import { useCursor } from './features/editor/navigation';
 import { startAppLifecycle } from './features/app/install';
 import { AppControls, InstallDialog } from './features/app/AppControls';
+import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
 
 export function App() {
+  useDesktopLifecycle();
   const name = useWorkspace((s) => s.projectName);
   const saved = usePersistence((s) => s.state);
   const hydrated = usePersistence((s) => s.hydrated);

@@ -1,0 +1,84 @@
+:root[data-desktop='true'] .titlebar {
+  app-region: drag;
+  padding-right: 8px;
+}
+:root[data-desktop='true'] .titlebar button,
+:root[data-desktop='true'] .titlebar input,
+:root[data-desktop='true'] .titlebar [role='group'] {
+  app-region: no-drag;
+}
+.desktop-window-controls {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+  app-region: no-drag;
+}
+.desktop-window-controls .icon-button {
+  width: 32px;
+  height: 32px;
+}
+.desktop-window-controls .icon-button:last-child:hover {
+  background: #c42b1c;
+  color: white;
+}
+.desktop-resize {
+  position: fixed;
+  z-index: 100;
+  touch-action: none;
+  app-region: no-drag;
+}
+.edge-n,
+.edge-s {
+  left: 8px;
+  right: 8px;
+  height: 5px;
+  cursor: ns-resize;
+}
+.edge-n {
+  top: 0;
+}
+.edge-s {
+  bottom: 0;
+}
+.edge-e,
+.edge-w {
+  top: 8px;
+  bottom: 8px;
+  width: 5px;
+  cursor: ew-resize;
+}
+.edge-e {
+  right: 0;
+}
+.edge-w {
+  left: 0;
+}
+.edge-ne,
+.edge-nw,
+.edge-se,
+.edge-sw {
+  width: 8px;
+  height: 8px;
+}
+.edge-ne {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+.edge-nw {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+.edge-se {
+  bottom: 0;
+  right: 0;
+  cursor: nwse-resize;
+}
+.edge-sw {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}

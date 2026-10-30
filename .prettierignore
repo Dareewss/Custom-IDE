@@ -1,5 +1,7 @@
 node_modules
 dist
+desktop-out
+release
 coverage
 public/runtime
 package-lock.json

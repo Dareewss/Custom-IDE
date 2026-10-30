@@ -18,6 +18,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { useUI, type WorkspaceLayout } from './ui-store';
 import { IconButton } from './IconButton';
 import { OutputDock } from './OutputDock';
+import { DesktopResizeHandles, DesktopWindowControls } from '../features/desktop/DesktopChrome';
 
 interface ShellProps {
   languageName?: string;
@@ -111,8 +112,10 @@ export function Shell(props: ShellProps) {
           >
             <Maximize2 size={16} />
           </IconButton>
+          <DesktopWindowControls />
         </div>
       </header>
+      <DesktopResizeHandles />
       <div className="workbench">
         <nav className="activitybar" aria-label="Workspace views">
           <div>
