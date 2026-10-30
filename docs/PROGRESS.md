@@ -17,4 +17,5 @@
 | 2026-10-30 | T11                       | 0e1cab9                                | feat(completion): add lazy self-hosted Jedi language worker; lint, typecheck, tests and build passed.       |
 | 2026-10-30 | T12                       | cc00cd0                                | feat(formatter): format Python with Ruff WASM in a worker; lint, typecheck, tests and build passed.         |
 | 2026-10-30 | T13                       | 4bae27c                                | feat(commands): add searchable commands quick open and shortcuts; lint, typecheck, tests and build passed.  |
-| 2026-10-30 | T14                       | COMPLETING_COMMIT                      | feat(settings): persist validated editor preferences and themes; lint, typecheck, tests and build passed.   |
+| 2026-10-30 | T14                       | d13bfd7                                | feat(settings): persist validated editor preferences and themes; lint, typecheck, tests and build passed.   |
+| 2026-10-30 | T15                       | COMPLETING_COMMIT                      | feat(projects): manage persistent recent workspaces; lint, typecheck, tests and build passed.               |

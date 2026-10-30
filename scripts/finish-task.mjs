@@ -28,7 +28,7 @@ try {
   if (error.stderr) process.stderr.write(error.stderr);
   writeFileSync(taskPath, tasks);
   writeFileSync(progressPath, originalProgress);
-  throw error;
+  process.exit(1);
 }
 run('git', ['add', '-A']);
 run('git', ['commit', '-m', message]);

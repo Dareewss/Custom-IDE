@@ -12,7 +12,7 @@ export const usePersistence = create<{
 let queue: Promise<void> = Promise.resolve();
 let formatting: Promise<void> | null = null;
 export function snapshot(): ProjectSnapshot {
-  const { projectId, projectName, tree, tabs, active } = useWorkspace.getState();
+  const { projectId, projectName, tree, tabs, active, lastOpened } = useWorkspace.getState();
   return {
     projectId,
     projectName,
@@ -20,7 +20,7 @@ export function snapshot(): ProjectSnapshot {
     tabs,
     active,
     updatedAt: Date.now(),
-    lastOpened: Date.now(),
+    lastOpened,
   };
 }
 export async function persistCurrent(): Promise<void> {

@@ -92,7 +92,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Settings persist across reloads.
 - Validation and serialization have pure unit tests.
 
-## [ ] T15 — Project manager
+## [x] T15 — Project manager
 
 - Create, open, rename and delete projects persist in IndexedDB.
 - Recent projects show last-opened time and restore their files.

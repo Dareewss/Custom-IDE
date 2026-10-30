@@ -926,3 +926,62 @@ svg {
   width: 16px;
   height: 16px;
 }
+.projects-dialog {
+  width: min(620px, 94vw);
+}
+.projects-dialog h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.project-manager-actions {
+  display: flex;
+  gap: 9px;
+  margin: 20px 0;
+}
+.project-manager-actions button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.recent-heading {
+  margin: 10px 0;
+}
+.project-list {
+  max-height: 350px;
+  overflow: auto;
+}
+.project-card {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding: 10px 0;
+}
+.project-card > button:first-child {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex: 1;
+  padding: 6px;
+  text-align: left;
+  min-width: 0;
+}
+.project-card > button:first-child > span {
+  flex: 1;
+}
+.project-card strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.project-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 5px;
+}
+.project-card .current-project {
+  display: inline;
+  margin-left: 8px;
+  font-size: 8px;
+  color: var(--accent);
+}

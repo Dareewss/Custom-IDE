@@ -10,6 +10,7 @@ import {
 } from '../../core/fs/vfs';
 
 export interface WorkspaceState {
+  lastOpened: number;
   projectId: string;
   projectName: string;
   tree: FileTree;
@@ -25,6 +26,7 @@ export interface WorkspaceState {
   edit: (path: string, content: string) => void;
 }
 export const useWorkspace = create<WorkspaceState>((set) => ({
+  lastOpened: Date.now(),
   projectId: 'first-steps',
   projectName: 'First steps',
   tree: {

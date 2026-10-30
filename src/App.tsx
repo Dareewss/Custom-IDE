@@ -12,7 +12,8 @@ import { FormatButton } from './features/editor/FormatButton';
 import { CommandPalette } from './features/command-palette/CommandPalette';
 import { SettingsDialog } from './features/settings/SettingsDialog';
 import { useSettings } from './features/settings/store';
-import { Settings } from 'lucide-react';
+import { Settings, FolderOpen } from 'lucide-react';
+import { ProjectManager } from './features/projects/ProjectManager';
 import { IconButton } from './shared/IconButton';
 import { useUI } from './shared/ui-store';
 
@@ -27,14 +28,23 @@ export function App() {
   return (
     <>
       <SettingsDialog />
+      <ProjectManager />
       <Shell
         navigation={
-          <IconButton
-            label="Settings (Ctrl+,)"
-            onClick={() => useUI.setState({ modal: 'settings' })}
-          >
-            <Settings size={20} />
-          </IconButton>
+          <>
+            <IconButton
+              label="Manage projects"
+              onClick={() => useUI.setState({ modal: 'projects' })}
+            >
+              <FolderOpen size={20} />
+            </IconButton>
+            <IconButton
+              label="Settings (Ctrl+,)"
+              onClick={() => useUI.setState({ modal: 'settings' })}
+            >
+              <Settings size={20} />
+            </IconButton>
+          </>
         }
         palette={<CommandPalette />}
         explorer={<Explorer />}

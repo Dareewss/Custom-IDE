@@ -54,6 +54,7 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    { name: 'Manage projects', shortcut: '', run: () => useUI.setState({ modal: 'projects' }) },
     { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },
     { name: 'Run active file', shortcut: 'F5', run: runActive },
     { name: 'Stop execution', shortcut: 'Shift F5', run: stopRun },

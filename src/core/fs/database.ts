@@ -23,12 +23,14 @@ export function createRepository(name = 'code-atlas-v1') {
     },
   });
   return {
-    async save(project: ProjectSnapshot) {
+    async save(project: ProjectSnapshot, makeCurrent = true) {
       const db = await database;
       const tx = db.transaction(['projects', 'meta'], 'readwrite');
       await Promise.all([
         tx.objectStore('projects').put(project),
-        tx.objectStore('meta').put(project.projectId, 'active-project'),
+        makeCurrent
+          ? tx.objectStore('meta').put(project.projectId, 'active-project')
+          : Promise.resolve(),
         tx.done,
       ]);
     },
