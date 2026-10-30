@@ -19,10 +19,13 @@ const originalProgress = readFileSync(progressPath, 'utf8');
 let progress = originalProgress.replaceAll('COMPLETING_COMMIT', last);
 progress += `| 2026-10-30 | ${task} | COMPLETING_COMMIT | ${message}; lint, typecheck, tests and build passed. |\n`;
 writeFileSync(progressPath, progress);
-run('npm', ['run', 'format']);
+run('npm', ['run', 'format'], true);
 try {
-  run('npm', ['run', 'check']);
+  const checks = run('npm', ['run', 'check'], true);
+  process.stdout.write(checks.slice(-1200));
 } catch (error) {
+  if (error.stdout) process.stderr.write(error.stdout);
+  if (error.stderr) process.stderr.write(error.stderr);
   writeFileSync(taskPath, tasks);
   writeFileSync(progressPath, originalProgress);
   throw error;

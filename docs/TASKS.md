@@ -44,7 +44,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - VFS mounts at project root with working multi-file imports.
 - Runtime load and Python failures are reported without freezing the UI.
 
-## [ ] T7 — Terminal and stdin
+## [x] T7 — Terminal and stdin
 
 - Stdout and stderr stream with distinct styling.
 - input() blocks on shared memory and resumes with entered text.

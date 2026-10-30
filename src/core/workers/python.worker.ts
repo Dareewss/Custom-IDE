@@ -1,10 +1,11 @@
 import type { RunRequest, RunnerMessage } from './protocol';
 import { normalizePath, type FileTree } from '../fs/vfs';
+import { readMailbox } from './mailbox';
 
 function send(message: RunnerMessage) {
   self.postMessage(message);
 }
-async function execute(tree: FileTree, entry: string) {
+async function execute(tree: FileTree, entry: string, mailbox?: SharedArrayBuffer) {
   const start = performance.now();
   send({ type: 'status', status: 'loading' });
   const runtimeURL = new URL('/runtime/pyodide/', self.location.origin).href;
@@ -12,11 +13,30 @@ async function execute(tree: FileTree, entry: string) {
     loadPyodide: typeof import('pyodide').loadPyodide;
   };
   const python = await module.loadPyodide({ indexURL: runtimeURL });
-  python.setStdout({
-    batched: (text) => send({ type: 'output', stream: 'stdout', text: `${text}\n` }),
-  });
-  python.setStderr({
-    batched: (text) => send({ type: 'output', stream: 'stderr', text: `${text}\n` }),
+  for (const stream of ['stdout', 'stderr'] as const) {
+    const decoder = new TextDecoder();
+    const options = {
+      write: (bytes: Uint8Array) => {
+        const text = decoder.decode(bytes, { stream: true });
+        if (text) send({ type: 'output', stream, text });
+        return bytes.length;
+      },
+    };
+    if (stream === 'stdout') python.setStdout(options);
+    else python.setStderr(options);
+  }
+  python.setStdin({
+    stdin: () => {
+      if (!mailbox)
+        throw new Error(
+          'Interactive input requires SharedArrayBuffer. Serve with the COOP/COEP headers documented in README.',
+        );
+      const control = new Int32Array(mailbox, 0, 4);
+      Atomics.store(control, 0, 0);
+      send({ type: 'input' });
+      Atomics.wait(control, 0, 0);
+      return `${readMailbox(mailbox)}\n`;
+    },
   });
   python.FS.mkdirTree('/project');
   for (const [path, node] of Object.entries(tree)) {
@@ -55,7 +75,7 @@ _atlas_exit_code
 }
 self.onmessage = (event: MessageEvent<RunRequest>) => {
   if (event.data.type === 'run')
-    void execute(event.data.tree, event.data.entry).catch((error: unknown) =>
+    void execute(event.data.tree, event.data.entry, event.data.mailbox).catch((error: unknown) =>
       send({ type: 'error', message: String(error) }),
     );
 };

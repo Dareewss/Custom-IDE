@@ -3,6 +3,7 @@ import type { RunnerMessage } from '../../core/workers/protocol';
 import { useWorkspace } from '../explorer/store';
 import { useUI } from '../../shared/ui-store';
 import { languageForPath, python } from '../../core/language/adapter';
+import { createMailbox, writeMailbox } from '../../core/workers/mailbox';
 
 export interface OutputEntry {
   id: number;
@@ -10,18 +11,31 @@ export interface OutputEntry {
   text: string;
 }
 interface RunState {
+  awaitingInput: boolean;
   status: 'idle' | 'loading' | 'running' | 'finished' | 'error';
   output: OutputEntry[];
   exitCode: number | null;
   elapsed: number;
 }
 export const useRunner = create<RunState>(() => ({
+  awaitingInput: false,
   status: 'idle',
   output: [],
   exitCode: null,
   elapsed: 0,
 }));
 let worker: Worker | undefined;
+let mailbox: SharedArrayBuffer | undefined;
+export function submitInput(text: string) {
+  if (!mailbox || !useRunner.getState().awaitingInput) return;
+  try {
+    writeMailbox(mailbox, text);
+    appendOutput('input', `${text}\n`);
+    useRunner.setState({ awaitingInput: false });
+  } catch (error) {
+    useUI.getState().reportError(error);
+  }
+}
 let outputId = 0;
 export function appendOutput(stream: OutputEntry['stream'], text: string) {
   useRunner.setState((s) => ({
@@ -31,6 +45,11 @@ export function appendOutput(stream: OutputEntry['stream'], text: string) {
 python.runner = async (entry, tree) => {
   worker?.terminate();
   useRunner.setState({ status: 'loading', exitCode: null, elapsed: 0, output: [] });
+  mailbox =
+    typeof SharedArrayBuffer !== 'undefined' && globalThis.crossOriginIsolated
+      ? createMailbox()
+      : undefined;
+  useRunner.setState({ awaitingInput: false });
   useUI.getState().setPanel('Console');
   worker = new Worker(new URL('../../core/workers/python.worker.ts', import.meta.url), {
     type: 'module',
@@ -39,6 +58,7 @@ python.runner = async (entry, tree) => {
   return new Promise<void>((resolve) => {
     worker!.onmessage = (event: MessageEvent<RunnerMessage>) => {
       const message = event.data;
+      if (message.type === 'input') useRunner.setState({ awaitingInput: true });
       if (message.type === 'status') useRunner.setState({ status: message.status });
       if (message.type === 'output') appendOutput(message.stream, message.text);
       if (message.type === 'done') {
@@ -60,7 +80,7 @@ python.runner = async (entry, tree) => {
       useRunner.setState({ status: 'error', exitCode: 1 });
       resolve();
     };
-    worker!.postMessage({ type: 'run', tree, entry });
+    worker!.postMessage({ type: 'run', tree, entry, mailbox });
   });
 };
 export async function runActive() {
