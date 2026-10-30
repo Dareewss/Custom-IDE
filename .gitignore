@@ -19,3 +19,4 @@ __pycache__/
 *.[tT][eE][xX][tT]
 *.[rR][sS][tT]
 *.[lL][oO][gG]
+!/README.md
