@@ -699,3 +699,25 @@ svg {
 .stdin-form button {
   padding: 4px;
 }
+.problems-list {
+  padding: 9px 16px;
+}
+.problems-list > button {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+  padding: 7px;
+  font-size: 12px;
+}
+.problems-list svg {
+  color: #f38d8d;
+  margin-top: 2px;
+}
+.problems-list small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 3px;
+}

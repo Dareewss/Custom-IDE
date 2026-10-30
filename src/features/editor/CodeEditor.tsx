@@ -3,6 +3,9 @@ import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
 import { useWorkspace } from '../explorer/store';
 import { languageForPath } from '../../core/language/adapter';
+import { useDiagnostics } from './diagnostics';
+import { useLocation } from './navigation';
+import { useUI } from '../../shared/ui-store';
 
 export default function CodeEditor() {
   const active = useWorkspace((s) => s.active);
@@ -10,10 +13,66 @@ export default function CodeEditor() {
   const tree = useWorkspace((s) => s.tree);
   const ref = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const node = active ? tree[active] : undefined;
+  const diagnostics = useDiagnostics();
+  const target = useLocation((s) => s.target);
+  const reveal = (editor: monaco.editor.IStandaloneCodeEditor) => {
+    const location = useLocation.getState().target;
+    if (location?.path === useWorkspace.getState().active) {
+      editor.setPosition({ lineNumber: location.line, column: location.column });
+      editor.revealLineInCenter(location.line);
+      editor.focus();
+    }
+  };
   const onMount: OnMount = (editor) => {
     ref.current = editor;
     editor.focus();
+    reveal(editor);
   };
+  useEffect(() => {
+    if (ref.current && target?.path === active) reveal(ref.current);
+  }, [target, active]);
+  useEffect(() => {
+    if (!active || node?.kind !== 'file') return;
+    let cancelled = false;
+    const content = node.content;
+    const timer = setTimeout(() => {
+      const service = languageForPath(active)?.diagnostics;
+      if (service)
+        void service(active, content)
+          .then((items) => {
+            if (!cancelled)
+              useDiagnostics.setState((s) => ({ syntax: { ...s.syntax, [active]: items } }));
+          })
+          .catch((error: unknown) => {
+            if (!cancelled) useUI.getState().reportError(error);
+          });
+    }, 150);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [active, node]);
+  useEffect(() => {
+    if (!active) return;
+    const model = monaco.editor.getModel(monaco.Uri.parse(`file://${projectId}/${active}`));
+    if (model)
+      monaco.editor.setModelMarkers(
+        model,
+        'atlas',
+        [
+          ...(diagnostics.syntax[active] ?? []),
+          ...diagnostics.runtime.filter((d) => d.path === active),
+        ].map((d) => ({
+          startLineNumber: d.line,
+          startColumn: d.column,
+          endLineNumber: d.endLine,
+          endColumn: d.endColumn,
+          message: d.message,
+          severity: monaco.MarkerSeverity.Error,
+          source: d.source,
+        })),
+      );
+  }, [active, projectId, diagnostics]);
   useEffect(
     () => () => {
       for (const model of monaco.editor.getModels()) {

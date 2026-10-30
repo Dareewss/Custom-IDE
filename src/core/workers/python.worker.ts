@@ -51,25 +51,37 @@ async function execute(tree: FileTree, entry: string, mailbox?: SharedArrayBuffe
   python.globals.set('_atlas_entry', `/project/${normalizePath(entry)}`);
   send({ type: 'status', status: 'running' });
   const start = performance.now();
-  const exitCode: unknown = await python.runPythonAsync(`
-import sys, os, runpy, traceback, importlib
+  const result: unknown = await python.runPythonAsync(`
+import sys, os, runpy, traceback, importlib, json
 sys.path.insert(0, '/project')
 sys.argv = [_atlas_entry]
 importlib.invalidate_caches()
 _atlas_exit_code = 0
+_atlas_diagnostic = None
 try:
     runpy.run_path(_atlas_entry, run_name='__main__')
 except SystemExit as exc:
     _atlas_exit_code = exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
     if exc.code is not None and not isinstance(exc.code, int): print(exc.code, file=sys.stderr)
-except BaseException:
+except BaseException as exc:
     traceback.print_exc()
     _atlas_exit_code = 1
-_atlas_exit_code
+    _frames = [f for f in traceback.extract_tb(exc.__traceback__) if f.filename.startswith('/project/')]
+    if isinstance(exc, SyntaxError) and exc.filename and exc.filename.startswith('/project/'):
+        _atlas_diagnostic = dict(path=exc.filename[9:], line=exc.lineno or 1, column=exc.offset or 1, endLine=exc.end_lineno or exc.lineno or 1, endColumn=exc.end_offset or (exc.offset or 1)+1)
+    elif _frames:
+        f = _frames[-1]
+        _atlas_diagnostic = dict(path=f.filename[9:], line=f.lineno, column=(f.colno or 0)+1, endLine=f.end_lineno or f.lineno, endColumn=(f.end_colno or (f.colno or 0)+1)+1)
+    if _atlas_diagnostic:
+        _atlas_diagnostic.update(message=f'{type(exc).__name__}: {exc}', source='Python runtime')
+json.dumps(dict(exitCode=_atlas_exit_code, diagnostic=_atlas_diagnostic))
 `);
+  const parsed: { exitCode: number; diagnostic: import('../language/adapter').Diagnostic | null } =
+    JSON.parse(String(result));
+  if (parsed.diagnostic) send({ type: 'diagnostic', diagnostic: parsed.diagnostic });
   send({
     type: 'done',
-    exitCode: typeof exitCode === 'number' ? exitCode : 1,
+    exitCode: parsed.exitCode,
     elapsed: performance.now() - start,
   });
 }

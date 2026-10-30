@@ -1,4 +1,5 @@
 import type { FileTree } from '../fs/vfs';
+import type { Diagnostic } from '../language/adapter';
 export type RunRequest = {
   type: 'run';
   tree: FileTree;
@@ -6,6 +7,7 @@ export type RunRequest = {
   mailbox?: SharedArrayBuffer;
 };
 export type RunnerMessage =
+  | { type: 'diagnostic'; diagnostic: Diagnostic }
   | { type: 'input' }
   | { type: 'status'; status: 'loading' | 'running' }
   | { type: 'output'; stream: 'stdout' | 'stderr'; text: string }

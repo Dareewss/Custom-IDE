@@ -4,6 +4,7 @@ import { useWorkspace } from '../explorer/store';
 import { useUI } from '../../shared/ui-store';
 import { languageForPath, python } from '../../core/language/adapter';
 import { createMailbox, writeMailbox } from '../../core/workers/mailbox';
+import { useDiagnostics } from '../editor/diagnostics';
 
 export interface OutputEntry {
   id: number;
@@ -68,6 +69,7 @@ export function appendOutput(stream: OutputEntry['stream'], text: string) {
   }));
 }
 python.runner = async (entry, tree) => {
+  useDiagnostics.setState({ runtime: [] });
   worker?.terminate();
   settle?.();
   useRunner.setState({
@@ -89,6 +91,7 @@ python.runner = async (entry, tree) => {
     settle = resolve;
     worker!.onmessage = (event: MessageEvent<RunnerMessage>) => {
       const message = event.data;
+      if (message.type === 'diagnostic') useDiagnostics.setState({ runtime: [message.diagnostic] });
       if (message.type === 'input') useRunner.setState({ awaitingInput: true });
       if (message.type === 'status')
         useRunner.setState({ status: message.status, startedAt: Date.now() });

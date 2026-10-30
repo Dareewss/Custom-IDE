@@ -56,7 +56,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Status reports loading/running/finished/error, exit code and elapsed time.
 - An infinite loop can be stopped and a new program runs afterward.
 
-## [ ] T9 — Error highlighting
+## [x] T9 — Error highlighting
 
 - Tree-sitter worker returns live syntax diagnostics.
 - Syntax and runtime failures create Monaco markers.

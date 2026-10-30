@@ -7,6 +7,7 @@ import { startPersistence, usePersistence } from './features/projects/persistenc
 import { RunButton } from './features/runner/RunButton';
 import { Console } from './features/terminal/Console';
 import { RunStatus } from './features/runner/RunStatus';
+import { Problems } from './features/editor/Problems';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -25,6 +26,7 @@ export function App() {
       }
       actions={<RunButton />}
       console={<Console />}
+      problems={<Problems />}
     />
   );
 }

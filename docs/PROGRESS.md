@@ -11,4 +11,5 @@
 | 2026-10-30 | T5                        | 42d21db                                | feat(storage): autosave and restore IndexedDB workspace sessions; lint, typecheck, tests and build passed.  |
 | 2026-10-30 | T6                        | e081eec                                | feat(runtime): run self-hosted Python in an isolated worker; lint, typecheck, tests and build passed.       |
 | 2026-10-30 | T7                        | 7de9e9d                                | feat(terminal): stream output and support shared-memory stdin; lint, typecheck, tests and build passed.     |
-| 2026-10-30 | T8                        | COMPLETING_COMMIT                      | feat(runner): add safe stop restart and execution status; lint, typecheck, tests and build passed.          |
+| 2026-10-30 | T8                        | 49fda35                                | feat(runner): add safe stop restart and execution status; lint, typecheck, tests and build passed.          |
+| 2026-10-30 | T9                        | COMPLETING_COMMIT                      | feat(diagnostics): add worker syntax analysis and runtime markers; lint, typecheck, tests and build passed. |
