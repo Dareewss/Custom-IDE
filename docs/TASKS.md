@@ -80,7 +80,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Format Document updates the current file and reports errors.
 - Format-on-save can be enabled without save loops.
 
-## [ ] T13 — Command palette
+## [x] T13 — Command palette
 
 - Ctrl/Cmd+Shift+P opens searchable commands.
 - Ctrl/Cmd+P searches and opens project files.

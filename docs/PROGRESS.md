@@ -15,4 +15,5 @@
 | 2026-10-30 | T9                        | 5ec426d                                | feat(diagnostics): add worker syntax analysis and runtime markers; lint, typecheck, tests and build passed. |
 | 2026-10-30 | T10                       | e0117f6                                | feat(console): link Python traceback frames to source locations; lint, typecheck, tests and build passed.   |
 | 2026-10-30 | T11                       | 0e1cab9                                | feat(completion): add lazy self-hosted Jedi language worker; lint, typecheck, tests and build passed.       |
-| 2026-10-30 | T12                       | COMPLETING_COMMIT                      | feat(formatter): format Python with Ruff WASM in a worker; lint, typecheck, tests and build passed.         |
+| 2026-10-30 | T12                       | cc00cd0                                | feat(formatter): format Python with Ruff WASM in a worker; lint, typecheck, tests and build passed.         |
+| 2026-10-30 | T13                       | COMPLETING_COMMIT                      | feat(commands): add searchable commands quick open and shortcuts; lint, typecheck, tests and build passed.  |

@@ -753,3 +753,125 @@ svg {
     display: none;
   }
 }
+.command-trigger {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  color: var(--muted);
+  min-width: 270px;
+  font-size: 11px;
+}
+.command-trigger kbd {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--muted);
+}
+.title-actions {
+  margin-left: 0;
+}
+.command-dialog {
+  position: fixed;
+  z-index: 80;
+  top: 18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, 92vw);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 20px 100px #000b;
+  overflow: hidden;
+  font-size: 13px;
+}
+[cmdk-overlay] {
+  position: fixed;
+  z-index: 79;
+  inset: 0;
+  background: #0007;
+  backdrop-filter: blur(3px);
+}
+.command-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 17px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+[cmdk-input] {
+  flex: 1;
+  background: transparent;
+  padding: 0;
+  border: 0;
+  outline: none;
+  font-size: 14px;
+  min-width: 0;
+}
+.command-input-row kbd {
+  border: 1px solid var(--border);
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+[cmdk-list] {
+  max-height: 360px;
+  overflow: auto;
+  padding: 8px;
+}
+[cmdk-group-heading] {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  padding: 9px;
+}
+[cmdk-item] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+[cmdk-item][data-selected='true'] {
+  background: #91d4ae14;
+  color: var(--accent);
+}
+[cmdk-item] span {
+  flex: 1;
+}
+[cmdk-item] kbd {
+  font:
+    10px 'Segoe UI',
+    sans-serif;
+  color: var(--muted);
+}
+[cmdk-empty] {
+  padding: 25px 15px;
+  color: var(--muted);
+  text-align: center;
+}
+.command-footer {
+  display: flex;
+  gap: 17px;
+  padding: 10px 17px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 10px;
+}
+.command-footer span:last-child {
+  margin-left: auto;
+}
+@media (max-width: 1050px) {
+  .command-trigger {
+    min-width: 0;
+  }
+  .command-trigger span {
+    display: none;
+  }
+}

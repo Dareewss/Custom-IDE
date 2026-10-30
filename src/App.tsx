@@ -9,6 +9,7 @@ import { Console } from './features/terminal/Console';
 import { RunStatus } from './features/runner/RunStatus';
 import { Problems } from './features/editor/Problems';
 import { FormatButton } from './features/editor/FormatButton';
+import { CommandPalette } from './features/command-palette/CommandPalette';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -16,6 +17,7 @@ export function App() {
   useEffect(startPersistence, []);
   return (
     <Shell
+      palette={<CommandPalette />}
       explorer={<Explorer />}
       editor={<EditorArea />}
       projectName={name}

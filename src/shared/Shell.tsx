@@ -16,6 +16,7 @@ import { useUI, type PanelTab } from './ui-store';
 import { IconButton } from './IconButton';
 
 interface ShellProps {
+  palette?: ReactNode;
   explorer?: ReactNode;
   editor?: ReactNode;
   console?: ReactNode;
@@ -53,6 +54,7 @@ export function Shell(props: ShellProps) {
           <ChevronRight size={13} />
           <span>Workspace</span>
         </div>
+        {props.palette}
         <div className="title-actions">
           <IconButton label="Toggle explorer" onClick={ui.toggleSidebar}>
             <PanelLeft size={16} />
