@@ -5,6 +5,8 @@ import { useUI } from '../../shared/ui-store';
 import { languageForPath, python } from '../../core/language/adapter';
 import { createMailbox, writeMailbox } from '../../core/workers/mailbox';
 import { useDiagnostics } from '../editor/diagnostics';
+import type { SourceLocation, TraceEvent } from '../../core/trace/events';
+import { navigateTo } from '../editor/navigation';
 
 export interface OutputEntry {
   id: number;
@@ -12,14 +14,18 @@ export interface OutputEntry {
   text: string;
 }
 interface RunState {
+  pauseLocation: SourceLocation | null;
+  trace: TraceEvent[];
   startedAt: number;
   awaitingInput: boolean;
-  status: 'idle' | 'loading' | 'running' | 'finished' | 'error' | 'stopped';
+  status: 'idle' | 'loading' | 'running' | 'finished' | 'error' | 'stopped' | 'paused';
   output: OutputEntry[];
   exitCode: number | null;
   elapsed: number;
 }
 export const useRunner = create<RunState>(() => ({
+  pauseLocation: null,
+  trace: [],
   startedAt: 0,
   awaitingInput: false,
   status: 'idle',
@@ -37,9 +43,10 @@ export function stopRun() {
   settle?.();
   settle = undefined;
   const s = useRunner.getState();
-  if (s.status === 'running' || s.status === 'loading') {
+  if (s.status === 'running' || s.status === 'loading' || s.status === 'paused') {
     useRunner.setState({
       status: 'stopped',
+      pauseLocation: null,
       awaitingInput: false,
       exitCode: null,
       elapsed: Date.now() - s.startedAt,
@@ -52,6 +59,14 @@ export async function restartRun() {
   await runActive();
 }
 let mailbox: SharedArrayBuffer | undefined;
+export function continueRun(step = false) {
+  if (!mailbox || useRunner.getState().status !== 'paused') return;
+  const control = new Int32Array(mailbox, 0, 4);
+  Atomics.store(control, 2, step ? 2 : 1);
+  Atomics.store(control, 0, 1);
+  Atomics.notify(control, 0);
+  useRunner.setState({ status: 'running', pauseLocation: null });
+}
 export function submitInput(text: string) {
   if (!mailbox || !useRunner.getState().awaitingInput) return;
   try {
@@ -69,6 +84,7 @@ export function appendOutput(stream: OutputEntry['stream'], text: string) {
   }));
 }
 python.runner = async (entry, tree) => {
+  useRunner.setState({ trace: [], pauseLocation: null });
   useDiagnostics.setState({ runtime: [] });
   worker?.terminate();
   settle?.();
@@ -91,6 +107,12 @@ python.runner = async (entry, tree) => {
     settle = resolve;
     worker!.onmessage = (event: MessageEvent<RunnerMessage>) => {
       const message = event.data;
+      if (message.type === 'trace')
+        useRunner.setState((s) => ({ trace: [...s.trace.slice(-4999), message.event] }));
+      if (message.type === 'paused') {
+        useRunner.setState({ status: 'paused', pauseLocation: message.location });
+        navigateTo(message.location);
+      }
       if (message.type === 'diagnostic') useDiagnostics.setState({ runtime: [message.diagnostic] });
       if (message.type === 'input') useRunner.setState({ awaitingInput: true });
       if (message.type === 'status')
@@ -120,7 +142,13 @@ python.runner = async (entry, tree) => {
       useRunner.setState({ status: 'error', exitCode: 1 });
       resolve();
     };
-    worker!.postMessage({ type: 'run', tree, entry, mailbox });
+    worker!.postMessage({
+      type: 'run',
+      tree,
+      entry,
+      mailbox,
+      breakpoints: useWorkspace.getState().breakpoints,
+    });
   });
 };
 export async function runActive() {

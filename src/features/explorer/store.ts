@@ -10,6 +10,8 @@ import {
 } from '../../core/fs/vfs';
 
 export interface WorkspaceState {
+  breakpoints: Record<string, number[]>;
+  toggleBreakpoint: (path: string, line: number) => void;
   lastOpened: number;
   projectId: string;
   projectName: string;
@@ -26,6 +28,19 @@ export interface WorkspaceState {
   edit: (path: string, content: string) => void;
 }
 export const useWorkspace = create<WorkspaceState>((set) => ({
+  breakpoints: {},
+  toggleBreakpoint: (path, line) =>
+    set((s) => {
+      const lines = s.breakpoints[path] ?? [];
+      return {
+        breakpoints: {
+          ...s.breakpoints,
+          [path]: lines.includes(line)
+            ? lines.filter((n) => n !== line)
+            : [...lines, line].sort((a, b) => a - b),
+        },
+      };
+    }),
   lastOpened: Date.now(),
   projectId: 'first-steps',
   projectName: 'First steps',
@@ -69,11 +84,17 @@ export const useWorkspace = create<WorkspaceState>((set) => ({
         tabs: s.tabs.map(remap),
         dirty: s.dirty.map(remap),
         active: s.active ? remap(s.active) : null,
+        breakpoints: Object.fromEntries(
+          Object.entries(s.breakpoints).map(([path, lines]) => [remap(path), lines]),
+        ),
       };
     }),
   remove: (path) =>
     set((s) => ({
       tree: removeNode(s.tree, path),
+      breakpoints: Object.fromEntries(
+        Object.entries(s.breakpoints).filter(([p]) => !isWithin(p, path)),
+      ),
       tabs: s.tabs.filter((p) => !isWithin(p, path)),
       dirty: s.dirty.filter((p) => !isWithin(p, path)),
       active: s.active && isWithin(s.active, path) ? null : s.active,

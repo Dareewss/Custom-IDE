@@ -16,6 +16,7 @@ import { Settings, FolderOpen } from 'lucide-react';
 import { ProjectManager } from './features/projects/ProjectManager';
 import { IconButton } from './shared/IconButton';
 import { useUI } from './shared/ui-store';
+import { DebugControls } from './features/debugger/DebugControls';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -60,6 +61,7 @@ export function App() {
           <>
             <FormatButton />
             <RunButton />
+            <DebugControls />
           </>
         }
         console={<Console />}

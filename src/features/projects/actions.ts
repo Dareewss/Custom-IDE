@@ -16,7 +16,12 @@ async function activate(data: ProjectSnapshot) {
   useRunner.setState({ status: 'idle', output: [], exitCode: null, elapsed: 0 });
   useDiagnostics.setState({ syntax: {}, runtime: [] });
   useLocation.setState({ target: null });
-  useWorkspace.setState({ ...data, lastOpened: Date.now(), dirty: [] });
+  useWorkspace.setState({
+    ...data,
+    breakpoints: data.breakpoints ?? {},
+    lastOpened: Date.now(),
+    dirty: [],
+  });
   await persistCurrent();
 }
 export async function createProject(

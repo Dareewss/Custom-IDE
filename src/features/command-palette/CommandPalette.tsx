@@ -2,12 +2,13 @@ import { Command } from 'cmdk';
 import { useEffect, useState } from 'react';
 import { Search, FileCode2, Terminal, ArrowUpRight } from 'lucide-react';
 import { useWorkspace } from '../explorer/store';
-import { runActive, stopRun, restartRun, useRunner } from '../runner/store';
+import { runActive, stopRun, restartRun, useRunner, continueRun } from '../runner/store';
 import { formatActive } from '../editor/formatter';
 import { persistCurrent } from '../projects/persistence';
 import { useUI } from '../../shared/ui-store';
 import { FormDialog } from '../../shared/FormDialog';
 import { exportProject } from '../projects/ZipActions';
+import { useCursor } from '../editor/navigation';
 
 export function CommandPalette() {
   const [mode, setMode] = useState<'commands' | 'files' | null>(null);
@@ -21,6 +22,10 @@ export function CommandPalette() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
+      if (e.key === 'F10') {
+        e.preventDefault();
+        continueRun(true);
+      }
       if (mod && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setQuery('');
@@ -40,6 +45,7 @@ export function CommandPalette() {
         e.preventDefault();
         if (mod && e.shiftKey) void restartRun();
         else if (e.shiftKey) stopRun();
+        else if (useRunner.getState().status === 'paused') continueRun();
         else void runActive();
       }
       if (mod && e.key.toLowerCase() === 's') {
@@ -55,6 +61,15 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    { name: 'Continue debugging', shortcut: 'F5', run: () => continueRun() },
+    { name: 'Step Over', shortcut: 'F10', run: () => continueRun(true) },
+    {
+      name: 'Toggle breakpoint',
+      shortcut: 'F9',
+      run: () => {
+        if (s.active) s.toggleBreakpoint(s.active, useCursor.getState().line);
+      },
+    },
     { name: 'Export project as ZIP', shortcut: '', run: exportProject },
     { name: 'Manage projects', shortcut: '', run: () => useUI.setState({ modal: 'projects' }) },
     { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },

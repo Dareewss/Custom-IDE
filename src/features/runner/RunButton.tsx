@@ -18,7 +18,7 @@ export function RunButton() {
       </IconButton>
       <IconButton
         label="Stop (Shift+F5)"
-        disabled={status !== 'running' && status !== 'loading'}
+        disabled={status !== 'running' && status !== 'loading' && status !== 'paused'}
         onClick={stopRun}
       >
         <Square size={12} fill="currentColor" />
@@ -30,6 +30,7 @@ export function RunButton() {
             !active ||
             !languageForPath(active)?.runner ||
             status === 'loading' ||
+            status === 'paused' ||
             status === 'running'
           }
           onClick={() => void runActive()}

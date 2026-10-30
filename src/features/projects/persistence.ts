@@ -12,7 +12,8 @@ export const usePersistence = create<{
 let queue: Promise<void> = Promise.resolve();
 let formatting: Promise<void> | null = null;
 export function snapshot(): ProjectSnapshot {
-  const { projectId, projectName, tree, tabs, active, lastOpened } = useWorkspace.getState();
+  const { projectId, projectName, tree, tabs, active, lastOpened, breakpoints } =
+    useWorkspace.getState();
   return {
     projectId,
     projectName,
@@ -21,6 +22,7 @@ export function snapshot(): ProjectSnapshot {
     active,
     updatedAt: Date.now(),
     lastOpened,
+    breakpoints,
   };
 }
 export async function persistCurrent(): Promise<void> {
@@ -65,7 +67,7 @@ export function startPersistence() {
     try {
       const data = await getRepository().current();
       if (!alive) return;
-      if (data) useWorkspace.setState({ ...data, dirty: [] });
+      if (data) useWorkspace.setState({ ...data, breakpoints: data.breakpoints ?? {}, dirty: [] });
       usePersistence.setState({ hydrated: true, state: 'Saved' });
       if (!data) await persistCurrent();
       if (!alive) return;
@@ -74,6 +76,7 @@ export function startPersistence() {
           state.tree === previous.tree &&
           state.tabs === previous.tabs &&
           state.active === previous.active &&
+          state.breakpoints === previous.breakpoints &&
           state.projectName === previous.projectName
         )
           return;

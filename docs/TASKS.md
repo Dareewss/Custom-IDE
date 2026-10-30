@@ -110,7 +110,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Functions & Classes and Algorithms templates run.
 - Multi-file template imports its sibling module correctly.
 
-## [ ] T18 — Basic breakpoints
+## [x] T18 — Basic breakpoints
 
 - Gutter toggles persist breakpoints by file.
 - sys.settrace pauses at breakpoints using Atomics.

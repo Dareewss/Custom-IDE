@@ -5,15 +5,47 @@ import './completion';
 import { useWorkspace } from '../explorer/store';
 import { languageForPath } from '../../core/language/adapter';
 import { useDiagnostics } from './diagnostics';
-import { useLocation } from './navigation';
+import { useLocation, useCursor } from './navigation';
 import { useUI } from '../../shared/ui-store';
 import { useSettings } from '../settings/store';
+import { useRunner } from '../runner/store';
+
+function decorate(
+  editor: monaco.editor.IStandaloneCodeEditor,
+  collection: monaco.editor.IEditorDecorationsCollection,
+) {
+  const s = useWorkspace.getState();
+  const location = useRunner.getState().pauseLocation;
+  const decorations: monaco.editor.IModelDeltaDecoration[] = (
+    s.breakpoints[s.active ?? ''] ?? []
+  ).map((line) => ({
+    range: new monaco.Range(line, 1, line, 1),
+    options: {
+      isWholeLine: true,
+      glyphMarginClassName: 'breakpoint-glyph',
+      glyphMarginHoverMessage: { value: 'Breakpoint · click to remove' },
+    },
+  }));
+  if (location?.path === s.active)
+    decorations.push({
+      range: new monaco.Range(location.line, 1, location.line, 1),
+      options: {
+        isWholeLine: true,
+        className: 'execution-line',
+        glyphMarginClassName: 'execution-arrow',
+      },
+    });
+  if (editor.getModel()) collection.set(decorations);
+}
 
 export default function CodeEditor() {
   const active = useWorkspace((s) => s.active);
   const settings = useSettings();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
+  const breakpoints = useWorkspace((s) => s.breakpoints);
+  const pauseLocation = useRunner((s) => s.pauseLocation);
+  const collection = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const ref = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const node = active ? tree[active] : undefined;
   const diagnostics = useDiagnostics();
@@ -28,9 +60,37 @@ export default function CodeEditor() {
   };
   const onMount: OnMount = (editor) => {
     ref.current = editor;
+    collection.current = editor.createDecorationsCollection();
+    decorate(editor, collection.current);
+    const toggle = () => {
+      const s = useWorkspace.getState();
+      const line = editor.getPosition()?.lineNumber;
+      if (s.active && line) s.toggleBreakpoint(s.active, line);
+    };
+    editor.addAction({
+      id: 'atlas.toggleBreakpoint',
+      label: 'Toggle Breakpoint',
+      keybindings: [monaco.KeyCode.F9],
+      run: toggle,
+    });
+    editor.onMouseDown((event) => {
+      if (
+        event.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN &&
+        event.target.position
+      ) {
+        const s = useWorkspace.getState();
+        if (s.active) s.toggleBreakpoint(s.active, event.target.position.lineNumber);
+      }
+    });
+    editor.onDidChangeCursorPosition((event) =>
+      useCursor.setState({ line: event.position.lineNumber, column: event.position.column }),
+    );
     editor.focus();
     reveal(editor);
   };
+  useEffect(() => {
+    if (ref.current && collection.current) decorate(ref.current, collection.current);
+  }, [active, breakpoints, pauseLocation]);
   useEffect(() => {
     if (ref.current && target?.path === active) reveal(ref.current);
   }, [target, active]);
