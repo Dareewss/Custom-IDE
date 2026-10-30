@@ -26,7 +26,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Tabs close, switch, reorder and show unsaved changes.
 - Model contents track VFS edits without losing other files.
 
-## [ ] T4 — Python editor support
+## [x] T4 — Python editor support
 
 - Python syntax coloring and bracket matching work.
 - Python indentation and snippets are configured.

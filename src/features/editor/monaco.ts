@@ -1,9 +1,13 @@
 import { loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/editor/editor.api.js';
 import EditorWorker from 'monaco-editor/editor/editor.worker.js?worker';
+import { conf, language } from 'monaco-editor/languages/definitions/python/python.js';
 
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
 loader.config({ monaco });
+monaco.languages.register({ id: 'python', extensions: ['.py', '.pyw'] });
+monaco.languages.setLanguageConfiguration('python', conf);
+monaco.languages.setMonarchTokensProvider('python', language);
 monaco.editor.defineTheme('atlas-dark', {
   base: 'vs-dark',
   inherit: true,

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
 import { useWorkspace } from '../explorer/store';
+import { languageForPath } from '../../core/language/adapter';
 
 export default function CodeEditor() {
   const active = useWorkspace((s) => s.active);
@@ -27,7 +28,7 @@ export default function CodeEditor() {
       theme="atlas-dark"
       path={`file://${projectId}/${active}`}
       value={node.content}
-      language="plaintext"
+      language={languageForPath(active)?.monacoLanguage ?? 'plaintext'}
       onMount={onMount}
       keepCurrentModel
       saveViewState
