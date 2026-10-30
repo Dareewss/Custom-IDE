@@ -7,9 +7,11 @@ import { languageForPath } from '../../core/language/adapter';
 import { useDiagnostics } from './diagnostics';
 import { useLocation } from './navigation';
 import { useUI } from '../../shared/ui-store';
+import { useSettings } from '../settings/store';
 
 export default function CodeEditor() {
   const active = useWorkspace((s) => s.active);
+  const settings = useSettings();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
   const ref = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -85,7 +87,7 @@ export default function CodeEditor() {
   if (!active || node?.kind !== 'file') return null;
   return (
     <Editor
-      theme="atlas-dark"
+      theme={settings.theme === 'dark' ? 'atlas-dark' : 'vs'}
       path={`file://${projectId}/${active}`}
       value={node.content}
       language={languageForPath(active)?.monacoLanguage ?? 'plaintext'}
@@ -99,16 +101,17 @@ export default function CodeEditor() {
       }}
       options={{
         fontFamily: "'Cascadia Code', 'Consolas', monospace",
-        fontSize: 14,
-        lineHeight: 23,
+        fontSize: settings.fontSize,
+        lineHeight: Math.round(settings.fontSize * 1.65),
         padding: { top: 19, bottom: 20 },
-        minimap: { enabled: false },
+        minimap: { enabled: settings.minimap },
+        wordWrap: settings.wordWrap ? 'on' : 'off',
         scrollBeyondLastLine: false,
         smoothScrolling: true,
         cursorBlinking: 'smooth',
         bracketPairColorization: { enabled: true },
         automaticLayout: true,
-        tabSize: 4,
+        tabSize: settings.tabSize,
         renderLineHighlight: 'line',
         overviewRulerBorder: false,
         glyphMargin: true,

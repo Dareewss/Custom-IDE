@@ -13,3 +13,17 @@ vi.stubGlobal(
 );
 
 afterEach(cleanup);
+
+if (typeof HTMLDialogElement !== 'undefined')
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: {
+      value() {
+        this.setAttribute('open', '');
+      },
+    },
+    close: {
+      value() {
+        this.removeAttribute('open');
+      },
+    },
+  });

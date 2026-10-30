@@ -875,3 +875,54 @@ svg {
     display: none;
   }
 }
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fafbfc;
+  --surface: #f0f3f5;
+  --raised: #e0e7ec;
+  --border: #d0d9df;
+  --text: #24353f;
+  --muted: #526874;
+  --accent: #256b46;
+}
+.settings-dialog {
+  width: min(510px, 94vw);
+}
+.settings-dialog h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.settings-intro {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.settings-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 18px;
+}
+.setting-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 15px;
+  cursor: pointer;
+}
+.setting-toggle strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.setting-toggle small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 11px;
+}
+.setting-toggle input {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}

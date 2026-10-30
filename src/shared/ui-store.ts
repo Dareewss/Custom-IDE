@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 export type PanelTab = 'Console' | 'Problems' | 'Variables' | 'Call Stack';
 interface UIState {
+  modal: 'settings' | 'projects' | null;
   sidebar: boolean;
   bottom: boolean;
   panel: PanelTab;
@@ -12,6 +13,7 @@ interface UIState {
   reportError: (error: unknown) => void;
 }
 export const useUI = create<UIState>((set) => ({
+  modal: null,
   sidebar: true,
   bottom: true,
   panel: 'Console',

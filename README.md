@@ -12,8 +12,6 @@ npm run dev
 `npm run check` runs lint, strict type checking, tests and a production build.
 `npm run preview` serves the production build locally.
 
-
-
 ## Architecture
 
 `src/features` contains editor, explorer, runner, terminal, debugger, projects,

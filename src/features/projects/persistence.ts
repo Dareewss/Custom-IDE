@@ -79,7 +79,7 @@ export function startPersistence() {
           return;
         clearTimeout(timer);
         usePersistence.setState({ state: 'Saving' });
-        timer = setTimeout(flush, 500);
+        timer = setTimeout(flush, useSettings.getState().autosaveDelay);
       });
     } catch (error) {
       if (alive) {

@@ -86,7 +86,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Ctrl/Cmd+P searches and opens project files.
 - Commands cover implemented editor, execution, project and settings actions.
 
-## [ ] T14 — Settings
+## [x] T14 — Settings
 
 - Font/tab size, theme, autosave, wrap, minimap and format-on-save apply live.
 - Settings persist across reloads.

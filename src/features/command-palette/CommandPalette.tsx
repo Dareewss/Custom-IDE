@@ -20,6 +20,15 @@ export function CommandPalette() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setQuery('');
+        setMode('commands');
+      }
+      if (mod && e.key === ',') {
+        e.preventDefault();
+        useUI.setState({ modal: 'settings' });
+      }
       if (mod && e.key.toLowerCase() === 'p') {
         e.preventDefault();
         e.stopPropagation();
@@ -45,6 +54,7 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },
     { name: 'Run active file', shortcut: 'F5', run: runActive },
     { name: 'Stop execution', shortcut: 'Shift F5', run: stopRun },
     { name: 'Restart execution', shortcut: 'Ctrl Shift F5', run: restartRun },
@@ -82,7 +92,7 @@ export function CommandPalette() {
           if (!value) setMode(null);
         }}
         label={mode === 'files' ? 'Quick open file' : 'Command palette'}
-        className="command-dialog"
+        contentClassName="command-dialog"
       >
         <div className="command-input-row">
           <Search size={17} />
