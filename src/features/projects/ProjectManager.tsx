@@ -11,6 +11,7 @@ import { templates } from './templates';
 
 export function ProjectManager() {
   const open = useUI((s) => s.modal === 'projects');
+  const error = useUI((s) => s.error);
   const ref = useRef<HTMLDialogElement>(null);
   const active = useWorkspace((s) => s.projectId);
   const [projects, setProjects] = useState<ProjectSnapshot[]>([]);
@@ -55,6 +56,17 @@ export function ProjectManager() {
           </IconButton>
         </div>
         <p className="muted settings-intro">Pick up where you left off, or start something new.</p>
+        {error && (
+          <div className="inline-error" role="alert">
+            <span>{error}</span>
+            <IconButton
+              label="Dismiss project error"
+              onClick={() => useUI.getState().reportError(null)}
+            >
+              <X size={14} />
+            </IconButton>
+          </div>
+        )}
         <div className="project-manager-actions">
           <ZipActions />
           <button className="primary-button" onClick={() => setAction({ kind: 'create' })}>

@@ -1095,3 +1095,99 @@ svg {
     10px Consolas,
     monospace;
 }
+.restore-screen {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', sans-serif;
+  padding: 30px;
+  text-align: center;
+}
+.restore-screen h1 {
+  font-size: 24px;
+  font-weight: 450;
+  letter-spacing: -0.6px;
+  margin: 22px 0 4px;
+}
+.restore-screen p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.restore-screen pre {
+  font-size: 11px;
+  color: #e39292;
+  white-space: pre-wrap;
+  max-width: 600px;
+  margin: 20px;
+  overflow-wrap: anywhere;
+}
+.loading-orbit {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.toolbar-actions {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.toolbar-actions > * {
+  flex-shrink: 0;
+}
+@media (max-width: 700px) {
+  .editor-toolbar {
+    padding: 0 8px;
+  }
+  .editor-toolbar > .eyebrow {
+    display: none;
+  }
+  .statusbar > div {
+    gap: 9px;
+  }
+  .command-trigger kbd {
+    display: none;
+  }
+}
+:root[data-theme='light'] .run-button {
+  color: #256b46;
+  background: #256b4612;
+  border-color: #256b4640;
+}
+:root[data-theme='light'] .python-icon,
+:root[data-theme='light'] .variable-name {
+  color: #286480;
+}
+:root[data-theme='light'] .output-stderr,
+:root[data-theme='light'] .error-text,
+:root[data-theme='light'] .trace-link {
+  color: #a62d38;
+}
+.inline-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid #e7787850;
+  border-radius: 5px;
+  background: #e7787809;
+  color: #e77878;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.inline-error span {
+  flex: 1;
+}
+.project-manager-actions {
+  flex-wrap: wrap;
+}

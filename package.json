@@ -13,7 +13,9 @@
     "format": "prettier --write .",
     "check": "npm run lint && npm run typecheck && npm test && npm run build",
     "predev": "node scripts/prepare-runtime.mjs",
-    "prebuild": "node scripts/prepare-runtime.mjs"
+    "prebuild": "node scripts/prepare-runtime.mjs",
+    "test:e2e": "playwright test",
+    "screenshots": "node scripts/capture-screenshots.mjs"
   },
   "dependencies": {
     "@astral-sh/ruff-wasm-web": "^0.17.3",

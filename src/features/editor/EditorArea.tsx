@@ -2,9 +2,11 @@ import { lazy, Suspense } from 'react';
 import { FileCode2, X, Code2 } from 'lucide-react';
 import { useWorkspace } from '../explorer/store';
 import { basename } from '../../core/fs/vfs';
+import { motion, useReducedMotion } from 'motion/react';
 
 const CodeEditor = lazy(() => import('./CodeEditor'));
 export function EditorArea() {
+  const reducedMotion = useReducedMotion();
   const s = useWorkspace();
   return (
     <>
@@ -24,6 +26,8 @@ export function EditorArea() {
           >
             <button
               role="tab"
+              data-path={path}
+              tabIndex={s.active === path ? 0 : -1}
               aria-selected={s.active === path}
               onClick={() => s.open(path)}
               title={path}
@@ -36,7 +40,14 @@ export function EditorArea() {
                       (index + (e.key === 'ArrowRight' ? 1 : -1) + s.tabs.length) % s.tabs.length
                     ];
                   if (e.altKey && e.shiftKey) s.reorder(path, target);
-                  else s.open(target);
+                  else {
+                    s.open(target);
+                    const buttons = e.currentTarget
+                      .closest('[role=tablist]')
+                      ?.querySelectorAll<HTMLButtonElement>('[role=tab]');
+                    if (buttons)
+                      [...buttons].find((button) => button.dataset.path === target)?.focus();
+                  }
                 }
               }}
             >
@@ -71,7 +82,12 @@ export function EditorArea() {
           </div>
         </>
       ) : (
-        <div className="welcome">
+        <motion.div
+          className="welcome"
+          initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reducedMotion ? 0 : 0.2 }}
+        >
           <div className="welcome-mark">
             <Code2 size={50} strokeWidth={1} />
           </div>
@@ -82,16 +98,20 @@ export function EditorArea() {
             <br />
             Every idea starts with a line of code.
           </p>
-          <button
-            className="secondary-button"
-            onClick={() => {
-              const path = Object.keys(s.tree).find((p) => s.tree[p].kind === 'file');
-              if (path) s.open(path);
-            }}
-          >
-            Open a project file
-          </button>
-        </div>
+          {Object.values(s.tree).some((node) => node.kind === 'file') ? (
+            <button
+              className="secondary-button"
+              onClick={() => {
+                const path = Object.keys(s.tree).find((p) => s.tree[p].kind === 'file');
+                if (path) s.open(path);
+              }}
+            >
+              Open a project file
+            </button>
+          ) : (
+            <p className="muted">Create your first file with New file in the explorer.</p>
+          )}
+        </motion.div>
       )}
     </>
   );

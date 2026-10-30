@@ -22,5 +22,7 @@ it('persists project content and restores the last session', async () => {
   expect((await restored.list()).map((p) => p.projectId)).toEqual(['two', 'one']);
   await restored.remove('one');
   expect(await restored.get('one')).toBeUndefined();
+  await restored.save({ ...project, projectId: 'inactive' }, false);
+  expect((await restored.current())?.projectId).toBe('two');
   await restored.close();
 });

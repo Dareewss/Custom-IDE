@@ -5,7 +5,52 @@ import debugScript from '../trace/debugger.py?raw';
 import type { TraceEvent, VariableSnapshot } from '../trace/events';
 import serializerScript from '../trace/serializer.py?raw';
 
+let bufferedOutput: { stream: 'stdout' | 'stderr'; text: string }[] = [];
+let bufferedTrace: TraceEvent[] = [];
+let bufferedSize = 0;
+let outputSize = 0;
+let outputLimited = false;
+let lastFlush = performance.now();
+function flush() {
+  for (const output of bufferedOutput) self.postMessage({ type: 'output', ...output });
+  if (bufferedTrace.length) self.postMessage({ type: 'traces', events: bufferedTrace });
+  bufferedOutput = [];
+  bufferedTrace = [];
+  bufferedSize = 0;
+  lastFlush = performance.now();
+}
 function send(message: RunnerMessage) {
+  if (message.type === 'output') {
+    if (outputLimited) return;
+    const available = Math.max(0, 1_000_000 - outputSize);
+    const text = message.text.slice(0, available);
+    outputSize += text.length;
+    bufferedSize += text.length;
+    const last = bufferedOutput.at(-1);
+    if (last?.stream === message.stream) last.text += text;
+    else bufferedOutput.push({ stream: message.stream, text });
+    if (message.text.length > available) {
+      outputLimited = true;
+      bufferedOutput.push({
+        stream: 'stderr',
+        text: '\nOutput limited to 1,000,000 characters to keep the workspace responsive.\n',
+      });
+      flush();
+    }
+    if (
+      bufferedSize >= 8192 ||
+      (outputSize < 1024 && text.includes('\n')) ||
+      performance.now() - lastFlush > 16
+    )
+      flush();
+    return;
+  }
+  if (message.type === 'trace') {
+    bufferedTrace.push(message.event);
+    if (bufferedTrace.length >= 100 || performance.now() - lastFlush > 16) flush();
+    return;
+  }
+  flush();
   self.postMessage(message);
 }
 async function execute(
@@ -34,10 +79,12 @@ async function execute(
   }
   python.setStdin({
     stdin: () => {
-      if (!mailbox)
-        throw new Error(
-          'Interactive input requires SharedArrayBuffer. Serve with the COOP/COEP headers documented in README.',
-        );
+      if (!mailbox) {
+        const message =
+          'Interactive input requires SharedArrayBuffer. Serve with the COOP/COEP headers documented in README.';
+        send({ type: 'output', stream: 'stderr', text: `${message}\n` });
+        throw new Error(message);
+      }
       const control = new Int32Array(mailbox, 0, 4);
       Atomics.store(control, 0, 0);
       send({ type: 'input' });

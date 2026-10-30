@@ -9,3 +9,6 @@ playwright-report/
 test-results/
 public/runtime/
 *.tsbuildinfo
+__pycache__/
+*.pyc
+.checks.log

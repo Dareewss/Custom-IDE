@@ -10,6 +10,7 @@ import 'monaco-editor/editor/contrib/find/browser/findController.js';
 import 'monaco-editor/editor/contrib/folding/browser/folding.js';
 import 'monaco-editor/editor/contrib/contextmenu/browser/contextmenu.js';
 import 'monaco-editor/editor/contrib/clipboard/browser/clipboard.js';
+import 'monaco-editor/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode.js';
 
 self.MonacoEnvironment = { getWorker: () => new EditorWorker() };
 loader.config({ monaco });

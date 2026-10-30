@@ -122,7 +122,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Safe serialization caps depth, size and cycles.
 - Call Stack and current execution line update on pause.
 
-## [ ] T20 — Final polish
+## [x] T20 — Final polish
 
 - Keyboard shortcuts, empty/loading/error states and error boundary work.
 - Production build and automated tests pass; browser smoke checks are recorded.

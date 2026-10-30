@@ -16,6 +16,7 @@ import { useUI, type PanelTab } from './ui-store';
 import { IconButton } from './IconButton';
 
 interface ShellProps {
+  languageName?: string;
   palette?: ReactNode;
   explorer?: ReactNode;
   editor?: ReactNode;
@@ -195,7 +196,7 @@ export function Shell(props: ShellProps) {
         <div>
           {props.status ?? <span>Ready</span>}
           <span>UTF-8</span>
-          <span>Python</span>
+          <span>{props.languageName ?? 'No file'}</span>
         </div>
       </footer>
       {ui.error && (

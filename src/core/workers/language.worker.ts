@@ -51,8 +51,9 @@ async function complete(request: CompletionRequest): Promise<Completion[]> {
   }
   python.globals.set('_atlas_request', JSON.stringify(request));
   const result: unknown = python.runPython(`
-import json, jedi
+import json, jedi, jedi.cache
 from jedi.api.environment import InterpreterEnvironment
+jedi.cache.clear_time_caches(delete_all=True)
 _r = json.loads(_atlas_request)
 _script = jedi.Script(_r['content'], path='/project/' + _r['path'], environment=InterpreterEnvironment(), project=jedi.Project('/project', added_sys_path=['/project']))
 json.dumps([dict(label=c.name, insertText=c.name, detail=c.description, kind=c.type) for c in _script.complete(_r['line'], _r['column'] - 1)][:150])

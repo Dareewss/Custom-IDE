@@ -112,9 +112,12 @@ python.runner = async (entry, tree) => {
       const message = event.data;
       if (message.type === 'trace')
         useRunner.setState((s) => ({ trace: [...s.trace.slice(-4999), message.event] }));
+      if (message.type === 'traces')
+        useRunner.setState((s) => ({ trace: [...s.trace, ...message.events].slice(-5000) }));
       if (message.type === 'paused') {
         useRunner.setState({
           status: 'paused',
+          elapsed: Date.now() - useRunner.getState().startedAt,
           pauseLocation: message.snapshot.location,
           snapshot: message.snapshot,
         });
@@ -132,6 +135,8 @@ python.runner = async (entry, tree) => {
           exitCode: message.exitCode,
           elapsed: message.elapsed,
           awaitingInput: false,
+          snapshot: null,
+          pauseLocation: null,
         });
         appendOutput(
           'system',
@@ -141,13 +146,25 @@ python.runner = async (entry, tree) => {
       }
       if (message.type === 'error') {
         appendOutput('stderr', `${message.message}\n`);
-        useRunner.setState({ status: 'error', exitCode: 1 });
+        useRunner.setState({
+          status: 'error',
+          exitCode: 1,
+          snapshot: null,
+          pauseLocation: null,
+          awaitingInput: false,
+        });
         resolve();
       }
     };
     worker!.onerror = (event) => {
       appendOutput('stderr', `${event.message}\n`);
-      useRunner.setState({ status: 'error', exitCode: 1 });
+      useRunner.setState({
+        status: 'error',
+        exitCode: 1,
+        snapshot: null,
+        pauseLocation: null,
+        awaitingInput: false,
+      });
       resolve();
     };
     worker!.postMessage({

@@ -12,5 +12,10 @@ export default defineConfig({
   server: { headers },
   preview: { headers },
   worker: { format: 'es' },
-  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'] },
+  optimizeDeps: { include: ['web-tree-sitter', 'jszip', '@astral-sh/ruff-wasm-web'] },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.test.{ts,tsx}'],
+  },
 });

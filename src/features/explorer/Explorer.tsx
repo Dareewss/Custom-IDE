@@ -14,9 +14,11 @@ import { IconButton } from '../../shared/IconButton';
 import { FormDialog } from '../../shared/FormDialog';
 import { useUI } from '../../shared/ui-store';
 import { useWorkspace } from './store';
+import { motion, useReducedMotion } from 'motion/react';
 
 type Action = { kind: 'file' | 'folder' | 'rename' | 'move' | 'delete'; path: string };
 export function Explorer() {
+  const reducedMotion = useReducedMotion();
   const s = useWorkspace();
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [selected, setSelected] = useState('');
@@ -165,17 +167,41 @@ export function Explorer() {
       {menu && (
         <>
           <div className="menu-dismiss" onClick={() => setMenu(null)} />
-          <div
+          <motion.div
             className="context-menu"
+            initial={{ opacity: 0, y: reducedMotion ? 0 : -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.12 }}
             role="menu"
+            onKeyDown={(e) => {
+              const items = [
+                ...e.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'),
+              ];
+              const index = items.indexOf(document.activeElement as HTMLButtonElement);
+              if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+                e.preventDefault();
+                const next =
+                  e.key === 'Home'
+                    ? 0
+                    : e.key === 'End'
+                      ? items.length - 1
+                      : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                items[next]?.focus();
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault();
+                setMenu(null);
+              }
+            }}
             style={{
               left: Math.min(menu.x, window.innerWidth - 190),
               top: Math.min(menu.y, window.innerHeight - 220),
             }}
           >
-            {(['file', 'folder', 'rename', 'move', 'delete'] as const).map((kind) => (
+            {(['file', 'folder', 'rename', 'move', 'delete'] as const).map((kind, index) => (
               <button
                 role="menuitem"
+                autoFocus={index === 0}
                 key={kind}
                 disabled={!menu.path && ['rename', 'move', 'delete'].includes(kind)}
                 onClick={() => {
@@ -194,7 +220,7 @@ export function Explorer() {
                 }
               </button>
             ))}
-          </div>
+          </motion.div>
         </>
       )}
       {action && (

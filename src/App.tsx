@@ -19,20 +19,34 @@ import { useUI } from './shared/ui-store';
 import { DebugControls } from './features/debugger/DebugControls';
 import { Variables } from './features/debugger/Variables';
 import { CallStack } from './features/debugger/CallStack';
+import { languageForPath } from './core/language/adapter';
+import { useCursor } from './features/editor/navigation';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
   const saved = usePersistence((s) => s.state);
+  const hydrated = usePersistence((s) => s.hydrated);
+  const active = useWorkspace((s) => s.active);
+  const cursor = useCursor();
   const theme = useSettings((s) => s.theme);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
   useEffect(startPersistence, []);
+  if (!hydrated)
+    return (
+      <main className="restore-screen" aria-label="Code Atlas workspace">
+        <span className="loading-orbit" />
+        <h1>Opening your workspace</h1>
+        <p>Making room for your next idea…</p>
+      </main>
+    );
   return (
     <>
       <SettingsDialog />
       <ProjectManager />
       <Shell
+        languageName={active ? (languageForPath(active)?.id ?? 'Plain text') : 'No file'}
         navigation={
           <>
             <IconButton
@@ -56,6 +70,11 @@ export function App() {
         status={
           <>
             <RunStatus />
+            {active && (
+              <span>
+                Ln {cursor.line}, Col {cursor.column}
+              </span>
+            )}
             <span>{saved}</span>
           </>
         }

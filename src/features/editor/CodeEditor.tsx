@@ -9,6 +9,7 @@ import { useLocation, useCursor } from './navigation';
 import { useUI } from '../../shared/ui-store';
 import { useSettings } from '../settings/store';
 import { useRunner } from '../runner/store';
+import { useReducedMotion } from 'motion/react';
 
 function decorate(
   editor: monaco.editor.IStandaloneCodeEditor,
@@ -39,10 +40,12 @@ function decorate(
 }
 
 export default function CodeEditor() {
+  const reducedMotion = useReducedMotion();
   const active = useWorkspace((s) => s.active);
   const settings = useSettings();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
+  const tabs = useWorkspace((s) => s.tabs);
   const breakpoints = useWorkspace((s) => s.breakpoints);
   const pauseLocation = useRunner((s) => s.pauseLocation);
   const collection = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
@@ -144,6 +147,17 @@ export default function CodeEditor() {
     },
     [projectId],
   );
+  useEffect(() => {
+    for (const model of monaco.editor.getModels()) {
+      const path = model.uri.path.slice(1);
+      if (
+        model.uri.authority === projectId &&
+        (!tabs.includes(path) || tree[path]?.kind !== 'file') &&
+        !model.isAttachedToEditor()
+      )
+        model.dispose();
+    }
+  }, [projectId, tabs, tree]);
   if (!active || node?.kind !== 'file') return null;
   return (
     <Editor
@@ -167,8 +181,8 @@ export default function CodeEditor() {
         minimap: { enabled: settings.minimap },
         wordWrap: settings.wordWrap ? 'on' : 'off',
         scrollBeyondLastLine: false,
-        smoothScrolling: true,
-        cursorBlinking: 'smooth',
+        smoothScrolling: !reducedMotion,
+        cursorBlinking: reducedMotion ? 'solid' : 'smooth',
         bracketPairColorization: { enabled: true },
         automaticLayout: true,
         tabSize: settings.tabSize,

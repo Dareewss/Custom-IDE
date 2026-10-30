@@ -14,7 +14,7 @@ interface UIState {
 }
 export const useUI = create<UIState>((set) => ({
   modal: null,
-  sidebar: true,
+  sidebar: typeof window === 'undefined' || window.innerWidth >= 760,
   bottom: true,
   panel: 'Console',
   error: null,

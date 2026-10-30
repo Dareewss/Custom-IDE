@@ -22,6 +22,33 @@ export function CommandPalette() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        useUI.getState().toggleSidebar();
+      }
+      if (mod && e.key === '`') {
+        e.preventDefault();
+        useUI.getState().toggleBottom();
+      }
+      if (
+        mod &&
+        e.key.toLowerCase() === 'l' &&
+        (e.target as HTMLElement).closest('.bottom-panel')
+      ) {
+        e.preventDefault();
+        useRunner.setState({ output: [] });
+      }
+      if (
+        mod &&
+        e.key.toLowerCase() === 'w' &&
+        !(e.target as HTMLElement).closest('[role=dialog],dialog')
+      ) {
+        const workspace = useWorkspace.getState();
+        if (workspace.active) {
+          e.preventDefault();
+          workspace.close(workspace.active);
+        }
+      }
       if (e.key === 'F10') {
         e.preventDefault();
         continueRun(true);
@@ -71,6 +98,11 @@ export function CommandPalette() {
       },
     },
     { name: 'Export project as ZIP', shortcut: '', run: exportProject },
+    {
+      name: 'Import project from ZIP',
+      shortcut: '',
+      run: () => useUI.setState({ modal: 'projects' }),
+    },
     { name: 'Manage projects', shortcut: '', run: () => useUI.setState({ modal: 'projects' }) },
     { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },
     { name: 'Run active file', shortcut: 'F5', run: runActive },

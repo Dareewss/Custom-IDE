@@ -8,12 +8,6 @@ _atlas_debug_enabled = any(_atlas_bp.values())
 _atlas_step_depth = None
 _atlas_event_count = 0
 
-def _atlas_simple_value(value):
-    kind = type(value).__name__
-    if type(value) in (type(None), bool, int, float, str):
-        return dict(type=kind, value=repr(value)[:160])
-    return dict(type=kind, value='<' + kind + '>')
-
 def _atlas_trace(frame, event, arg):
     global _atlas_step_depth, _atlas_event_count
     filename = frame.f_code.co_filename

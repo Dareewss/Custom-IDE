@@ -10,6 +10,7 @@ export type RunRequest = {
 };
 export type RunnerMessage =
   | { type: 'trace'; event: TraceEvent }
+  | { type: 'traces'; events: TraceEvent[] }
   | { type: 'paused'; snapshot: VariableSnapshot }
   | { type: 'diagnostic'; diagnostic: Diagnostic }
   | { type: 'input' }
