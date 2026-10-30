@@ -38,7 +38,7 @@ Each task is finished only after acceptance checks and a separate verified commi
 - Pending edits flush on visibility change and project switch.
 - Storage failures are visible and persistence logic is tested.
 
-## [ ] T6 — Python worker runtime
+## [x] T6 — Python worker runtime
 
 - Self-hosted npm Pyodide runs files inside a Web Worker.
 - VFS mounts at project root with working multi-file imports.

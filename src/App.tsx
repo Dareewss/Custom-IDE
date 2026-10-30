@@ -4,6 +4,8 @@ import { useWorkspace } from './features/explorer/store';
 import { EditorArea } from './features/editor/EditorArea';
 import { useEffect } from 'react';
 import { startPersistence, usePersistence } from './features/projects/persistence';
+import { RunButton } from './features/runner/RunButton';
+import { Console } from './features/terminal/Console';
 
 export function App() {
   const name = useWorkspace((s) => s.projectName);
@@ -15,6 +17,8 @@ export function App() {
       editor={<EditorArea />}
       projectName={name}
       status={<span>{saved}</span>}
+      actions={<RunButton />}
+      console={<Console />}
     />
   );
 }

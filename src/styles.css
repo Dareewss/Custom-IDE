@@ -625,3 +625,34 @@ svg {
   flex: 1;
   min-height: 0;
 }
+.run-button {
+  background: #91d4ae14;
+  color: var(--accent);
+  border: 1px solid #91d4ae30;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.console-output {
+  padding: 10px 21px 18px;
+  font:
+    12px/1.75 'Cascadia Code',
+    Consolas,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.output-stderr {
+  color: #f38d8d;
+}
+.output-system {
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+.output-input {
+  color: var(--accent);
+}
