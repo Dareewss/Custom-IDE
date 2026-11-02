@@ -15,7 +15,7 @@
   --glass-opacity: calc(0.06 + var(--workspace-opacity) * 0.29);
   --glass-tint: 84 84 84;
   --glass-floor: 14 21 17;
-  --glass-floor-opacity: 0.55;
+  --glass-floor-opacity: calc(0.1 + var(--workspace-opacity) * 0.45);
   --glass-blur: 24px;
   --glass-saturate: 160%;
   --glass-radius: 24px;
@@ -27,7 +27,7 @@
   --glass-sheen: linear-gradient(135deg, rgb(255 255 255 / 0.065), transparent 58%);
   --glass-highlight: rgb(255 255 255 / 0.14);
   --glass-shadow: 0 24px 60px rgb(0 0 0 / 0.28);
-  --glass-elevated-floor: 0.84;
+  --glass-elevated-floor: calc(0.24 + var(--workspace-opacity) * 0.6);
   --glass-overlay: rgb(4 10 7 / 0.3);
   --text-scrim: 14 21 17;
   --text-scrim-opacity: 0.78;
@@ -69,7 +69,7 @@
   --warning: #704300;
   --glass-tint: 255 255 255;
   --glass-floor: 246 250 244;
-  --glass-floor-opacity: 0.64;
+  --glass-floor-opacity: calc(0.18 + var(--workspace-opacity) * 0.46);
   --glass-border-from: rgb(255 255 255 / 0.95);
   --glass-border-mid: rgb(105 116 124 / 0.12);
   --glass-border-to: rgb(107 170 117 / 0.42);

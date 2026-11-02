@@ -37,8 +37,7 @@
   .scene {
     background: var(--bg);
   }
-  .scene-shape,
-  .scene-facets {
+  .scene-shape {
     display: none;
     animation: none;
     will-change: auto;

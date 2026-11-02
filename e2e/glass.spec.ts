@@ -198,3 +198,17 @@ test('actually blurs background pixels at every slider value while retaining alp
   }
   expect(new Set(results).size).toBe(3);
 });
+
+test('keeps frosted blur at full transparency without decorative facet lines', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.scene-facets')).toHaveCount(0);
+  const editorCard = page.locator('.editor-card');
+  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+
+  await openSettings(page);
+  await transparency(page, 100);
+  await closeSettings(page);
+
+  await expect(page.locator('html')).toHaveCSS('--workspace-opacity', '0');
+  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+});

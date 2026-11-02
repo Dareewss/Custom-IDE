@@ -15,9 +15,6 @@
   --blob-4: #c3e5fb;
   --glass-tint: 235 248 255;
 }
-:root[data-preset='ocean'] .scene-facets {
-  display: none;
-}
 :root[data-preset='ocean'] .scene-shape {
   background: radial-gradient(
     circle at 30% 22%,
@@ -65,9 +62,6 @@
   --blob-4: #f2d7c6;
   --orb-center: #e9e2f1;
   --glass-tint: 249 242 255;
-}
-:root[data-preset='nebula'] .scene-facets {
-  opacity: 0.25;
 }
 :root[data-preset='nebula'] .scene-shape {
   background: radial-gradient(

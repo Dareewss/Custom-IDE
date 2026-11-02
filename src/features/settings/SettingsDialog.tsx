@@ -173,8 +173,8 @@ export function SettingsDialog() {
           Only workspace backgrounds fade. Text, icons and controls stay fully visible.
         </p>
         <p className="transparency-platform-note">
-          Glass blurs the scene inside the app. The slider changes its tint; code and output keep a
-          minimum readability scrim.
+          Frosted blur stays active at every level. The slider fades the in-app background and glass
+          fill; code and output keep a minimum readability scrim.
         </p>
       </div>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
