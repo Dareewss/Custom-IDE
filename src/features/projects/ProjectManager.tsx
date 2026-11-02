@@ -46,7 +46,7 @@ export function ProjectManager() {
         aria-label="Project manager"
         onCancel={close}
       >
-        <div className="glass glass--modal dialog-heading">
+        <div className="dialog-heading">
           <h2>
             <FolderOpen size={18} />
             Your projects

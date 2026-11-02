@@ -42,7 +42,7 @@ export function FormDialog({
           }
         }}
       >
-        <div className="glass glass--modal dialog-heading">
+        <div className="dialog-heading">
           <h2>{title}</h2>
           <IconButton label="Close dialog" onClick={onClose}>
             <X size={16} />
@@ -63,7 +63,7 @@ export function FormDialog({
             {error}
           </p>
         )}
-        <div className="glass glass--modal dialog-actions">
+        <div className="dialog-actions">
           <button type="button" className="secondary-button" onClick={onClose}>
             Cancel
           </button>

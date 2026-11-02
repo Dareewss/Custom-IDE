@@ -21,7 +21,7 @@ export function SettingsDialog() {
       ref={ref}
       onCancel={close}
     >
-      <div className="glass glass--modal dialog-heading">
+      <div className="dialog-heading">
         <h2>
           <SlidersHorizontal size={18} />
           Workspace settings
@@ -166,16 +166,15 @@ export function SettingsDialog() {
           }
         />
         <div className="transparency-scale">
-          <span>0% · Opaque</span>
-          <span>100% · Transparent</span>
+          <span>0% · Strong tint</span>
+          <span>100% · Clear glass</span>
         </div>
         <p id="transparency-description">
           Only workspace backgrounds fade. Text, icons and controls stay fully visible.
         </p>
         <p className="transparency-platform-note">
-          {window.codeAtlasDesktop
-            ? 'The scene is inside the app. 0% gives stronger tint; 100% gives the clearest glass. A minimum scrim keeps code and output readable.'
-            : 'The scene is inside the app. 0% gives stronger tint; 100% gives the clearest glass. A minimum scrim keeps code and output readable.'}
+          Glass blurs the scene inside the app. The slider changes its tint; code and output keep a
+          minimum readability scrim.
         </p>
       </div>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
@@ -205,7 +204,7 @@ export function SettingsDialog() {
           />
         </label>
       ))}
-      <div className="glass glass--modal dialog-actions">
+      <div className="dialog-actions">
         <button className="primary-button" onClick={close}>
           Done
         </button>

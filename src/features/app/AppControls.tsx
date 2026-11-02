@@ -67,7 +67,7 @@ export function InstallDialog() {
       ref={ref}
       onCancel={close}
     >
-      <div className="glass glass--modal dialog-heading">
+      <div className="dialog-heading">
         <h2>Make it your workspace.</h2>
         <IconButton label="Close installation guide" onClick={close}>
           <X size={16} />
@@ -135,7 +135,7 @@ export function InstallDialog() {
             ? 'Offline caching is unavailable in this browser session. The online workspace still works.'
             : 'Offline support becomes available in the production app. Open each Python tool online once before using it offline.'}
       </p>
-      <div className="glass glass--modal dialog-actions">
+      <div className="dialog-actions">
         {app.prompt && (
           <button
             className="primary-button"
