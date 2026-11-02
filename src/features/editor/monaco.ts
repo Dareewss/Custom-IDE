@@ -42,29 +42,4 @@ monaco.languages.registerCompletionItemProvider('python', {
     };
   },
 });
-monaco.editor.defineTheme('atlas-dark', {
-  base: 'vs-dark',
-  inherit: true,
-  rules: [
-    { token: 'comment', foreground: '8b939c' },
-    { token: 'keyword', foreground: 'ff809a' },
-    { token: 'string', foreground: 'e5d8bc' },
-    { token: 'number', foreground: 'c3b4e6' },
-    { token: 'predefined', foreground: 'b7c7e5' },
-    { token: 'type.identifier', foreground: 'b9bad3' },
-    { token: 'operator', foreground: 'ff809a' },
-    { token: 'annotation', foreground: 'bdc8df' },
-  ],
-  colors: {
-    'editor.background': '#00000000',
-    'editor.foreground': '#eeeff2',
-    'editorGutter.background': '#00000000',
-    'editorLineNumber.foreground': '#8b939c',
-    'editorLineNumber.activeForeground': '#d9dce3',
-    'editor.lineHighlightBackground': '#59546c24',
-    'editor.selectionBackground': '#59546c85',
-    'editorCursor.foreground': '#ff0035',
-    'editorIndentGuide.background1': '#ffffff12',
-  },
-});
 export { monaco };

@@ -7,6 +7,7 @@ import './features/appearance/background.css';
 import './features/appearance/tokens.css';
 import './features/appearance/glass.css';
 import './features/appearance/shell.css';
+import './features/appearance/editor.css';
 import { ErrorBoundary } from './shared/ErrorBoundary';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

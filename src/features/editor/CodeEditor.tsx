@@ -10,6 +10,7 @@ import { useUI } from '../../shared/ui-store';
 import { useSettings } from '../settings/store';
 import { useRunner } from '../runner/store';
 import { useReducedMotion } from 'motion/react';
+import { glassEditorTheme } from './glass-theme';
 
 function decorate(
   editor: monaco.editor.IStandaloneCodeEditor,
@@ -43,6 +44,10 @@ export default function CodeEditor() {
   const reducedMotion = useReducedMotion();
   const active = useWorkspace((s) => s.active);
   const settings = useSettings();
+  useEffect(() => {
+    monaco.editor.defineTheme('atlas-glass', glassEditorTheme());
+    monaco.editor.setTheme('atlas-glass');
+  }, [settings.theme]);
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
   const tabs = useWorkspace((s) => s.tabs);
@@ -62,6 +67,8 @@ export default function CodeEditor() {
     }
   };
   const onMount: OnMount = (editor) => {
+    monaco.editor.defineTheme('atlas-glass', glassEditorTheme());
+    monaco.editor.setTheme('atlas-glass');
     ref.current = editor;
     collection.current = editor.createDecorationsCollection();
     decorate(editor, collection.current);
@@ -161,7 +168,7 @@ export default function CodeEditor() {
   if (!active || node?.kind !== 'file') return null;
   return (
     <Editor
-      theme={settings.theme === 'dark' ? 'atlas-dark' : 'vs'}
+      theme="atlas-glass"
       path={`file://${projectId}/${active}`}
       value={node.content}
       language={languageForPath(active)?.monacoLanguage ?? 'plaintext'}

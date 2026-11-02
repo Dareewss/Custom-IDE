@@ -1,0 +1,32 @@
+.monaco-host,
+.panel-body {
+  background: rgb(var(--text-scrim) / var(--text-scrim-opacity));
+  color: var(--code-foreground);
+}
+.monaco-editor,
+.monaco-editor-background,
+.monaco-editor .margin,
+.monaco-editor .sticky-widget {
+  background: transparent !important;
+}
+.monaco-editor .suggest-widget,
+.monaco-editor .monaco-hover,
+.monaco-editor .monaco-editor-overlaymessage {
+  background: var(--widget-background) !important;
+  color: var(--code-foreground);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.console-output,
+.output-stdout {
+  color: var(--code-foreground);
+}
+.output-stderr,
+.trace-link {
+  color: var(--code-error);
+  text-decoration-color: currentColor;
+}
+.console-output .muted,
+.output-system {
+  color: var(--code-comment);
+}
