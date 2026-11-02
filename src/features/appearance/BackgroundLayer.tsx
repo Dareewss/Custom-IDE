@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from 'react';
-import './background.css';
 
 const subscribeVisibility = (notify: () => void) => {
   document.addEventListener('visibilitychange', notify);
