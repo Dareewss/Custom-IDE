@@ -3,8 +3,8 @@
   align-items: center;
   gap: 6px;
   padding: 7px 10px;
-  border: 1px solid #ff003538;
-  background: #ff00350b;
+  border: 1px solid color-mix(in srgb, var(--accent) 21.96%, transparent);
+  background: color-mix(in srgb, var(--accent) 4.31%, transparent);
   border-radius: 7px;
   color: var(--accent);
   font-size: 11px;
@@ -78,10 +78,10 @@
 }
 .install-steps li > span {
   padding: 5px;
-  background: #ff00350c;
+  background: color-mix(in srgb, var(--accent) 4.71%, transparent);
   color: var(--accent);
   font-size: 9px;
-  border: 1px solid #ff00351c;
+  border: 1px solid color-mix(in srgb, var(--accent) 10.98%, transparent);
   border-radius: 5px;
   margin-top: 1px;
 }

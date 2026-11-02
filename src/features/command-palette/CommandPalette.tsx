@@ -150,7 +150,7 @@ export function CommandPalette() {
           if (!value) setMode(null);
         }}
         label={mode === 'files' ? 'Quick open file' : 'Command palette'}
-        contentClassName="command-dialog"
+        contentClassName="command-dialog glass glass--modal"
       >
         <div className="command-input-row">
           <Search size={17} />

@@ -1,0 +1,82 @@
+/* Only independent surfaces blur. Tabs, rows and scrolling content share their parent. */
+.workspace,
+:root[data-theme='light'] .workspace {
+  background: transparent;
+}
+.editor-toolbar,
+.editor-tabs,
+.breadcrumbs,
+.panel-header,
+.panel-body,
+.console-tools,
+.dock-quick-actions,
+.sidebar-foot,
+.command-footer {
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.dialog::backdrop,
+[cmdk-overlay] {
+  background: var(--glass-overlay);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.secondary-button,
+.workspace-title,
+.command-trigger,
+.layout-switch,
+.layout-switch button,
+.quick-action-grid button {
+  border-radius: var(--glass-pill-radius);
+}
+.secondary-button,
+.command-trigger,
+.workspace-title,
+.quick-action-grid button {
+  border: 1px solid var(--border);
+  background: var(--control-fill);
+  color: var(--text);
+}
+.secondary-button:hover:not(:disabled),
+.command-trigger:hover,
+.workspace-title:hover,
+.quick-action-grid button:hover:not(:disabled) {
+  background: var(--control-hover);
+}
+.layout-switch button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+.brand-symbol,
+.welcome-mark,
+.runtime-badge,
+.tree-row.active,
+.activitybar .icon-button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+  box-shadow: none;
+}
+.local-badge {
+  background: var(--palette-graphite);
+  color: var(--palette-lime);
+}
+.glass.statusbar {
+  --glass-radius: var(--glass-pill-radius);
+  box-shadow: inset 0 1px 0 var(--glass-highlight);
+}
+.glass.context-menu,
+.glass.error-toast {
+  position: fixed;
+}
+:focus-visible {
+  outline-color: var(--focus-ring);
+}
+:root[data-theme='light'] :is(.python-icon, .variable-name) {
+  color: var(--accent);
+}
+input,
+select {
+  accent-color: var(--accent);
+}

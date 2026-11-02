@@ -62,12 +62,12 @@ export function InstallDialog() {
   }, [app.dialog]);
   return (
     <dialog
-      className="dialog install-dialog"
+      className="glass glass--modal dialog install-dialog"
       aria-label="Install Code Atlas"
       ref={ref}
       onCancel={close}
     >
-      <div className="dialog-heading">
+      <div className="glass glass--modal dialog-heading">
         <h2>Make it your workspace.</h2>
         <IconButton label="Close installation guide" onClick={close}>
           <X size={16} />
@@ -135,7 +135,7 @@ export function InstallDialog() {
             ? 'Offline caching is unavailable in this browser session. The online workspace still works.'
             : 'Offline support becomes available in the production app. Open each Python tool online once before using it offline.'}
       </p>
-      <div className="dialog-actions">
+      <div className="glass glass--modal dialog-actions">
         {app.prompt && (
           <button
             className="primary-button"

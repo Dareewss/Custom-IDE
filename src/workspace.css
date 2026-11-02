@@ -1,32 +1,6 @@
-/* Official palette: ink, slate, mauve, gray and crimson. */
+/* Workspace geometry. Appearance is defined by semantic theme tokens. */
 :root {
-  background: transparent;
   --workspace-opacity: 1;
-  --bg: #0e131f;
-  --surface: #0e131f;
-  --raised: #38405f;
-  --border: #8b939c38;
-  --text: #eeeff2;
-  --muted: #8b939c;
-  --accent: #ff0035;
-  --pane: rgb(14 19 31 / var(--workspace-opacity));
-  --pane-soft: rgb(56 64 95 / var(--workspace-opacity));
-  --on-accent: #0e131f;
-  --chrome-shadow:
-    inset 0 1px 0 #ffffff06, 0 8px 28px rgb(0 0 0 / calc(var(--workspace-opacity) * 0.12));
-}
-:root[data-theme='light'] {
-  --bg: #f6f7fb;
-  --surface: #ebedf4;
-  --raised: #dce0ec;
-  --border: #38405f30;
-  --text: #0e131f;
-  --muted: #59546c;
-  --accent: #b00028;
-  --pane: rgb(248 249 252 / var(--workspace-opacity));
-  --pane-soft: rgb(235 237 244 / var(--workspace-opacity));
-  --on-accent: #fff;
-  --chrome-shadow: inset 0 1px 0 #fff, 0 8px 28px #2c42200a;
 }
 html,
 body,
@@ -88,8 +62,8 @@ button {
   place-items: center;
   color: var(--accent);
   border-radius: 10px;
-  background: #ff00350a;
-  border: 1px solid #ff003525;
+  background: color-mix(in srgb, var(--accent) 3.92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 14.51%, transparent);
 }
 .brand-wordmark {
   font-size: 14px;
@@ -201,16 +175,16 @@ button {
   width: 44px;
   border-radius: 11px;
   position: relative;
-  color: #c3cbc8;
+  color: var(--muted);
 }
 .activitybar .icon-button svg {
   stroke-width: 1.6;
 }
 .activitybar .icon-button[aria-pressed='true'] {
-  background: #ff003517;
+  background: color-mix(in srgb, var(--accent) 9.02%, transparent);
   color: var(--accent);
   box-shadow:
-    inset 0 0 0 1px #ff00352b,
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 16.86%, transparent),
     0 0 18px #b2ef7f08;
 }
 .activitybar .icon-button[aria-pressed='true']::before {
@@ -235,8 +209,8 @@ button {
   width: 31px;
   height: 31px;
   border: 1px solid var(--border);
-  background: #38405f;
-  color: #e0d9f5;
+  background: var(--raised);
+  color: var(--text);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: -0.4px;
@@ -279,7 +253,7 @@ button {
   height: 33px;
   gap: 9px;
   font-size: 12px;
-  color: #b8c0be;
+  color: var(--muted);
   border-radius: 5px;
   padding-right: 11px;
 }
@@ -287,17 +261,17 @@ button {
   color: var(--muted);
 }
 .tree-row.active {
-  background: #ff00350c;
+  background: color-mix(in srgb, var(--accent) 4.71%, transparent);
   color: var(--text);
 }
 .tree-row[aria-selected='true'] {
-  box-shadow: inset 2px 0 #ff0035a6;
+  box-shadow: inset 2px 0 color-mix(in srgb, var(--accent) 65.1%, transparent);
 }
 .tree-row > svg:not(.python-icon) {
-  color: #8f91a3;
+  color: var(--muted);
 }
 .python-icon {
-  color: #8b939c;
+  color: var(--muted);
 }
 .sidebar-foot {
   margin-top: auto;
@@ -331,7 +305,7 @@ button {
 }
 .separator:hover,
 .separator[data-separator='active'] {
-  background: #ff003514;
+  background: color-mix(in srgb, var(--accent) 7.84%, transparent);
   border-radius: 8px;
 }
 .editor-layout {
@@ -367,7 +341,7 @@ button {
   white-space: nowrap;
 }
 .editor-section-label > svg {
-  color: #8b939c;
+  color: var(--muted);
 }
 .editor-language {
   font-size: 9px;
@@ -456,7 +430,7 @@ button {
   opacity: 0.9;
 }
 .breadcrumbs > svg {
-  color: #8b939c;
+  color: var(--muted);
 }
 .monaco-host {
   padding: 0 1px 6px;
@@ -496,10 +470,10 @@ button {
   align-items: center;
   font-size: 9px;
   color: var(--accent);
-  border: 1px solid #ff003520;
+  border: 1px solid color-mix(in srgb, var(--accent) 12.55%, transparent);
   border-radius: 20px;
   padding: 3px 6px;
-  background: #ff003506;
+  background: color-mix(in srgb, var(--accent) 2.35%, transparent);
 }
 .runtime-badge i,
 .local-notice i {
@@ -668,9 +642,9 @@ button {
   height: 76px;
   display: grid;
   place-items: center;
-  border: 1px solid #ff003520;
+  border: 1px solid color-mix(in srgb, var(--accent) 12.55%, transparent);
   border-radius: 22px;
-  background: #ff00350b;
+  background: color-mix(in srgb, var(--accent) 4.31%, transparent);
   margin: 0 auto 24px;
 }
 .welcome h1 {

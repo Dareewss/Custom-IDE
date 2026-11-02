@@ -2,16 +2,8 @@
 
 :root {
   font-family: 'Segoe UI', system-ui, sans-serif;
-  color: #eeeff2;
-  background: #0e131f;
-  color-scheme: dark;
-  --bg: #0e131f;
-  --surface: #0e131f;
-  --raised: #38405f;
-  --border: #59546c61;
-  --text: #eeeff2;
-  --muted: #8b939c;
-  --accent: #ff0035;
+  color: var(--text);
+  background: transparent;
 }
 
 body {
@@ -146,7 +138,7 @@ svg {
 }
 .icon-button[aria-pressed='true'] {
   color: var(--accent);
-  background: #ff003512;
+  background: color-mix(in srgb, var(--accent) 7.06%, transparent);
 }
 .workbench {
   display: flex;
@@ -177,7 +169,7 @@ svg {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: #38405f;
+  background: var(--raised);
   color: var(--accent);
   display: grid;
   place-items: center;
@@ -470,7 +462,7 @@ svg {
 }
 .tree-row.active {
   color: var(--text);
-  background: #ff00350d;
+  background: color-mix(in srgb, var(--accent) 5.1%, transparent);
 }
 .tree-row[aria-selected='true'] {
   box-shadow: inset 2px 0 var(--accent);
@@ -529,14 +521,14 @@ svg {
 }
 .primary-button {
   background: var(--accent);
-  color: #0e131f;
+  color: var(--bg);
   padding: 7px 14px;
   border-radius: 5px;
   font-weight: 600;
   font-size: 12px;
 }
 .primary-button:hover:not(:disabled) {
-  background: #ff365f;
+  background: var(--accent);
 }
 .secondary-button {
   border: 1px solid var(--border);
@@ -626,9 +618,9 @@ svg {
   min-height: 0;
 }
 .run-button {
-  background: #ff003514;
+  background: color-mix(in srgb, var(--accent) 7.84%, transparent);
   color: var(--accent);
-  border: 1px solid #ff003530;
+  border: 1px solid color-mix(in srgb, var(--accent) 18.82%, transparent);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -839,7 +831,7 @@ svg {
   cursor: pointer;
 }
 [cmdk-item][data-selected='true'] {
-  background: #ff003514;
+  background: color-mix(in srgb, var(--accent) 7.84%, transparent);
   color: var(--accent);
 }
 [cmdk-item] span {
@@ -875,16 +867,7 @@ svg {
     display: none;
   }
 }
-:root[data-theme='light'] {
-  color-scheme: light;
-  --bg: #fafbfc;
-  --surface: #f0f3f5;
-  --raised: #e0e7ec;
-  --border: #d0d9df;
-  --text: #24353f;
-  --muted: #526874;
-  --accent: #b00028;
-}
+
 .settings-dialog {
   width: min(510px, 94vw);
 }
@@ -1160,9 +1143,9 @@ svg {
   }
 }
 :root[data-theme='light'] .run-button {
-  color: #b00028;
-  background: #b0002812;
-  border-color: #b0002840;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7.06%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 25.1%, transparent);
 }
 :root[data-theme='light'] .python-icon,
 :root[data-theme='light'] .variable-name {

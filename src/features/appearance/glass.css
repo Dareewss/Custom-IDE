@@ -1,4 +1,5 @@
-.glass {
+.glass,
+:root[data-theme] .glass {
   position: relative;
   background:
     var(--glass-sheen),

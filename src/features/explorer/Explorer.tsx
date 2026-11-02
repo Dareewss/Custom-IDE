@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, type KeyboardEvent } from 'react';
 import {
   ChevronDown,
@@ -164,65 +165,70 @@ export function Explorer() {
           <p className="padded muted">An open canvas. Create your first file.</p>
         )}
       </div>
-      {menu && (
-        <>
-          <div className="menu-dismiss" onClick={() => setMenu(null)} />
-          <motion.div
-            className="context-menu"
-            initial={{ opacity: 0, y: reducedMotion ? 0 : -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reducedMotion ? 0 : 0.12 }}
-            role="menu"
-            onKeyDown={(e) => {
-              const items = [
-                ...e.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'),
-              ];
-              const index = items.indexOf(document.activeElement as HTMLButtonElement);
-              if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
-                e.preventDefault();
-                const next =
-                  e.key === 'Home'
-                    ? 0
-                    : e.key === 'End'
-                      ? items.length - 1
-                      : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-                items[next]?.focus();
-              }
-              if (e.key === 'Escape') {
-                e.preventDefault();
-                setMenu(null);
-              }
-            }}
-            style={{
-              left: Math.min(menu.x, window.innerWidth - 190),
-              top: Math.min(menu.y, window.innerHeight - 220),
-            }}
-          >
-            {(['file', 'folder', 'rename', 'move', 'delete'] as const).map((kind, index) => (
-              <button
-                role="menuitem"
-                autoFocus={index === 0}
-                key={kind}
-                disabled={!menu.path && ['rename', 'move', 'delete'].includes(kind)}
-                onClick={() => {
-                  setAction({ kind, path: ['file', 'folder'].includes(kind) ? folder : menu.path });
-                  setMenu(null);
-                }}
-              >
-                {
-                  {
-                    file: 'New file',
-                    folder: 'New folder',
-                    rename: 'Rename',
-                    move: 'Move to path…',
-                    delete: 'Delete…',
-                  }[kind]
+      {menu &&
+        createPortal(
+          <>
+            <div className="menu-dismiss" onClick={() => setMenu(null)} />
+            <motion.div
+              className="context-menu glass glass--popover"
+              initial={{ opacity: 0, y: reducedMotion ? 0 : -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reducedMotion ? 0 : 0.12 }}
+              role="menu"
+              onKeyDown={(e) => {
+                const items = [
+                  ...e.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)'),
+                ];
+                const index = items.indexOf(document.activeElement as HTMLButtonElement);
+                if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+                  e.preventDefault();
+                  const next =
+                    e.key === 'Home'
+                      ? 0
+                      : e.key === 'End'
+                        ? items.length - 1
+                        : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                  items[next]?.focus();
                 }
-              </button>
-            ))}
-          </motion.div>
-        </>
-      )}
+                if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setMenu(null);
+                }
+              }}
+              style={{
+                left: Math.min(menu.x, window.innerWidth - 190),
+                top: Math.min(menu.y, window.innerHeight - 220),
+              }}
+            >
+              {(['file', 'folder', 'rename', 'move', 'delete'] as const).map((kind, index) => (
+                <button
+                  role="menuitem"
+                  autoFocus={index === 0}
+                  key={kind}
+                  disabled={!menu.path && ['rename', 'move', 'delete'].includes(kind)}
+                  onClick={() => {
+                    setAction({
+                      kind,
+                      path: ['file', 'folder'].includes(kind) ? folder : menu.path,
+                    });
+                    setMenu(null);
+                  }}
+                >
+                  {
+                    {
+                      file: 'New file',
+                      folder: 'New folder',
+                      rename: 'Rename',
+                      move: 'Move to path…',
+                      delete: 'Delete…',
+                    }[kind]
+                  }
+                </button>
+              ))}
+            </motion.div>
+          </>,
+          document.body,
+        )}
       {action && (
         <FormDialog
           title={

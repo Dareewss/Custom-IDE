@@ -27,7 +27,7 @@ export function FormDialog({
     ref.current?.showModal();
   }, []);
   return (
-    <dialog className="dialog" ref={ref} onCancel={onClose} aria-label={title}>
+    <dialog className="glass glass--modal dialog" ref={ref} onCancel={onClose} aria-label={title}>
       <form
         onSubmit={async (event) => {
           event.preventDefault();
@@ -42,7 +42,7 @@ export function FormDialog({
           }
         }}
       >
-        <div className="dialog-heading">
+        <div className="glass glass--modal dialog-heading">
           <h2>{title}</h2>
           <IconButton label="Close dialog" onClick={onClose}>
             <X size={16} />
@@ -63,7 +63,7 @@ export function FormDialog({
             {error}
           </p>
         )}
-        <div className="dialog-actions">
+        <div className="glass glass--modal dialog-actions">
           <button type="button" className="secondary-button" onClick={onClose}>
             Cancel
           </button>

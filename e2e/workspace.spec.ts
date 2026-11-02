@@ -25,23 +25,28 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Manage projects', exact: true })).toBeVisible();
 });
 
-test('uses flat dark surfaces and persists background-only transparency from 0 to 100', async ({
+test('uses frosted surfaces and persists background-only transparency from 0 to 100', async ({
   page,
 }) => {
   await importProject(page, { 'main.py': 'print("Text remains visible")\n' }, 'Transparency');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('.workspace')).toHaveCSS('background-image', 'none');
-  await expect(page.locator('.editor-card')).toHaveCSS('background-image', 'none');
+  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(24px\)/);
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
   await expect(page.getByRole('switch', { name: 'Liquid glass', exact: true })).toHaveCount(0);
   await expect(slider).toHaveValue('0');
-  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgb(14, 19, 31)');
+  const strongTint = await page
+    .locator('.editor-card')
+    .evaluate((el) => getComputedStyle(el).backgroundColor);
+  await expect(page.locator('.scene')).toHaveCSS('background-color', 'rgb(12, 17, 14)');
   await slider.press('End');
   await expect(slider).toHaveValue('100');
-  await expect(page.locator('.workspace')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
-  await expect(page.locator('.sidebar')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
-  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(14, 19, 31, 0)');
+  expect(
+    await page.locator('.editor-card').evaluate((el) => getComputedStyle(el).backgroundColor),
+  ).not.toBe(strongTint);
+  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+
   await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   await expect(page.locator('.view-lines')).toHaveCSS('opacity', '1');
   await expect(page.getByRole('button', { name: 'Run file', exact: true })).toHaveCSS(

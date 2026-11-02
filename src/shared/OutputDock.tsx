@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { GlassPanel } from './GlassPanel';
 import { Terminal, X, WandSparkles, Save, Command, ArrowUpRight } from 'lucide-react';
 import { useUI, type PanelTab } from './ui-store';
 import { IconButton } from './IconButton';
@@ -19,7 +20,8 @@ export function OutputDock({
   const status = useRunner((s) => s.status);
   const active = useWorkspace((s) => s.active);
   return (
-    <section
+    <GlassPanel
+      as="section"
       className={`bottom-panel output-card ${docked ? 'docked' : ''}`}
       aria-label="Output panel"
     >
@@ -90,6 +92,6 @@ export function OutputDock({
           </div>
         </div>
       )}
-    </section>
+    </GlassPanel>
   );
 }

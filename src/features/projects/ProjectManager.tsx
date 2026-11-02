@@ -41,12 +41,12 @@ export function ProjectManager() {
   return (
     <>
       <dialog
-        className="dialog projects-dialog"
+        className="glass glass--modal dialog projects-dialog"
         ref={ref}
         aria-label="Project manager"
         onCancel={close}
       >
-        <div className="dialog-heading">
+        <div className="glass glass--modal dialog-heading">
           <h2>
             <FolderOpen size={18} />
             Your projects

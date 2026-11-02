@@ -16,12 +16,12 @@ export function SettingsDialog() {
   }, [open]);
   return (
     <dialog
-      className="dialog settings-dialog"
+      className="glass glass--modal dialog settings-dialog"
       aria-label="Workspace settings"
       ref={ref}
       onCancel={close}
     >
-      <div className="dialog-heading">
+      <div className="glass glass--modal dialog-heading">
         <h2>
           <SlidersHorizontal size={18} />
           Workspace settings
@@ -108,8 +108,8 @@ export function SettingsDialog() {
         </p>
         <p className="transparency-platform-note">
           {window.codeAtlasDesktop
-            ? 'Desktop window: 100% reveals your desktop or the windows behind this app. 0% hides them completely.'
-            : 'To see your desktop through the background, open the Code Atlas desktop app. Browser windows only change their in-page backgrounds.'}
+            ? 'The scene is inside the app. 0% gives stronger tint; 100% gives the clearest glass. A minimum scrim keeps code and output readable.'
+            : 'The scene is inside the app. 0% gives stronger tint; 100% gives the clearest glass. A minimum scrim keeps code and output readable.'}
         </p>
       </div>
       {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
@@ -139,7 +139,7 @@ export function SettingsDialog() {
           />
         </label>
       ))}
-      <div className="dialog-actions">
+      <div className="glass glass--modal dialog-actions">
         <button className="primary-button" onClick={close}>
           Done
         </button>

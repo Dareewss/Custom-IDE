@@ -18,6 +18,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels';
 import { useUI, type WorkspaceLayout } from './ui-store';
 import { IconButton } from './IconButton';
 import { OutputDock } from './OutputDock';
+import { GlassPanel } from './GlassPanel';
 import { DesktopResizeHandles, DesktopWindowControls } from '../features/desktop/DesktopChrome';
 
 interface ShellProps {
@@ -58,7 +59,7 @@ export function Shell(props: ShellProps) {
   ];
   return (
     <main className="workspace" data-layout={ui.layout} aria-label="Code Atlas workspace">
-      <header className="titlebar">
+      <GlassPanel as="header" className="titlebar">
         <button
           className="brand"
           onClick={() => useUI.setState({ modal: 'projects' })}
@@ -114,10 +115,10 @@ export function Shell(props: ShellProps) {
           </IconButton>
           <DesktopWindowControls />
         </div>
-      </header>
+      </GlassPanel>
       <DesktopResizeHandles />
       <div className="workbench">
-        <nav className="activitybar" aria-label="Workspace views">
+        <GlassPanel as="nav" className="activitybar" aria-label="Workspace views">
           <div>
             <IconButton label="Explorer" aria-pressed={ui.sidebar} onClick={ui.toggleSidebar}>
               <Files size={23} />
@@ -152,12 +153,12 @@ export function Shell(props: ShellProps) {
               CA
             </button>
           </div>
-        </nav>
+        </GlassPanel>
         <Group orientation="horizontal" className="main-group">
           {ui.sidebar && (
             <>
               <Panel defaultSize="244px" minSize="185px" maxSize="420px">
-                <aside className="sidebar">
+                <GlassPanel as="aside" className="sidebar">
                   <div className="section-heading">
                     Explorer
                     <IconButton label="Hide explorer" onClick={ui.toggleSidebar}>
@@ -172,7 +173,7 @@ export function Shell(props: ShellProps) {
                     </span>
                     <Box size={14} />
                   </div>
-                </aside>
+                </GlassPanel>
               </Panel>
               <Separator className="separator vertical" aria-label="Resize explorer" />
             </>
@@ -180,7 +181,7 @@ export function Shell(props: ShellProps) {
           <Panel minSize="200px">
             <Group className="editor-layout" orientation={docked ? 'horizontal' : 'vertical'}>
               <Panel minSize={docked ? '250px' : '120px'} defaultSize={docked ? '68%' : '72%'}>
-                <div className="editor-card">
+                <GlassPanel className="editor-card">
                   <div className="editor-toolbar">
                     <span className="editor-section-label">
                       <Code2 size={14} />
@@ -192,7 +193,7 @@ export function Shell(props: ShellProps) {
                   <section className="editor-surface" aria-label="Editor">
                     {props.editor}
                   </section>
-                </div>
+                </GlassPanel>
               </Panel>
               {ui.bottom && (
                 <>
@@ -213,7 +214,7 @@ export function Shell(props: ShellProps) {
           </Panel>
         </Group>
       </div>
-      <footer className="statusbar">
+      <GlassPanel as="footer" className="statusbar">
         <div>
           <span className="status-brand">
             <Box size={12} />
@@ -227,9 +228,9 @@ export function Shell(props: ShellProps) {
           <span>UTF-8</span>
           <span className="status-language">{props.languageName ?? 'No file'}</span>
         </div>
-      </footer>
+      </GlassPanel>
       {ui.error && (
-        <div className="error-toast" role="alert">
+        <div className="error-toast glass glass--popover" role="alert">
           <span>{ui.error}</span>
           <IconButton label="Dismiss error" onClick={() => ui.reportError(null)}>
             <X size={16} />
