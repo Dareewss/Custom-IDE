@@ -20,3 +20,6 @@ __pycache__/
 *.[rR][sS][tT]
 *.[lL][oO][gG]
 !/README.md
+
+/docs/reference/
+/docs/screenshots/
