@@ -1,0 +1,101 @@
+:root {
+  --palette-graphite: #545454;
+  --palette-slate: #69747c;
+  --palette-sage: #6baa75;
+  --palette-green: #84dd63;
+  --palette-lime: #cbff4d;
+  --scene-base: 12 17 14;
+  --scene-facet: 105 116 124;
+  --scene-facet-opacity: 0.12;
+  --blob-1: var(--palette-green);
+  --blob-2: var(--palette-lime);
+  --blob-3: var(--palette-sage);
+  --blob-4: var(--palette-lime);
+  --scene-duration: 38s;
+  --scene-shape-opacity: 0.95;
+}
+:root[data-theme='light'] {
+  --scene-base: 239 245 235;
+  --scene-facet-opacity: 0.06;
+  --blob-1: #c0edb0;
+  --blob-2: #e3ff9d;
+  --blob-3: #a2d1b0;
+  --blob-4: #efffc6;
+}
+.workspace,
+:root[data-theme='light'] .workspace {
+  z-index: 1;
+  background: transparent;
+}
+.scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background: rgb(var(--scene-base) / var(--workspace-opacity));
+}
+.scene-facets {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: rgb(var(--scene-facet) / var(--scene-facet-opacity));
+  stroke: rgb(var(--scene-base));
+  stroke-width: 2;
+}
+.scene-shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: var(--scene-shape-opacity);
+  animation: scene-drift var(--scene-duration) ease-in-out infinite alternate;
+  will-change: transform;
+}
+.scene-shape-1 {
+  width: 47vw;
+  height: 47vw;
+  right: -12vw;
+  top: -16vw;
+  background: radial-gradient(circle at 32% 28%, var(--blob-2), var(--blob-1) 58%, var(--blob-3));
+}
+.scene-shape-2 {
+  width: 36vw;
+  height: 36vw;
+  right: 7vw;
+  top: 23vh;
+  background: radial-gradient(circle at 70% 25%, var(--blob-1), var(--blob-3) 70%);
+  animation-delay: -17s;
+}
+.scene-shape-3 {
+  width: 37vw;
+  height: 37vw;
+  left: -14vw;
+  bottom: -16vw;
+  background: radial-gradient(circle at 72% 26%, var(--blob-2), var(--blob-3) 75%);
+  animation-delay: -26s;
+}
+.scene-shape-4 {
+  width: 17vw;
+  height: 17vw;
+  left: 37vw;
+  top: -8vw;
+  background: radial-gradient(circle at 35% 25%, var(--blob-4), var(--blob-1) 80%);
+  animation-delay: -9s;
+}
+.scene-shape-5 {
+  display: none;
+}
+.scene[data-paused='true'] .scene-shape {
+  animation-play-state: paused;
+}
+@keyframes scene-drift {
+  to {
+    transform: translate3d(3vw, 2vh, 0) rotate(8deg) scale(1.04);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-shape {
+    animation: none;
+    will-change: auto;
+  }
+}

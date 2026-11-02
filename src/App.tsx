@@ -24,6 +24,7 @@ import { useCursor } from './features/editor/navigation';
 import { startAppLifecycle } from './features/app/install';
 import { AppControls, InstallDialog } from './features/app/AppControls';
 import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
+import { BackgroundLayer } from './features/appearance/BackgroundLayer';
 
 export function App() {
   useDesktopLifecycle();
@@ -58,6 +59,7 @@ export function App() {
     );
   return (
     <>
+      <BackgroundLayer />
       <SettingsDialog />
       <InstallDialog />
       <ProjectManager />
