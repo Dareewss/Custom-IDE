@@ -1,10 +1,9 @@
 import { useEffect, type PointerEvent } from 'react';
-import { Minus, X, Expand, Camera } from 'lucide-react';
+import { Minus, X, Expand } from 'lucide-react';
 import { IconButton } from '../../shared/IconButton';
 import { persistCurrent } from '../projects/persistence';
 import { useUI } from '../../shared/ui-store';
 import './desktop.css';
-import './liquid-glass.css';
 
 export function useDesktopLifecycle() {
   useEffect(() => {
@@ -24,12 +23,6 @@ export function DesktopWindowControls() {
   if (!desktop) return null;
   return (
     <div className="desktop-window-controls" aria-label="Window controls">
-      <IconButton
-        label="Copy workspace screenshot (includes glass)"
-        onClick={() => void desktop.copyScreenshot().catch(useUI.getState().reportError)}
-      >
-        <Camera size={15} />
-      </IconButton>
       <IconButton label="Minimize window" onClick={desktop.minimize}>
         <Minus size={16} />
       </IconButton>

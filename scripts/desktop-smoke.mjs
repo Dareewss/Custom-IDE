@@ -68,38 +68,18 @@ try {
   for (const value of [100, 50, 0, 100]) {
     await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
     const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
-    await expect(page.getByRole('switch', { name: 'Liquid glass', exact: true })).toBeChecked();
     await slider.press(value === 0 ? 'Home' : 'End');
     if (value === 50) for (let i = 0; i < 50; i++) await slider.press('ArrowLeft');
     await expect(slider).toHaveValue(String(value));
     await page.getByRole('button', { name: 'Done', exact: true }).click();
-    if (
-      value === 50 &&
-      (await page.evaluate(
-        () =>
-          window.codeAtlasDesktop.nativeGlass &&
-          !matchMedia('(prefers-reduced-transparency: reduce)').matches,
-      ))
-    ) {
-      await expect(page.locator('html')).toHaveAttribute('data-optical-glass', 'ready', {
-        timeout: 20000,
-      });
-      expect(
-        await app.evaluate(({ BrowserWindow }) =>
-          BrowserWindow.getAllWindows()[0].isContentProtected(),
-        ),
-      ).toBe(true);
-    } else {
-      await expect
-        .poll(async () => (await native()).alpha)
-        .toBe(value === 0 ? 255 : value === 100 ? 0 : 130);
-      if (value !== 50)
-        expect(
-          await app.evaluate(({ BrowserWindow }) =>
-            BrowserWindow.getAllWindows()[0].isContentProtected(),
-          ),
-        ).toBe(false);
-    }
+    await expect
+      .poll(async () => (await native()).alpha)
+      .toBe(value === 0 ? 255 : value === 100 ? 0 : 130);
+    expect(
+      await app.evaluate(({ BrowserWindow }) =>
+        BrowserWindow.getAllWindows()[0].isContentProtected(),
+      ),
+    ).toBe(false);
     expect((await native()).opacity).toBe(1);
     await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   }
@@ -121,20 +101,10 @@ try {
   expect((await native()).alpha).toBe(0);
 
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
-  const liveSlider = page.getByRole('slider', { name: 'Background transparency', exact: true });
-  await liveSlider.press('End');
-  for (let i = 0; i < 25; i++) await liveSlider.press('ArrowLeft');
+  const partialSlider = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  await partialSlider.press('End');
+  for (let i = 0; i < 25; i++) await partialSlider.press('ArrowLeft');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
-  if (
-    await page.evaluate(
-      () =>
-        window.codeAtlasDesktop.nativeGlass &&
-        !matchMedia('(prefers-reduced-transparency: reduce)').matches,
-    )
-  )
-    await expect(page.locator('html')).toHaveAttribute('data-optical-glass', 'ready', {
-      timeout: 20000,
-    });
   const zip = new JSZip();
   zip.file('main.py', 'from helper import greet\nname = input("Name? ")\ngreet(name)\n');
   zip.file('helper.py', 'def greet(name):\n    print("Native hello " + name)\n');

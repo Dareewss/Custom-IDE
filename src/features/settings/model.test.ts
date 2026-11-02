@@ -13,7 +13,6 @@ it('round-trips valid settings', () => {
     fontSize: 18,
     theme: 'light',
     wordWrap: true,
-    glassEffect: false,
   };
   expect(parseSettings(JSON.parse(JSON.stringify(settings)))).toEqual(settings);
 });
@@ -25,8 +24,14 @@ it('rejects invalid persisted values', () => {
       autosaveDelay: NaN,
       theme: 'pink',
       minimap: 'true',
-      glassEffect: 'false',
     }),
   ).toEqual(defaultSettings);
   expect(parseSettings(null)).toEqual(defaultSettings);
+});
+it('discards retired glass preferences while preserving existing settings', () => {
+  expect(parseSettings({ glassEffect: true, backgroundTransparency: 75, fontSize: 18 })).toEqual({
+    ...defaultSettings,
+    backgroundTransparency: 75,
+    fontSize: 18,
+  });
 });

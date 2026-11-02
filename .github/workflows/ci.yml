@@ -33,4 +33,3 @@ jobs:
       - run: npm run build
       - run: npm run desktop:compile
       - run: npm run test:desktop
-      - run: npm run test:glass

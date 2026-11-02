@@ -21,7 +21,6 @@
     "desktop": "npm run build && npm run desktop:compile && node scripts/start-desktop.mjs",
     "desktop:package": "npm run build && npm run desktop:compile && node scripts/package-desktop.mjs",
     "test:desktop": "node scripts/desktop-smoke.mjs",
-    "test:glass": "node scripts/glass-smoke.mjs",
     "desktop:shortcut": "powershell -NoProfile -File scripts/create-desktop-shortcut.ps1"
   },
   "dependencies": {

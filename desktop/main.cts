@@ -9,9 +9,7 @@ import {
   type Rectangle,
 } from 'electron';
 import { join, resolve } from 'node:path';
-import { release } from 'node:os';
 import { serveDesktop } from './server.js';
-import { attachDesktopGlass } from './glass.cjs';
 
 app.setName('Code Atlas');
 app.setPath(
@@ -26,7 +24,6 @@ let rendererReady = false;
 let normalBounds: Rectangle | null = null;
 let resizing: { edge: string; x: number; y: number; bounds: Rectangle } | null = null;
 let stopServer: (() => void) | undefined;
-const nativeGlass = process.platform === 'win32' && Number(release().split('.')[2]) >= 22621;
 
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
@@ -71,43 +68,24 @@ else {
           sandbox: true,
           nodeIntegration: false,
           backgroundThrottling: process.env.CODE_ATLAS_TEST_MODE !== '1',
-          additionalArguments: [`--atlas-native-glass=${nativeGlass ? 1 : 0}`],
         },
       });
       window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-      attachDesktopGlass(window, origin);
       window.webContents.on('will-navigate', (event, url) => {
         if (new URL(url).origin !== origin) event.preventDefault();
       });
-      window.webContents.session.setPermissionRequestHandler((contents, permission, callback) =>
-        callback(
-          permission === 'display-capture' &&
-            contents === window?.webContents &&
-            contents.getURL().startsWith(`${origin}/`),
-        ),
+      window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) =>
+        callback(false),
       );
       const trusted = (event: Electron.IpcMainEvent) =>
         window &&
         event.sender === window.webContents &&
         event.senderFrame === window.webContents.mainFrame &&
         event.senderFrame.url.startsWith(`${origin}/`);
-      ipcMain.on(
-        'atlas:appearance',
-        (event, glass: unknown, transparency: unknown, theme: unknown) => {
-          if (
-            !trusted(event) ||
-            !window ||
-            typeof glass !== 'boolean' ||
-            typeof transparency !== 'number' ||
-            !Number.isInteger(transparency) ||
-            transparency < 0 ||
-            transparency > 100 ||
-            (theme !== 'dark' && theme !== 'light')
-          )
-            return;
-          if (nativeTheme.themeSource !== theme) nativeTheme.themeSource = theme;
-        },
-      );
+      ipcMain.on('atlas:theme', (event, theme: unknown) => {
+        if (!trusted(event) || (theme !== 'dark' && theme !== 'light')) return;
+        if (nativeTheme.themeSource !== theme) nativeTheme.themeSource = theme;
+      });
       ipcMain.on('atlas:window', (event, action: unknown) => {
         if (!trusted(event) || !window) return;
         if (action === 'ready') rendererReady = true;
