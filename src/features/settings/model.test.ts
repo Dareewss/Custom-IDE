@@ -58,3 +58,8 @@ it('migrates old preferences and validates preset, blur and background switches'
     backgroundAnimation: true,
   });
 });
+it('enables performance mode only for an explicit persisted boolean', () => {
+  expect(parseSettings({ performanceMode: true }).performanceMode).toBe(true);
+  for (const performanceMode of [false, undefined, null, 'true', 1])
+    expect(parseSettings({ performanceMode }).performanceMode).toBe(false);
+});

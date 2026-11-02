@@ -114,16 +114,26 @@ export function SettingsDialog() {
           aria-valuetext={`${settings.blurStrength} pixels`}
           onChange={(event) => settings.setSetting('blurStrength', Number(event.target.value))}
         />
-        {(['backgroundBlobs', 'backgroundAnimation'] as const).map((key) => (
+        {(['backgroundBlobs', 'backgroundAnimation', 'performanceMode'] as const).map((key) => (
           <label className="setting-toggle" key={key}>
             <span>
               <strong>
-                {key === 'backgroundBlobs' ? 'Background blobs' : 'Background animation'}
+                {
+                  {
+                    backgroundBlobs: 'Background blobs',
+                    backgroundAnimation: 'Background animation',
+                    performanceMode: 'Performance mode',
+                  }[key]
+                }
               </strong>
               <small>
-                {key === 'backgroundBlobs'
-                  ? 'Show the decorative shapes behind the glass.'
-                  : 'Let the shapes drift slowly while this app is visible.'}
+                {
+                  {
+                    backgroundBlobs: 'Show the decorative shapes behind the glass.',
+                    backgroundAnimation: 'Let the shapes drift slowly while this app is visible.',
+                    performanceMode: 'Use plain translucent fills without blur or animation.',
+                  }[key]
+                }
               </small>
             </span>
             <input
@@ -133,6 +143,9 @@ export function SettingsDialog() {
             />
           </label>
         ))}
+        <p className="transparency-platform-note">
+          System preferences for reduced motion and transparency take priority over these effects.
+        </p>
       </fieldset>
       <div className="transparency-control">
         <div className="transparency-heading">
