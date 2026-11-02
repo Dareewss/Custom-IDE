@@ -59,3 +59,22 @@
   max-height: calc(100dvh - 36px);
   overflow: auto;
 }
+.appearance-settings {
+  margin: 14px 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+  min-width: 0;
+}
+.appearance-settings legend {
+  padding: 0 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.appearance-settings .field {
+  margin-bottom: 15px;
+}
+.appearance-settings > input[type='range'] {
+  width: 100%;
+  margin-top: 10px;
+}

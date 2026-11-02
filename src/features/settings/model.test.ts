@@ -35,3 +35,26 @@ it('discards retired glass preferences while preserving existing settings', () =
     fontSize: 18,
   });
 });
+it('migrates old preferences and validates preset, blur and background switches', () => {
+  expect(parseSettings({ backgroundTransparency: 75, fontSize: 18 })).toMatchObject({
+    backgroundTransparency: 75,
+    fontSize: 18,
+    backgroundPreset: 'neon',
+    blurStrength: 24,
+    backgroundBlobs: true,
+    backgroundAnimation: true,
+  });
+  for (const preset of ['neon', 'ocean', 'nebula'])
+    expect(parseSettings({ backgroundPreset: preset }).backgroundPreset).toBe(preset);
+  expect(parseSettings({ backgroundPreset: 'unknown' }).backgroundPreset).toBe('neon');
+  for (const blurStrength of [-1, 49, 1.2, NaN, '24'])
+    expect(parseSettings({ blurStrength }).blurStrength).toBe(24);
+  expect(
+    parseSettings({ blurStrength: 0, backgroundBlobs: false, backgroundAnimation: false }),
+  ).toMatchObject({ blurStrength: 0, backgroundBlobs: false, backgroundAnimation: false });
+  expect(parseSettings({ blurStrength: 48 }).blurStrength).toBe(48);
+  expect(parseSettings({ backgroundBlobs: 'false', backgroundAnimation: 0 })).toMatchObject({
+    backgroundBlobs: true,
+    backgroundAnimation: true,
+  });
+});

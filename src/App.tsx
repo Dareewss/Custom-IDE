@@ -2,7 +2,7 @@ import { Shell } from './shared/Shell';
 import { Explorer } from './features/explorer/Explorer';
 import { useWorkspace } from './features/explorer/store';
 import { EditorArea } from './features/editor/EditorArea';
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import { startPersistence, usePersistence } from './features/projects/persistence';
 import { RunButton } from './features/runner/RunButton';
 import { Console } from './features/terminal/Console';
@@ -11,7 +11,7 @@ import { Problems } from './features/editor/Problems';
 import { FormatButton } from './features/editor/FormatButton';
 import { CommandPalette } from './features/command-palette/CommandPalette';
 import { SettingsDialog } from './features/settings/SettingsDialog';
-import { useSettings } from './features/settings/store';
+import { useAppearance } from './features/appearance/useAppearance';
 import { Settings, FolderOpen } from 'lucide-react';
 import { ProjectManager } from './features/projects/ProjectManager';
 import { IconButton } from './shared/IconButton';
@@ -33,20 +33,7 @@ export function App() {
   const hydrated = usePersistence((s) => s.hydrated);
   const active = useWorkspace((s) => s.active);
   const cursor = useCursor();
-  const theme = useSettings((s) => s.theme);
-  const transparency = useSettings((s) => s.backgroundTransparency);
-  useEffect(() => {
-    window.codeAtlasDesktop?.setTheme(theme);
-  }, [theme]);
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      '--workspace-opacity',
-      String((100 - transparency) / 100),
-    );
-  }, [transparency]);
-  useLayoutEffect(() => {
-    document.documentElement.dataset.theme = theme;
-  }, [theme]);
+  useAppearance();
   useEffect(startPersistence, []);
   useEffect(startAppLifecycle, []);
   if (!hydrated)

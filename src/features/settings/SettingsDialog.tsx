@@ -81,6 +81,59 @@ export function SettingsDialog() {
           />
         </label>
       </div>
+      <fieldset className="appearance-settings">
+        <legend>Glass appearance</legend>
+        <label className="field">
+          Background preset
+          <select
+            value={settings.backgroundPreset}
+            onChange={(event) =>
+              settings.setSetting(
+                'backgroundPreset',
+                event.target.value === 'ocean' || event.target.value === 'nebula'
+                  ? event.target.value
+                  : 'neon',
+              )
+            }
+          >
+            <option value="neon">Neon</option>
+            <option value="ocean">Ocean</option>
+            <option value="nebula">Nebula</option>
+          </select>
+        </label>
+        <div className="transparency-heading">
+          <label htmlFor="glass-blur">Blur strength</label>
+          <output htmlFor="glass-blur">{settings.blurStrength}px</output>
+        </div>
+        <input
+          id="glass-blur"
+          type="range"
+          min={0}
+          max={48}
+          value={settings.blurStrength}
+          aria-valuetext={`${settings.blurStrength} pixels`}
+          onChange={(event) => settings.setSetting('blurStrength', Number(event.target.value))}
+        />
+        {(['backgroundBlobs', 'backgroundAnimation'] as const).map((key) => (
+          <label className="setting-toggle" key={key}>
+            <span>
+              <strong>
+                {key === 'backgroundBlobs' ? 'Background blobs' : 'Background animation'}
+              </strong>
+              <small>
+                {key === 'backgroundBlobs'
+                  ? 'Show the decorative shapes behind the glass.'
+                  : 'Let the shapes drift slowly while this app is visible.'}
+              </small>
+            </span>
+            <input
+              type="checkbox"
+              checked={settings[key]}
+              onChange={(event) => settings.setSetting(key, event.target.checked)}
+            />
+          </label>
+        ))}
+      </fieldset>
       <div className="transparency-control">
         <div className="transparency-heading">
           <label htmlFor="background-transparency">Background transparency</label>

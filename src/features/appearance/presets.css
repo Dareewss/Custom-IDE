@@ -1,0 +1,115 @@
+:root[data-preset='ocean'] {
+  --scene-base: 12 23 43;
+  --blob-1: #126fe1;
+  --blob-2: #61d7ff;
+  --blob-3: #132b75;
+  --blob-4: #2e87fb;
+  --glass-tint: 36 67 106;
+  --glass-border-to: rgb(97 215 255 / 0.38);
+}
+:root[data-theme='light'][data-preset='ocean'] {
+  --scene-base: 224 237 248;
+  --blob-1: #a2d0ff;
+  --blob-2: #dbfaff;
+  --blob-3: #96abe2;
+  --blob-4: #c3e5fb;
+  --glass-tint: 235 248 255;
+}
+:root[data-preset='ocean'] .scene-facets {
+  display: none;
+}
+:root[data-preset='ocean'] .scene-shape {
+  background: radial-gradient(
+    circle at 30% 22%,
+    var(--blob-2),
+    var(--blob-1) 38%,
+    var(--blob-3) 80%
+  );
+  filter: blur(2px);
+}
+:root[data-preset='ocean'] .scene-shape-1 {
+  top: -30vw;
+  left: -10vw;
+}
+:root[data-preset='ocean'] .scene-shape-2 {
+  right: 7vw;
+  top: 12vh;
+}
+:root[data-preset='ocean'] .scene-shape-4 {
+  left: 27vw;
+  top: -4vw;
+}
+:root[data-preset='ocean'] .scene-shape-5 {
+  display: block;
+  width: 22vw;
+  height: 22vw;
+  right: -8vw;
+  bottom: -4vw;
+  animation-delay: -22s;
+}
+:root[data-preset='nebula'] {
+  --scene-base: 9 10 17;
+  --blob-1: #9581ff;
+  --blob-2: #cfc5ff;
+  --blob-3: #8241d6;
+  --blob-4: #f1bc9c;
+  --orb-center: #080910;
+  --glass-tint: 60 56 72;
+  --glass-border-to: rgb(175 142 255 / 0.4);
+}
+:root[data-theme='light'][data-preset='nebula'] {
+  --scene-base: 239 233 246;
+  --blob-1: #c6b4ed;
+  --blob-2: #eee0ff;
+  --blob-3: #baa0dc;
+  --blob-4: #f2d7c6;
+  --orb-center: #e9e2f1;
+  --glass-tint: 249 242 255;
+}
+:root[data-preset='nebula'] .scene-facets {
+  opacity: 0.25;
+}
+:root[data-preset='nebula'] .scene-shape {
+  background: radial-gradient(
+    circle,
+    var(--orb-center) 0 60%,
+    var(--blob-1) 65%,
+    var(--blob-2) 67%,
+    transparent 71%
+  );
+  filter: blur(3px);
+}
+:root[data-preset='nebula'] .scene-shape-1 {
+  width: 65vw;
+  height: 65vw;
+  left: 18vw;
+  top: -45vw;
+}
+:root[data-preset='nebula'] .scene-shape-2 {
+  width: 70vw;
+  height: 70vw;
+  right: -20vw;
+  top: 56vh;
+  background: radial-gradient(
+    circle,
+    var(--orb-center) 0 60%,
+    var(--blob-3) 65%,
+    var(--blob-4) 67%,
+    transparent 71%
+  );
+}
+:root[data-preset='nebula'] .scene-shape-3 {
+  width: 42vw;
+  height: 42vw;
+  left: -30vw;
+  bottom: -6vw;
+}
+:root[data-preset='nebula'] .scene-shape-4,
+:root[data-preset='nebula'] .scene-shape-5,
+:root[data-blobs='false'] .scene-shape {
+  display: none;
+}
+:root[data-animation='false'] .scene-shape {
+  animation-play-state: paused;
+  will-change: auto;
+}
