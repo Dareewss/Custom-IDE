@@ -1,6 +1,8 @@
+.glass {
+  position: relative;
+}
 .glass,
 :root[data-theme] .glass {
-  position: relative;
   background:
     var(--glass-sheen),
     linear-gradient(

@@ -23,3 +23,45 @@ for (const preset of ['neon', 'ocean', 'nebula']) {
     });
   });
 }
+
+test('keeps backing, orbs and unfiltered foreground in one layer root', async ({ page }) => {
+  await page.goto('/?glassLayers=none');
+  await page.getByRole('button', { name: 'Manage projects', exact: true }).waitFor();
+  await expect(page.locator('html')).toHaveAttribute('data-layer-orbs', 'true');
+  await expect(page.locator('.orb-plane')).toHaveCSS('z-index', '10');
+  await expect(page.locator('.editor-card')).toHaveCSS('z-index', '20');
+  await expect(page.locator('.workspace')).toHaveCSS('isolation', 'auto');
+  expect(
+    await page.evaluate(() => {
+      const panes = [...document.querySelectorAll('.workspace .glass')];
+      const violations: string[] = [];
+      for (const pane of panes)
+        for (let parent = pane.parentElement; parent; parent = parent.parentElement) {
+          const style = getComputedStyle(parent);
+          if (
+            style.filter !== 'none' ||
+            Number(style.opacity) < 1 ||
+            style.backdropFilter !== 'none' ||
+            style.maskImage !== 'none' ||
+            style.clipPath !== 'none' ||
+            style.mixBlendMode !== 'normal' ||
+            /filter|opacity/.test(style.willChange)
+          )
+            violations.push(parent.className);
+        }
+      const backing = document.querySelector('.background-pane')!;
+      const orbs = document.querySelector('.orb-plane')!;
+      const shell = document.querySelector('.workspace')!;
+      if (
+        backing.parentElement !== orbs.parentElement ||
+        orbs.parentElement !== shell.parentElement
+      )
+        violations.push('Layer roots are not siblings');
+      return violations;
+    }),
+  ).toEqual([]);
+  await page.getByRole('button', { name: 'Explorer actions', exact: true }).click();
+  await expect(page.getByRole('menu')).toHaveCSS('position', 'fixed');
+  const box = await page.getByRole('menu').boundingBox();
+  expect(box!.y + box!.height).toBeLessThanOrEqual(1000);
+});

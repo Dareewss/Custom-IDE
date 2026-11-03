@@ -24,7 +24,7 @@ import { useCursor } from './features/editor/navigation';
 import { startAppLifecycle } from './features/app/install';
 import { AppControls, InstallDialog } from './features/app/AppControls';
 import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
-import { BackgroundLayer } from './features/appearance/BackgroundLayer';
+import { LayerStack } from './features/appearance/LayerStack';
 
 export function App() {
   useDesktopLifecycle();
@@ -38,15 +38,16 @@ export function App() {
   useEffect(startAppLifecycle, []);
   if (!hydrated)
     return (
-      <main className="restore-screen" aria-label="Code Atlas workspace">
-        <span className="loading-orbit" />
-        <h1>Opening your workspace</h1>
-        <p>Making room for your next idea…</p>
-      </main>
+      <LayerStack>
+        <main className="restore-screen" aria-label="Code Atlas workspace">
+          <span className="loading-orbit" />
+          <h1>Opening your workspace</h1>
+          <p>Making room for your next idea…</p>
+        </main>
+      </LayerStack>
     );
   return (
-    <>
-      <BackgroundLayer />
+    <LayerStack>
       <SettingsDialog />
       <InstallDialog />
       <ProjectManager />
@@ -96,6 +97,6 @@ export function App() {
         variables={<Variables />}
         callStack={<CallStack />}
       />
-    </>
+    </LayerStack>
   );
 }

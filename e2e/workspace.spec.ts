@@ -39,7 +39,7 @@ test('uses frosted surfaces and persists background-only transparency from 0 to 
   const strongTint = await page
     .locator('.editor-card')
     .evaluate((el) => getComputedStyle(el).backgroundColor);
-  await expect(page.locator('.scene')).toHaveCSS('background-color', 'rgb(12, 17, 14)');
+  await expect(page.locator('.background-pane')).toHaveCSS('background-color', 'rgb(12, 17, 14)');
   await slider.press('End');
   await expect(slider).toHaveValue('100');
   expect(

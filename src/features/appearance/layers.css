@@ -1,0 +1,82 @@
+:root {
+  --layer-desktop: -1;
+  --layer-backing: 0;
+  --layer-orbs: 10;
+  --layer-foreground: 20;
+  --layer-content: 30;
+  --layer-popover: 50;
+  --layer-dialog: 80;
+  --layer-notice: 90;
+}
+.layer-stack {
+  position: relative;
+  height: 100dvh;
+  background: transparent;
+}
+.background-pane,
+.orb-plane {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.background-pane {
+  z-index: var(--layer-backing);
+  background: rgb(var(--scene-base) / var(--workspace-opacity));
+}
+.orb-plane {
+  z-index: var(--layer-orbs);
+  overflow: hidden;
+}
+.scene {
+  background: transparent;
+}
+.workspace,
+:root[data-theme='light'] .workspace {
+  z-index: auto;
+  isolation: auto;
+}
+.glass {
+  z-index: var(--layer-foreground);
+}
+.glass > * {
+  position: relative;
+  z-index: var(--layer-content);
+}
+.glass.context-menu {
+  z-index: var(--layer-popover);
+}
+.menu-dismiss {
+  z-index: calc(var(--layer-popover) - 1);
+}
+.glass.command-dialog {
+  z-index: var(--layer-dialog);
+}
+[cmdk-overlay] {
+  z-index: calc(var(--layer-dialog) - 1);
+}
+.glass.error-toast {
+  z-index: var(--layer-notice);
+}
+:root[data-layer-backing='false'] .background-pane,
+:root[data-layer-orbs='false'] .orb-plane {
+  visibility: hidden;
+}
+:root[data-layer-foreground='false'] .glass {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-layer-foreground='false'] .glass::before,
+:root[data-layer-foreground='false'] .glass::after {
+  display: none;
+}
+:root[data-layer-content='false'] .glass * {
+  color: transparent !important;
+  caret-color: transparent;
+  text-shadow: none;
+}
+:root[data-layer-content='false'] .glass svg {
+  visibility: hidden;
+}

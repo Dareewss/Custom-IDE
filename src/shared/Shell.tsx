@@ -58,7 +58,12 @@ export function Shell(props: ShellProps) {
     { id: 'focus', label: 'Focus', icon: <Focus size={14} /> },
   ];
   return (
-    <main className="workspace" data-layout={ui.layout} aria-label="Code Atlas workspace">
+    <main
+      className="workspace"
+      data-layer="foreground"
+      data-layout={ui.layout}
+      aria-label="Code Atlas workspace"
+    >
       <GlassPanel as="header" className="titlebar">
         <button
           className="brand"

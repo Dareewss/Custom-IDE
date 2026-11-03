@@ -10,6 +10,7 @@ import './features/appearance/shell.css';
 import './features/appearance/editor.css';
 import './features/appearance/presets.css';
 import './features/appearance/fallbacks.css';
+import './features/appearance/layers.css';
 import { ErrorBoundary } from './shared/ErrorBoundary';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
