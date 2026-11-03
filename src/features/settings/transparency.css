@@ -55,8 +55,14 @@
   margin-top: 7px;
   color: var(--muted);
 }
-.settings-dialog {
+.dialog.settings-dialog {
   max-height: calc(100dvh - 36px);
+  padding: 0;
+  overflow: hidden;
+}
+.settings-scroll {
+  max-height: calc(100dvh - 38px);
+  padding: 22px;
   overflow: auto;
 }
 .appearance-settings {

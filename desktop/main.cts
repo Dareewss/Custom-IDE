@@ -175,7 +175,9 @@ else {
       await window.loadURL(origin);
     })
     .catch((error: unknown) => {
-      dialog.showErrorBox('Code Atlas could not open', String(error));
+      if (process.env.CODE_ATLAS_TEST_MODE === '1')
+        console.error('Code Atlas could not open', error);
+      else dialog.showErrorBox('Code Atlas could not open', String(error));
       allowClose = true;
       app.quit();
     });

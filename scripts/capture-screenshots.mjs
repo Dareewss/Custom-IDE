@@ -30,6 +30,9 @@ try {
   await expect(page.locator('.workspace-title')).toContainText('Binary search lab');
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('exit 0');
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('88');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
   const folder = page.getByRole('treeitem', { name: 'algorithms', exact: true });
   if ((await folder.getAttribute('aria-expanded')) === 'false') await folder.click();
   await page.getByRole('treeitem', { name: 'search.py', exact: true }).click();
@@ -51,10 +54,13 @@ try {
   await page.getByRole('button', { name: 'Stop (Shift+F5)', exact: true }).click();
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const transparency = page.getByRole('slider', { name: 'Background transparency', exact: true });
-  await transparency.press('Home');
+  await transparency.fill('0');
   for (let i = 0; i < 50; i++) await transparency.press('ArrowRight');
+  await page.locator('.settings-scroll').evaluate((el) => {
+    el.scrollTop = 0;
+  });
   await page.screenshot({ path: 'docs/screenshots/settings.png' });
-  await transparency.press('Home');
+  await transparency.fill('88');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.setViewportSize({ width: 375, height: 812 });
   await page.reload();
