@@ -21,6 +21,7 @@ if (!executablePath) {
   await cp('dist', env.CODE_ATLAS_ASSETS_DIR, { recursive: true });
 }
 let app;
+let livePage;
 const launch = async () => {
   app = await _electron.launch({
     ...(executablePath
@@ -29,6 +30,7 @@ const launch = async () => {
     env,
   });
   const page = await app.firstWindow();
+  livePage = page;
   page.setDefaultTimeout(30000);
   page.on('console', (message) => {
     if (message.type() === 'error') console.error(message.text());
@@ -36,20 +38,21 @@ const launch = async () => {
   await expect(page.getByRole('button', { name: 'Manage projects', exact: true })).toBeVisible();
   return page;
 };
-const native = async () =>
-  app.evaluate(async ({ BrowserWindow }) => {
+const native = async () => {
+  const properties = await app.evaluate(({ BrowserWindow }) => {
     const window = BrowserWindow.getAllWindows()[0];
-    const image = await window.capturePage(
-      { x: 8, y: 220, width: 1, height: 1 },
-      { stayHidden: true },
-    );
     return {
-      alpha: image.toBitmap()[3],
       opacity: window.getOpacity(),
       background: window.getBackgroundColor(),
       bounds: window.getBounds(),
     };
   });
+  const alpha = await livePage.locator('.background-pane').evaluate((element) => {
+    const color = getComputedStyle(element).backgroundColor;
+    return (color.startsWith('rgba') ? Number(color.slice(0, -1).split(',').at(-1)) : 1) * 255;
+  });
+  return { ...properties, alpha };
+};
 try {
   let page = await launch();
   expect(
@@ -62,7 +65,7 @@ try {
   await expect(page.getByText('Desktop app', { exact: true })).toBeVisible();
   const initial = await native();
   expect(initial.opacity).toBe(1);
-  expect(initial.alpha).toBe(255);
+  expect(initial.alpha).toBeCloseTo(0.84 * 255, 1);
   expect(initial.background).toMatch(/^#000000(00)?$/);
 
   for (const value of [100, 50, 0, 100]) {
@@ -72,8 +75,9 @@ try {
     if (value === 50) for (let i = 0; i < 50; i++) await slider.press('ArrowLeft');
     await expect(slider).toHaveValue(String(value));
     await page.getByRole('button', { name: 'Done', exact: true }).click();
-    if (value === 0) await expect.poll(async () => (await native()).alpha).toBe(255);
-    else await expect.poll(async () => (await native()).alpha).toBeLessThan(255);
+    await expect
+      .poll(async () => (await native()).alpha)
+      .toBeCloseTo((0.02 + ((100 - value) / 100) * 0.82) * 255, 1);
     expect(
       await app.evaluate(({ BrowserWindow }) =>
         BrowserWindow.getAllWindows()[0].isContentProtected(),

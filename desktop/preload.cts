@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 const bridge: CodeAtlasDesktop = {
   platform: process.platform,
+  supportsDesktopBlur: process.argv.includes('--atlas-desktop-blur=1'),
+  setDesktopBlur: (enabled) => ipcRenderer.invoke('atlas:desktop-blur', enabled),
   setTheme: (theme) => ipcRenderer.send('atlas:theme', theme),
   minimize: () => ipcRenderer.send('atlas:window', 'minimize'),
   toggleExpand: () => ipcRenderer.send('atlas:window', 'expand'),

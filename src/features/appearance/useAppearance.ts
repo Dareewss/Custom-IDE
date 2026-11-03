@@ -1,5 +1,7 @@
 import { useLayoutEffect } from 'react';
 import { useSettings } from '../settings/store';
+import { useUI } from '../../shared/ui-store';
+import { useReducedTransparency } from './preferences';
 
 export function useAppearance() {
   const theme = useSettings((s) => s.theme);
@@ -9,6 +11,8 @@ export function useAppearance() {
   const blobs = useSettings((s) => s.backgroundBlobs);
   const animation = useSettings((s) => s.backgroundAnimation);
   const performanceMode = useSettings((s) => s.performanceMode);
+  const desktopBlur = useSettings((s) => s.desktopBlur);
+  const reducedTransparency = useReducedTransparency();
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.dataset.theme = theme;
@@ -18,6 +22,27 @@ export function useAppearance() {
     root.dataset.performance = String(performanceMode);
     root.style.setProperty('--workspace-opacity', String((100 - transparency) / 100));
     root.style.setProperty('--glass-blur', `${blur}px`);
+    root.style.setProperty(
+      '--glass-bg-opacity',
+      String(
+        (theme === 'dark' ? 0.02 : 0.03) +
+          ((100 - transparency) / 100) * (theme === 'dark' ? 0.82 : 0.45),
+      ),
+    );
     window.codeAtlasDesktop?.setTheme(theme);
-  }, [theme, transparency, preset, blur, blobs, animation, performanceMode]);
+    if (window.codeAtlasDesktop?.supportsDesktopBlur)
+      void window.codeAtlasDesktop
+        .setDesktopBlur(desktopBlur && !performanceMode && !reducedTransparency)
+        .catch(useUI.getState().reportError);
+  }, [
+    theme,
+    transparency,
+    preset,
+    blur,
+    blobs,
+    animation,
+    performanceMode,
+    desktopBlur,
+    reducedTransparency,
+  ]);
 }

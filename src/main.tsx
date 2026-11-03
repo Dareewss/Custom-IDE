@@ -11,6 +11,7 @@ import './features/appearance/editor.css';
 import './features/appearance/presets.css';
 import './features/appearance/fallbacks.css';
 import './features/appearance/layers.css';
+import './features/appearance/backing.css';
 import { ErrorBoundary } from './shared/ErrorBoundary';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

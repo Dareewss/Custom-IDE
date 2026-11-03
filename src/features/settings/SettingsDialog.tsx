@@ -83,6 +83,22 @@ export function SettingsDialog() {
       </div>
       <fieldset className="appearance-settings">
         <legend>Glass appearance</legend>
+        <label className="setting-toggle">
+          <span>
+            <strong>Desktop blur</strong>
+            <small>
+              {window.codeAtlasDesktop?.supportsDesktopBlur
+                ? 'Light system frost behind the window. Off uses the CSS backing only.'
+                : 'Available in the supported Windows desktop app. The CSS backing stays available here.'}
+            </small>
+          </span>
+          <input
+            type="checkbox"
+            checked={settings.desktopBlur}
+            disabled={!window.codeAtlasDesktop?.supportsDesktopBlur}
+            onChange={(event) => settings.setSetting('desktopBlur', event.target.checked)}
+          />
+        </label>
         <label className="field">
           Background preset
           <select

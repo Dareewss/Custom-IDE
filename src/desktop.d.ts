@@ -1,6 +1,8 @@
 type DesktopResizeEdge = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 interface CodeAtlasDesktop {
   readonly platform: string;
+  readonly supportsDesktopBlur: boolean;
+  setDesktopBlur: (enabled: boolean) => Promise<boolean>;
   setTheme: (theme: 'dark' | 'light') => void;
   minimize: () => void;
   toggleExpand: () => void;

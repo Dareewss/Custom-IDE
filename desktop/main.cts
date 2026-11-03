@@ -10,6 +10,7 @@ import {
 } from 'electron';
 import { join, resolve } from 'node:path';
 import { serveDesktop } from './server.js';
+import { attachAppearance, desktopBlurSupported } from './appearance.cjs';
 
 app.setName('Code Atlas');
 app.setPath(
@@ -68,8 +69,10 @@ else {
           sandbox: true,
           nodeIntegration: false,
           backgroundThrottling: process.env.CODE_ATLAS_TEST_MODE !== '1',
+          additionalArguments: [`--atlas-desktop-blur=${desktopBlurSupported ? 1 : 0}`],
         },
       });
+      attachAppearance(window, origin);
       // Native builds serve their own complete bundle; an old PWA controller must
       // not intercept hashed runtime assets after an executable update.
       await window.webContents.session.clearStorageData({
@@ -88,10 +91,6 @@ else {
         event.sender === window.webContents &&
         event.senderFrame === window.webContents.mainFrame &&
         event.senderFrame.url.startsWith(`${origin}/`);
-      ipcMain.on('atlas:theme', (event, theme: unknown) => {
-        if (!trusted(event) || (theme !== 'dark' && theme !== 'light')) return;
-        if (nativeTheme.themeSource !== theme) nativeTheme.themeSource = theme;
-      });
       ipcMain.on('atlas:window', (event, action: unknown) => {
         if (!trusted(event) || !window) return;
         if (action === 'ready') rendererReady = true;

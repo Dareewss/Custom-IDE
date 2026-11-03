@@ -63,3 +63,8 @@ it('enables performance mode only for an explicit persisted boolean', () => {
   for (const performanceMode of [false, undefined, null, 'true', 1])
     expect(parseSettings({ performanceMode }).performanceMode).toBe(false);
 });
+it('migrates desktop blur on by default and preserves a disabled preference', () => {
+  expect(parseSettings({}).desktopBlur).toBe(true);
+  expect(parseSettings({ desktopBlur: false }).desktopBlur).toBe(false);
+  expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(true);
+});

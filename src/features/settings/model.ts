@@ -5,6 +5,7 @@ export interface Settings {
   backgroundBlobs: boolean;
   backgroundAnimation: boolean;
   performanceMode: boolean;
+  desktopBlur: boolean;
   fontSize: number;
   tabSize: number;
   theme: 'dark' | 'light';
@@ -20,6 +21,7 @@ export const defaultSettings: Settings = {
   backgroundBlobs: true,
   backgroundAnimation: true,
   performanceMode: false,
+  desktopBlur: true,
   fontSize: 14,
   tabSize: 4,
   theme: 'dark',
@@ -53,6 +55,7 @@ export function parseSettings(input: unknown): Settings {
     backgroundAnimation:
       typeof value.backgroundAnimation === 'boolean' ? value.backgroundAnimation : true,
     performanceMode: value.performanceMode === true,
+    desktopBlur: typeof value.desktopBlur === 'boolean' ? value.desktopBlur : true,
     fontSize: number('fontSize', 10, 32),
     tabSize: number('tabSize', 1, 8),
     autosaveDelay: number('autosaveDelay', 100, 10000),
