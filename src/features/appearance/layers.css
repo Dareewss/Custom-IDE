@@ -80,3 +80,8 @@
 :root[data-layer-content='false'] .glass svg {
   visibility: hidden;
 }
+
+.scene[data-motion='running'] .scene-shape,
+.scene[data-motion='settling'] .scene-shape {
+  will-change: transform;
+}

@@ -118,6 +118,20 @@ export function SettingsDialog() {
           </select>
         </label>
         <div className="transparency-heading">
+          <label htmlFor="animation-speed">Animation speed</label>
+          <output htmlFor="animation-speed">{settings.animationSpeed}x</output>
+        </div>
+        <input
+          id="animation-speed"
+          type="range"
+          min={0.25}
+          max={2}
+          step={0.25}
+          value={settings.animationSpeed}
+          aria-valuetext={`${settings.animationSpeed} times speed`}
+          onChange={(event) => settings.setSetting('animationSpeed', Number(event.target.value))}
+        />
+        <div className="transparency-heading">
           <label htmlFor="glass-blur">Blur strength</label>
           <output htmlFor="glass-blur">{settings.blurStrength}px</output>
         </div>

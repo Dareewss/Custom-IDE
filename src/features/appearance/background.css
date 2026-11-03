@@ -9,7 +9,6 @@
   --blob-2: var(--palette-lime);
   --blob-3: var(--palette-sage);
   --blob-4: var(--palette-lime);
-  --scene-duration: 38s;
   --scene-shape-opacity: 0.95;
 }
 :root[data-theme='light'] {
@@ -36,8 +35,8 @@
   position: absolute;
   border-radius: 50%;
   opacity: var(--scene-shape-opacity);
-  animation: scene-drift var(--scene-duration) ease-in-out infinite alternate;
-  will-change: transform;
+  animation: none;
+  will-change: auto;
 }
 .scene-shape-1 {
   width: 47vw;
@@ -52,7 +51,6 @@
   right: 7vw;
   top: 23vh;
   background: radial-gradient(circle at 70% 25%, var(--blob-1), var(--blob-3) 70%);
-  animation-delay: -17s;
 }
 .scene-shape-3 {
   width: 37vw;
@@ -60,7 +58,6 @@
   left: -14vw;
   bottom: -16vw;
   background: radial-gradient(circle at 72% 26%, var(--blob-2), var(--blob-3) 75%);
-  animation-delay: -26s;
 }
 .scene-shape-4 {
   width: 17vw;
@@ -68,18 +65,12 @@
   left: 37vw;
   top: -8vw;
   background: radial-gradient(circle at 35% 25%, var(--blob-4), var(--blob-1) 80%);
-  animation-delay: -9s;
 }
 .scene-shape-5 {
   display: none;
 }
 .scene[data-paused='true'] .scene-shape {
   animation-play-state: paused;
-}
-@keyframes scene-drift {
-  to {
-    transform: translate3d(3vw, 2vh, 0) rotate(8deg) scale(1.04);
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .scene-shape {

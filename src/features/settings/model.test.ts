@@ -68,3 +68,9 @@ it('migrates desktop blur on by default and preserves a disabled preference', ()
   expect(parseSettings({ desktopBlur: false }).desktopBlur).toBe(false);
   expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(true);
 });
+it('validates quarter-step animation speeds and migrates missing values', () => {
+  for (const animationSpeed of [0.25, 0.5, 1, 1.75, 2])
+    expect(parseSettings({ animationSpeed }).animationSpeed).toBe(animationSpeed);
+  for (const animationSpeed of [undefined, null, '2', NaN, 0, 2.25, 0.3])
+    expect(parseSettings({ animationSpeed }).animationSpeed).toBe(1);
+});

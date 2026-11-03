@@ -91,9 +91,20 @@ else {
         event.sender === window.webContents &&
         event.senderFrame === window.webContents.mainFrame &&
         event.senderFrame.url.startsWith(`${origin}/`);
+      const publishVisibility = () => {
+        if (window && !window.isDestroyed() && !window.webContents.isDestroyed())
+          window.webContents.send('atlas:visibility', window.isVisible() && !window.isMinimized());
+      };
+      window.on('show', publishVisibility);
+      window.on('hide', publishVisibility);
+      window.on('minimize', publishVisibility);
+      window.on('restore', publishVisibility);
       ipcMain.on('atlas:window', (event, action: unknown) => {
         if (!trusted(event) || !window) return;
-        if (action === 'ready') rendererReady = true;
+        if (action === 'ready') {
+          rendererReady = true;
+          publishVisibility();
+        }
         if (action === 'minimize') window.minimize();
         if (action === 'close') {
           allowClose = true;

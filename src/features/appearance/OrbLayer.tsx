@@ -1,15 +1,13 @@
-import { useSyncExternalStore } from 'react';
-
-const subscribeVisibility = (notify: () => void) => {
-  document.addEventListener('visibilitychange', notify);
-  return () => document.removeEventListener('visibilitychange', notify);
-};
-const isHidden = () => document.visibilityState === 'hidden';
+import { useRef } from 'react';
+import { usePageVisible } from './visibility';
+import { useOrbMotion } from './useOrbMotion';
 
 export function OrbLayer() {
-  const hidden = useSyncExternalStore(subscribeVisibility, isHidden, () => false);
+  const ref = useRef<HTMLDivElement>(null);
+  const visible = usePageVisible();
+  useOrbMotion(ref, visible);
   return (
-    <div className="scene orb-layer" data-paused={hidden} aria-hidden="true">
+    <div ref={ref} className="scene orb-layer" data-paused={!visible} aria-hidden="true">
       {[1, 2, 3, 4, 5].map((shape) => (
         <div key={shape} className={`scene-shape scene-shape-${shape}`} />
       ))}

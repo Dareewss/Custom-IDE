@@ -9,6 +9,11 @@ const bridge: CodeAtlasDesktop = {
   toggleExpand: () => ipcRenderer.send('atlas:window', 'expand'),
   close: () => ipcRenderer.send('atlas:window', 'close'),
   ready: () => ipcRenderer.send('atlas:window', 'ready'),
+  onVisibilityChanged: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, visible: boolean) => callback(visible);
+    ipcRenderer.on('atlas:visibility', listener);
+    return () => ipcRenderer.removeListener('atlas:visibility', listener);
+  },
   onCloseRequested: (callback) => {
     const listener = () => callback();
     ipcRenderer.on('atlas:before-close', listener);

@@ -9,6 +9,7 @@ interface CodeAtlasDesktop {
   close: () => void;
   ready: () => void;
   onCloseRequested: (callback: () => void) => () => void;
+  onVisibilityChanged: (callback: (visible: boolean) => void) => () => void;
   resize: (phase: 'start' | 'move' | 'end', edge: DesktopResizeEdge, x: number, y: number) => void;
 }
 interface Window {

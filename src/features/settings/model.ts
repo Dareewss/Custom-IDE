@@ -6,6 +6,7 @@ export interface Settings {
   backgroundAnimation: boolean;
   performanceMode: boolean;
   desktopBlur: boolean;
+  animationSpeed: number;
   fontSize: number;
   tabSize: number;
   theme: 'dark' | 'light';
@@ -22,6 +23,7 @@ export const defaultSettings: Settings = {
   backgroundAnimation: true,
   performanceMode: false,
   desktopBlur: true,
+  animationSpeed: 1,
   fontSize: 14,
   tabSize: 4,
   theme: 'dark',
@@ -56,6 +58,14 @@ export function parseSettings(input: unknown): Settings {
       typeof value.backgroundAnimation === 'boolean' ? value.backgroundAnimation : true,
     performanceMode: value.performanceMode === true,
     desktopBlur: typeof value.desktopBlur === 'boolean' ? value.desktopBlur : true,
+    animationSpeed:
+      typeof value.animationSpeed === 'number' &&
+      Number.isFinite(value.animationSpeed) &&
+      value.animationSpeed >= 0.25 &&
+      value.animationSpeed <= 2 &&
+      Number.isInteger(value.animationSpeed * 4)
+        ? value.animationSpeed
+        : 1,
     fontSize: number('fontSize', 10, 32),
     tabSize: number('tabSize', 1, 8),
     autosaveDelay: number('autosaveDelay', 100, 10000),

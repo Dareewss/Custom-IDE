@@ -42,7 +42,6 @@
   height: 22vw;
   right: -8vw;
   bottom: -4vw;
-  animation-delay: -22s;
 }
 :root[data-preset='nebula'] {
   --scene-base: 9 10 17;
