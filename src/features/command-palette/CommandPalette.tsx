@@ -1,5 +1,5 @@
 import { Command } from 'cmdk';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Search, FileCode2, Terminal, ArrowUpRight } from 'lucide-react';
 import { useWorkspace } from '../explorer/store';
 import { runActive, stopRun, restartRun, useRunner, continueRun } from '../runner/store';
@@ -18,6 +18,39 @@ export function CommandPalette() {
   const mode = useUI((s) => s.paletteMode);
   const query = useUI((s) => s.paletteQuery);
   const [create, setCreate] = useState<'file' | 'folder' | null>(null);
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    const remember = (event: FocusEvent) => {
+      const target = event.target;
+      if (
+        useUI.getState().paletteMode === null &&
+        target instanceof HTMLElement &&
+        target !== document.body &&
+        !target.closest('[cmdk-dialog]')
+      )
+        returnFocus.current = target;
+    };
+    document.addEventListener('focusin', remember);
+    return () => document.removeEventListener('focusin', remember);
+  }, []);
+  useEffect(() => {
+    if (mode !== null) {
+      wasOpen.current = true;
+      return;
+    }
+    if (!wasOpen.current) return;
+    wasOpen.current = false;
+    const timer = window.setTimeout(() => {
+      if (
+        useUI.getState().paletteMode === null &&
+        !document.querySelector('dialog[open]') &&
+        returnFocus.current?.isConnected
+      )
+        returnFocus.current.focus({ preventScroll: true });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [mode]);
   const s = useWorkspace();
   const open = (next: 'commands' | 'files') => {
     setQuery('');
@@ -57,10 +90,14 @@ export function CommandPalette() {
         e.preventDefault();
         continueRun(true);
       }
-      if (mod && e.key.toLowerCase() === 'k') {
+      if (mod && !e.altKey && !e.shiftKey && (e.code === 'Space' || e.key === ' ')) {
+        if (e.isComposing || document.querySelector('dialog[open]')) return;
         e.preventDefault();
+        e.stopPropagation();
+        if (e.repeat) return;
         setQuery('');
-        setMode('commands');
+        setMode(useUI.getState().paletteMode === 'commands' ? null : 'commands');
+        return;
       }
       if (mod && e.key === ',') {
         e.preventDefault();
@@ -151,10 +188,15 @@ export function CommandPalette() {
   ];
   return (
     <>
-      <button className="command-trigger" onClick={() => open('commands')}>
+      <button
+        className="command-trigger"
+        title="Search commands (Ctrl+Space)"
+        aria-keyshortcuts="Control+Space"
+        onClick={() => open('commands')}
+      >
         <Search size={13} />
         <span>Search commands</span>
-        <kbd>Ctrl K</kbd>
+        <kbd>Ctrl Space</kbd>
       </button>
       <Command.Dialog
         open={mode !== null}

@@ -7,7 +7,10 @@ test('captures the complete five-layer appearance matrix with real code and outp
   page,
 }) => {
   test.setTimeout(180000);
-  await page.clock.install();
+  const epoch = Date.UTC(2026, 10, 3, 12);
+  await page.clock.install({ time: epoch });
+  // Visual states advance explicitly below; host load must not exhaust the motion budget.
+  await page.clock.pauseAt(epoch + 1000);
   await page.goto('/');
   const zip = new JSZip();
   zip.file(

@@ -269,7 +269,7 @@ test('formats Python, completes contextually, validates syntax and persists sett
   await importProject(page, { 'main.py': 'greeting = "hello"\ngreeting.up' }, 'Completion');
   await page.getByRole('textbox', { name: 'Editor content' }).focus();
   await page.keyboard.press('Control+End');
-  await page.keyboard.press('Control+Space');
+  await page.keyboard.press('Control+Alt+Space');
   await expect(page.locator('.suggest-widget')).toContainText('upper', { timeout: 25000 });
   await page.keyboard.press('Escape');
   await importProject(
@@ -282,7 +282,7 @@ test('formats Python, completes contextually, validates syntax and persists sett
   );
   await page.getByRole('textbox', { name: 'Editor content' }).focus();
   await page.keyboard.press('Control+End');
-  await page.keyboard.press('Control+Space');
+  await page.keyboard.press('Control+Alt+Space');
   await expect(page.locator('.suggest-widget')).toContainText('project_helper', { timeout: 25000 });
   await page.keyboard.press('Escape');
   await importProject(page, { 'main.py': 'def broken(\n' }, 'Syntax');

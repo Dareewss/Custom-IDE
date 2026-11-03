@@ -135,7 +135,7 @@ try {
   await page.keyboard.press('Control+A');
   await page.keyboard.insertText('greeting = "hello"\ngreeting.up');
   await page.keyboard.press('Control+End');
-  await page.keyboard.press('Control+Space');
+  await page.keyboard.press('Control+Alt+Space');
   await expect(page.locator('.suggest-widget')).toContainText('upper', { timeout: 30000 });
   await page.keyboard.press('Escape');
   await editor.focus();

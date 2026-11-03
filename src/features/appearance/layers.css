@@ -49,7 +49,31 @@
   z-index: calc(var(--layer-popover) - 1);
 }
 .glass.command-dialog {
+  /* Stronger than the material's relative positioning: this is a viewport overlay. */
+  position: fixed;
+  --palette-offset: clamp(16px, 18dvh, 160px);
+  top: var(--palette-offset);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100dvh - var(--palette-offset) - 16px);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
   z-index: var(--layer-dialog);
+}
+.command-dialog .command-input-row,
+.command-dialog .command-footer {
+  flex-shrink: 0;
+}
+.command-dialog [cmdk-root] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.command-dialog [cmdk-list] {
+  min-height: 0;
 }
 [cmdk-overlay] {
   z-index: calc(var(--layer-dialog) - 1);

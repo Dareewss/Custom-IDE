@@ -29,7 +29,7 @@ test('can open, analyze and run Python offline immediately after app installatio
   await editor.press('Control+A');
   await page.keyboard.insertText('greeting = "hello"\ngreeting.up');
   await editor.press('Control+End');
-  await editor.press('Control+Space');
+  await editor.press('Control+Alt+Space');
   await expect(page.locator('.suggest-widget')).toContainText('upper', { timeout: 30000 });
   await editor.press('Escape');
   await editor.press('Control+A');

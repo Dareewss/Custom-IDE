@@ -41,6 +41,20 @@ function decorate(
 }
 
 export default function CodeEditor() {
+  useEffect(() => {
+    const bindings = monaco.editor.addKeybindingRules([
+      {
+        keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyCode.Space,
+        command: '-editor.action.triggerSuggest',
+      },
+      {
+        keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Space,
+        command: 'editor.action.triggerSuggest',
+        when: 'editorTextFocus && !editorReadonly',
+      },
+    ]);
+    return () => bindings.dispose();
+  }, []);
   const reducedMotion = useReducedMotion();
   const active = useWorkspace((s) => s.active);
   const settings = useSettings();

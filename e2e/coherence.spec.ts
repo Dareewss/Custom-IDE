@@ -58,7 +58,7 @@ test('provides one primary entry per action and preserves workbench selection on
   await projects.click();
   await expect(page.getByRole('dialog', { name: 'Project manager' })).toBeVisible();
   await page.getByRole('button', { name: 'Close projects', exact: true }).click();
-  await page.keyboard.press('Control+k');
+  await page.keyboard.press('Control+Space');
   await page.getByRole('combobox').fill('import zip');
   await expect(page.getByRole('option')).toHaveCount(1);
   await page.getByRole('option', { name: 'Manage projects', exact: true }).click();
@@ -96,7 +96,7 @@ test('keeps square geometry in both themes, compact layout, menus and dialogs', 
     await expect(page.getByRole('menu')).toBeVisible();
     await squareControls(page);
     await page.keyboard.press('Escape');
-    await page.keyboard.press('Control+k');
+    await page.keyboard.press('Control+Space');
     await expect(page.getByRole('dialog', { name: 'Command palette', exact: true })).toBeVisible();
     await squareControls(page);
     await page.keyboard.press('Escape');

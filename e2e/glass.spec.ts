@@ -103,7 +103,7 @@ test('persists glass settings and keeps blur only on independent surfaces', asyn
   await expect(menu).toBeVisible();
   expect(await menu.evaluate((el) => el.parentElement === document.body)).toBe(true);
   await page.keyboard.press('Escape');
-  await page.keyboard.press('Control+k');
+  await page.keyboard.press('Control+Space');
   await expect(page.getByRole('dialog', { name: 'Command palette', exact: true })).toBeVisible();
   await expect(page.locator('.command-dialog')).toHaveCSS('backdrop-filter', /blur/);
 });
