@@ -56,7 +56,7 @@ test('captures both themes, every preset, slider endpoints and midpoint with blo
           await transparency(page, value);
           await closeSettings(page);
           await expect(page.locator('html')).toHaveAttribute('data-preset', preset);
-          await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+          await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(4px\)/);
           await expect(page.locator('.monaco-editor')).toHaveCSS(
             'background-color',
             'rgba(0, 0, 0, 0)',
@@ -206,12 +206,12 @@ test('keeps frosted blur at full transparency without decorative facet lines', a
   await page.goto('/');
   await expect(page.locator('.scene-facets')).toHaveCount(0);
   const editorCard = page.locator('.editor-card');
-  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(4px\)/);
 
   await openSettings(page);
   await transparency(page, 100);
   await closeSettings(page);
 
   await expect(page.locator('html')).toHaveCSS('--workspace-opacity', '0');
-  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+  await expect(editorCard).toHaveCSS('backdrop-filter', /blur\(4px\)/);
 });

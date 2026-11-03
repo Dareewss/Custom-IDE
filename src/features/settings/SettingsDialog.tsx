@@ -89,7 +89,7 @@ export function SettingsDialog() {
               <strong>Desktop blur</strong>
               <small>
                 {window.codeAtlasDesktop?.supportsDesktopBlur
-                  ? 'Light system frost behind the window. Off uses the CSS backing only.'
+                  ? 'Windows Acrylic. Windows controls its blur and tint; turn off for a clear desktop view.'
                   : 'Available in the supported Windows desktop app. The CSS backing stays available here.'}
               </small>
             </span>
@@ -139,7 +139,7 @@ export function SettingsDialog() {
           <input
             id="glass-blur"
             type="range"
-            min={24}
+            min={0}
             max={48}
             value={settings.blurStrength}
             aria-valuetext={`${settings.blurStrength} pixels`}
@@ -204,8 +204,8 @@ export function SettingsDialog() {
             Only workspace backgrounds fade. Text, icons and controls stay fully visible.
           </p>
           <p className="transparency-platform-note">
-            Frosted blur stays active at every level. The slider fades the in-app background and
-            glass fill; code and output keep a minimum readability scrim.
+            Subtle blur softens the blobs inside the app. Desktop blur is optional; use a little
+            tint if your wallpaper makes text hard to read.
           </p>
         </div>
         {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (

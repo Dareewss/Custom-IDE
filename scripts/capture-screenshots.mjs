@@ -11,6 +11,9 @@ try {
     reducedMotion: 'reduce',
   });
   await page.goto(process.env.ATLAS_PREVIEW_URL || 'http://127.0.0.1:4173');
+  // App-owned neutral backdrop for readable transparent-window screenshots.
+  // This fixture never captures or accesses the user's desktop.
+  await page.addStyleTag({ content: 'body { background: #202522; }' });
   const zip = new JSZip();
   zip.file(
     'main.py',
@@ -31,7 +34,7 @@ try {
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('exit 0');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
-  await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('88');
+  await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('100');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   const folder = page.getByRole('treeitem', { name: 'algorithms', exact: true });
   if ((await folder.getAttribute('aria-expanded')) === 'false') await folder.click();
@@ -60,10 +63,11 @@ try {
     el.scrollTop = 0;
   });
   await page.screenshot({ path: 'docs/screenshots/settings.png' });
-  await transparency.fill('88');
+  await transparency.fill('100');
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await page.setViewportSize({ width: 375, height: 812 });
   await page.reload();
+  await page.addStyleTag({ content: 'body { background: #202522; }' });
   await expect(page.locator('.monaco-editor')).toBeVisible();
   await page.screenshot({ path: 'docs/screenshots/compact.png' });
   console.log(

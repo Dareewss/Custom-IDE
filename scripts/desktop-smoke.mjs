@@ -65,7 +65,7 @@ try {
   await expect(page.getByText('Desktop app', { exact: true })).toBeVisible();
   const initial = await native();
   expect(initial.opacity).toBe(1);
-  expect(initial.alpha).toBeCloseTo(0.84 * 255, 1);
+  expect(initial.alpha).toBe(0);
   expect(initial.background).toMatch(/^#000000(00)?$/);
 
   for (const value of [100, 50, 0, 100]) {
@@ -77,7 +77,7 @@ try {
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await expect
       .poll(async () => (await native()).alpha)
-      .toBeCloseTo((0.02 + ((100 - value) / 100) * 0.82) * 255, 1);
+      .toBeCloseTo(((100 - value) / 100) * 0.96 * 255, 1);
     expect(
       await app.evaluate(({ BrowserWindow }) =>
         BrowserWindow.getAllWindows()[0].isContentProtected(),
@@ -87,7 +87,7 @@ try {
     await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   }
   console.log(
-    'Native scene alpha follows slider; glass keeps its readability floor; foreground/window opacity preserved.',
+    'Native scene alpha follows slider to fully clear; foreground/window opacity preserved.',
   );
 
   const oldBounds = (await native()).bounds;

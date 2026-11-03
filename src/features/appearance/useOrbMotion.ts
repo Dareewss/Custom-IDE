@@ -15,11 +15,14 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
   const reducedTransparency = useReducedTransparency();
   const fps = useMotionBudget((s) => s.fps);
   const phase = useRef(0);
+  const seed = useRef<number | null>(null);
   const poses = useRef<OrbPose[]>([]);
   const frames = useRef(0);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
+    seed.current ??= crypto.getRandomValues(new Uint32Array(1))[0];
+    const motionSeed = seed.current;
     const nodes = [...root.querySelectorAll<HTMLElement>('.scene-shape')];
     const baseOpacity = Number.parseFloat(
       getComputedStyle(root).getPropertyValue('--scene-shape-opacity'),
@@ -140,10 +143,16 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
       const ease = 1 - (1 - progress) ** 3;
       const target = animation
         ? homes.map((home, index) =>
-            orbPose(phase.current, index, home, {
-              width: window.innerWidth,
-              height: window.innerHeight,
-            }),
+            orbPose(
+              phase.current,
+              index,
+              home,
+              {
+                width: window.innerWidth,
+                height: window.innerHeight,
+              },
+              motionSeed,
+            ),
           )
         : rest();
       paint(

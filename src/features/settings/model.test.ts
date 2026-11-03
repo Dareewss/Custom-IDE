@@ -1,11 +1,11 @@
 import { expect, it } from 'vitest';
-import { defaultSettings, parseSettings } from './model';
+import { defaultSettings, parseSettings, migrateSettings } from './model';
 it('preserves transparency endpoints and rejects invalid persisted values', () => {
   expect(parseSettings({ backgroundTransparency: 0 }).backgroundTransparency).toBe(0);
   expect(parseSettings({ backgroundTransparency: 100 }).backgroundTransparency).toBe(100);
   expect(parseSettings({ backgroundTransparency: 53 }).backgroundTransparency).toBe(53);
   for (const value of [-1, 101, NaN, '50', null, 0.5])
-    expect(parseSettings({ backgroundTransparency: value }).backgroundTransparency).toBe(0);
+    expect(parseSettings({ backgroundTransparency: value }).backgroundTransparency).toBe(100);
 });
 it('round-trips valid settings', () => {
   const settings = {
@@ -40,18 +40,18 @@ it('migrates old preferences and validates preset, blur and background switches'
     backgroundTransparency: 75,
     fontSize: 18,
     backgroundPreset: 'neon',
-    blurStrength: 24,
+    blurStrength: 4,
     backgroundBlobs: true,
     backgroundAnimation: true,
   });
   for (const preset of ['neon', 'ocean', 'nebula'])
     expect(parseSettings({ backgroundPreset: preset }).backgroundPreset).toBe(preset);
   expect(parseSettings({ backgroundPreset: 'unknown' }).backgroundPreset).toBe('neon');
-  for (const blurStrength of [-1, 0, 12, 49, 1.2, NaN, '24'])
-    expect(parseSettings({ blurStrength }).blurStrength).toBe(24);
+  for (const blurStrength of [-1, 49, 1.2, NaN, '24'])
+    expect(parseSettings({ blurStrength }).blurStrength).toBe(4);
   expect(
     parseSettings({ blurStrength: 0, backgroundBlobs: false, backgroundAnimation: false }),
-  ).toMatchObject({ blurStrength: 24, backgroundBlobs: false, backgroundAnimation: false });
+  ).toMatchObject({ blurStrength: 0, backgroundBlobs: false, backgroundAnimation: false });
   expect(parseSettings({ blurStrength: 48 }).blurStrength).toBe(48);
   expect(parseSettings({ backgroundBlobs: 'false', backgroundAnimation: 0 })).toMatchObject({
     backgroundBlobs: true,
@@ -63,14 +63,35 @@ it('enables performance mode only for an explicit persisted boolean', () => {
   for (const performanceMode of [false, undefined, null, 'true', 1])
     expect(parseSettings({ performanceMode }).performanceMode).toBe(false);
 });
-it('migrates desktop blur on by default and preserves a disabled preference', () => {
-  expect(parseSettings({}).desktopBlur).toBe(true);
+it('leaves native Acrylic off by default and preserves an explicit preference', () => {
+  expect(parseSettings({}).desktopBlur).toBe(false);
   expect(parseSettings({ desktopBlur: false }).desktopBlur).toBe(false);
-  expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(true);
+  expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(false);
 });
 it('validates quarter-step animation speeds and migrates missing values', () => {
   for (const animationSpeed of [0.25, 0.5, 1, 1.75, 2])
     expect(parseSettings({ animationSpeed }).animationSpeed).toBe(animationSpeed);
   for (const animationSpeed of [undefined, null, '2', NaN, 0, 2.25, 0.3])
     expect(parseSettings({ animationSpeed }).animationSpeed).toBe(1);
+});
+
+it('migrates heavy frost to clear once without changing editor or motion preferences', () => {
+  const old = {
+    fontSize: 18,
+    backgroundTransparency: 25,
+    blurStrength: 36,
+    desktopBlur: true,
+    backgroundBlobs: true,
+    backgroundAnimation: true,
+    animationSpeed: 1.25,
+  };
+  expect(migrateSettings(old, 9)).toMatchObject({
+    ...old,
+    backgroundTransparency: 100,
+    blurStrength: 4,
+    desktopBlur: false,
+  });
+  expect(migrateSettings(old, 10)).toEqual(parseSettings(old));
+  expect(parseSettings({ blurStrength: 0 }).blurStrength).toBe(0);
+  expect(parseSettings({ blurStrength: 6 }).blurStrength).toBe(6);
 });

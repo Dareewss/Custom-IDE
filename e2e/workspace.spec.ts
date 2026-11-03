@@ -31,24 +31,25 @@ test('uses frosted surfaces and persists background-only transparency from 0 to 
   await importProject(page, { 'main.py': 'print("Text remains visible")\n' }, 'Transparency');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('.workspace')).toHaveCSS('background-image', 'none');
-  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(4px\)/);
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
   await expect(page.getByRole('switch', { name: 'Liquid glass', exact: true })).toHaveCount(0);
-  await expect(slider).toHaveValue('0');
+  await expect(slider).toHaveValue('100');
+  await slider.fill('0');
   const strongTint = await page
     .locator('.editor-card')
     .evaluate((el) => getComputedStyle(el).backgroundColor);
   await expect(page.locator('.background-pane')).toHaveCSS(
     'background-color',
-    'rgba(18, 18, 22, 0.84)',
+    'rgba(18, 18, 22, 0.96)',
   );
   await slider.press('End');
   await expect(slider).toHaveValue('100');
   expect(
     await page.locator('.editor-card').evaluate((el) => getComputedStyle(el).backgroundColor),
   ).not.toBe(strongTint);
-  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(24px\)/);
+  await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', /blur\(4px\)/);
 
   await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   await expect(page.locator('.view-lines')).toHaveCSS('opacity', '1');

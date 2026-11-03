@@ -1,6 +1,48 @@
 import { test, expect } from '@playwright/test';
 import { materialAlphas } from '../src/features/appearance/material';
 
+test('migrates existing frost to a clear background once and preserves motion/editor settings', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('atlas-settings'))
+      localStorage.setItem(
+        'atlas-settings',
+        JSON.stringify({
+          version: 9,
+          state: {
+            backgroundTransparency: 25,
+            blurStrength: 36,
+            desktopBlur: true,
+            fontSize: 18,
+            backgroundBlobs: true,
+            backgroundAnimation: true,
+            animationSpeed: 1.25,
+          },
+        }),
+      );
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  const transparency = page.getByRole('slider', { name: 'Background transparency', exact: true });
+  await expect(transparency).toHaveValue('100');
+  await expect(page.getByRole('slider', { name: 'Blur strength', exact: true })).toHaveValue('4');
+  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).not.toBeChecked();
+  await expect(page.getByRole('checkbox', { name: /^Background blobs/ })).toBeChecked();
+  await expect(page.getByRole('checkbox', { name: /^Background animation/ })).toBeChecked();
+  await expect(page.getByLabel('Editor font size')).toHaveValue('18');
+  await expect(page.getByRole('slider', { name: 'Animation speed', exact: true })).toHaveValue(
+    '1.25',
+  );
+  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(18, 18, 22, 0)');
+  await expect(page.locator('.editor-card')).toHaveCSS('background-image', 'none');
+  await transparency.fill('30');
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.reload();
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  await expect(transparency).toHaveValue('30');
+});
+
 test('maps live materials independently while keeping text opaque over extreme backdrops', async ({
   page,
 }) => {
@@ -27,7 +69,7 @@ test('maps live materials independently while keeping text opaque over extreme b
           elevated: color('.settings-dialog'),
           text: getComputedStyle(document.querySelector('.brand-wordmark')!).color,
           opacity: getComputedStyle(document.querySelector('.brand-wordmark')!).opacity,
-          grain: getComputedStyle(document.querySelector('.editor-card')!, '::after').opacity,
+          grain: getComputedStyle(document.querySelector('.editor-card')!, '::after').content,
         };
       });
       for (const key of ['backing', 'editor', 'panel', 'elevated'] as const)
@@ -37,11 +79,8 @@ test('maps live materials independently while keeping text opaque over extreme b
       if (!textColors.has(theme)) textColors.set(theme, actual.text);
       expect(actual.text).toBe(textColors.get(theme));
       expect(actual.opacity).toBe('1');
-      expect(actual.grain).toBe('0.035');
-      await expect(page.locator('.editor-card')).toHaveCSS(
-        'backdrop-filter',
-        'blur(24px) saturate(1.6)',
-      );
+      expect(actual.grain).toBe('none');
+      await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', 'blur(4px)');
     }
   }
 });
@@ -56,8 +95,8 @@ test('keeps creation dialogs outside blurred surfaces with a stronger smoky mate
   const dialog = page.getByRole('dialog', { name: 'New file', exact: true });
   await expect(dialog).toBeVisible();
   expect(await dialog.evaluate((el) => el.parentElement === document.body)).toBe(true);
-  await expect(dialog).toHaveCSS('backdrop-filter', 'blur(24px) saturate(1.6)');
-  await expect(dialog).toHaveCSS('background-color', 'rgba(18, 18, 22, 0.97)');
+  await expect(dialog).toHaveCSS('backdrop-filter', 'blur(4px)');
+  await expect(dialog).toHaveCSS('background-color', 'rgba(18, 18, 22, 0.94)');
   await expect(dialog.locator('form')).toHaveCSS('opacity', '1');
   await dialog.getByLabel('Project path').fill('frost.py');
   await dialog.getByRole('button', { name: 'Save', exact: true }).click();
@@ -70,25 +109,25 @@ test('keeps the colorless backing translucent and lightly frosted throughout the
   await page.goto('/');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
-  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).toBeChecked();
+  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).not.toBeChecked();
   await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).toBeDisabled();
   for (const [value, alpha] of [
-    [0, 0.84],
-    [50, 0.43],
-    [100, 0.02],
+    [0, 0.96],
+    [50, 0.48],
+    [100, 0],
   ]) {
     await slider.fill(String(value));
     await expect(page.locator('.background-pane')).toHaveCSS(
       'background-color',
       `rgba(18, 18, 22, ${alpha})`,
     );
-    await expect(page.locator('.background-pane')).toHaveCSS('backdrop-filter', 'blur(5px)');
+    await expect(page.locator('.background-pane')).toHaveCSS('backdrop-filter', 'blur(4px)');
     await expect(page.locator('.workspace')).toHaveCSS('opacity', '1');
   }
   await page.getByLabel('Color theme').selectOption('light');
   await expect(page.locator('.background-pane')).toHaveCSS(
     'background-color',
-    'rgba(250, 250, 252, 0.03)',
+    'rgba(250, 250, 252, 0)',
   );
   await expect(page.locator('html')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');

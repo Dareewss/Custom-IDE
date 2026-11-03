@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { defaultSettings, parseSettings, type Settings } from './model';
+import { defaultSettings, parseSettings, migrateSettings, type Settings } from './model';
 import { retryOrbMotion } from '../appearance/motion-budget';
 
 interface SettingsState extends Settings {
@@ -19,8 +19,8 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'atlas-settings',
-      version: 9,
-      migrate: (value) => parseSettings(value),
+      version: 10,
+      migrate: migrateSettings,
       merge: (persisted, current) => ({ ...current, ...parseSettings(persisted) }),
     },
   ),

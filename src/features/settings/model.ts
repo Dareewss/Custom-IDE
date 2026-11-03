@@ -16,13 +16,13 @@ export interface Settings {
   formatOnSave: boolean;
 }
 export const defaultSettings: Settings = {
-  backgroundTransparency: 0,
+  backgroundTransparency: 100,
   backgroundPreset: 'neon',
-  blurStrength: 24,
+  blurStrength: 4,
   backgroundBlobs: true,
   backgroundAnimation: true,
   performanceMode: false,
-  desktopBlur: true,
+  desktopBlur: false,
   animationSpeed: 1,
   fontSize: 14,
   tabSize: 4,
@@ -52,12 +52,12 @@ export function parseSettings(input: unknown): Settings {
       value.backgroundPreset === 'ocean' || value.backgroundPreset === 'nebula'
         ? value.backgroundPreset
         : 'neon',
-    blurStrength: number('blurStrength', 24, 48),
+    blurStrength: number('blurStrength', 0, 48),
     backgroundBlobs: typeof value.backgroundBlobs === 'boolean' ? value.backgroundBlobs : true,
     backgroundAnimation:
       typeof value.backgroundAnimation === 'boolean' ? value.backgroundAnimation : true,
     performanceMode: value.performanceMode === true,
-    desktopBlur: typeof value.desktopBlur === 'boolean' ? value.desktopBlur : true,
+    desktopBlur: typeof value.desktopBlur === 'boolean' ? value.desktopBlur : false,
     animationSpeed:
       typeof value.animationSpeed === 'number' &&
       Number.isFinite(value.animationSpeed) &&
@@ -74,4 +74,12 @@ export function parseSettings(input: unknown): Settings {
     minimap: value.minimap === true,
     formatOnSave: value.formatOnSave === true,
   };
+}
+
+export function migrateSettings(input: unknown, version: number): Settings {
+  const settings = parseSettings(input);
+  // Apply the requested clear style once; preserve projects, editor and motion choices.
+  return version < 10
+    ? { ...settings, backgroundTransparency: 100, blurStrength: 4, desktopBlur: false }
+    : settings;
 }

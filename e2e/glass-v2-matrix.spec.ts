@@ -41,10 +41,7 @@ test('captures the complete five-layer appearance matrix with real code and outp
             !orbs ? 'orbs-off' : animation ? 'running' : 'idle',
           );
           await expect(page.locator('.view-lines')).toHaveCSS('opacity', '1');
-          await expect(page.locator('.editor-card')).toHaveCSS(
-            'backdrop-filter',
-            'blur(24px) saturate(1.6)',
-          );
+          await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', 'blur(4px)');
           await page.screenshot({
             path: `docs/screenshots/layers-v2/${theme}-${transparency}-${orbs ? 'orbs' : 'plain'}-${animation ? 'moving' : 'rest'}.png`,
             omitBackground: true,

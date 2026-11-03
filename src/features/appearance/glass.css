@@ -3,38 +3,13 @@
 }
 .glass,
 :root[data-theme] .glass {
-  background: var(--glass-sheen), rgb(var(--glass-fg-rgb) / var(--glass-tint-alpha));
-  border: 1px solid transparent;
+  background: rgb(var(--glass-fg-rgb) / var(--glass-tint-alpha));
+  border: 1px solid var(--border);
   border-radius: var(--glass-radius);
-  box-shadow:
-    var(--glass-shadow),
-    inset 0 1px 0 var(--glass-highlight);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
-}
-.glass::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  border: 1px solid transparent;
-  background: linear-gradient(
-      135deg,
-      var(--glass-border-from),
-      var(--glass-border-mid) 48%,
-      var(--glass-border-to)
-    )
-    border-box;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  z-index: 2;
+  box-shadow: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
 }
 .glass--popover,
 .glass--modal {
@@ -47,13 +22,6 @@
 .glass--editor {
   --glass-tint-alpha: var(--glass-editor-tint);
 }
-.glass::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: var(--glass-grain);
-  opacity: var(--glass-grain-opacity);
-  pointer-events: none;
-  z-index: 1;
+:root[data-theme='light'] .glass {
+  text-shadow: 0 1px 2px rgb(255 255 255 / 0.8);
 }

@@ -23,6 +23,18 @@ export const restingPose = (opacity: number): OrbPose => ({
 });
 const wave = (time: number, frequency: number, phase: number) =>
   Math.sin(time * frequency + phase) - Math.sin(phase);
+// Smooth seeded noise gives each orb new destinations without a looping timeline
+// or fresh randomness per frame. Quintic interpolation keeps velocity continuous.
+export function driftNoise(time: number, seed: number) {
+  const cell = Math.floor(time);
+  const fraction = time - cell;
+  const ease = fraction ** 3 * (fraction * (fraction * 6 - 15) + 10);
+  const hash = (point: number) => {
+    const value = Math.sin(point * 127.1 + seed * 311.7) * 43758.5453;
+    return (value - Math.floor(value)) * 2 - 1;
+  };
+  return hash(cell) * (1 - ease) + hash(cell + 1) * ease;
+}
 const softBound = (delta: number, center: number, extent: number, size: number) => {
   const room = Math.max(1, delta < 0 ? center + extent * 0.85 : size + extent * 0.85 - center);
   return room * Math.tanh(delta / room);
@@ -33,6 +45,7 @@ export function orbPose(
   index: number,
   home: OrbHome,
   viewport: { width: number; height: number },
+  seed = 0,
 ): OrbPose {
   if (
     time <= 0 ||
@@ -44,9 +57,18 @@ export function orbPose(
     return restingPose(home.opacity);
   const frequency = (Math.PI * 2) / (61 + index * 7);
   const phase = index * 0.91 + 0.4;
-  const scaleX = 1 + 0.14 * Math.tanh(wave(time, frequency * Math.SQRT2, phase));
-  const scaleY = 1 - 0.12 * Math.tanh(wave(time, frequency * Math.sqrt(3), phase + Math.PI / 2));
-  const rotation = 8 * wave(time, frequency / Math.sqrt(3), phase);
+  const wander = (channel: number, period: number) => {
+    const key = (seed % 65521) + index * 13 + channel;
+    const warp = (t: number) => t / period + 0.3 * driftNoise(t / 53, key + 71);
+    return driftNoise(warp(time), key) - driftNoise(warp(0), key);
+  };
+  const scaleX =
+    1 + 0.14 * Math.tanh(wave(time, frequency * Math.SQRT2, phase)) + 0.035 * wander(3, 23);
+  const scaleY =
+    1 -
+    0.12 * Math.tanh(wave(time, frequency * Math.sqrt(3), phase + Math.PI / 2)) +
+    0.03 * wander(4, 31);
+  const rotation = 8 * wave(time, frequency / Math.sqrt(3), phase) + 3 * wander(5, 37);
   const angle = (rotation * Math.PI) / 180;
   const halfWidth = (home.width * scaleX) / 2;
   const halfHeight = (home.height * scaleY) / 2;
@@ -54,11 +76,14 @@ export function orbPose(
   const extentY = Math.hypot(halfWidth * Math.sin(angle), halfHeight * Math.cos(angle));
   const x =
     viewport.width *
-    (0.04 * wave(time, frequency, phase) + 0.015 * wave(time, frequency * Math.SQRT2, phase * 0.7));
+    (0.04 * wave(time, frequency, phase) +
+      0.015 * wave(time, frequency * Math.SQRT2, phase * 0.7) +
+      0.055 * wander(1, 19));
   const y =
     viewport.height *
     (0.17 * wave(time, frequency * 0.91, phase) +
-      0.055 * wave(time, frequency * Math.sqrt(3), phase * 0.7));
+      0.055 * wave(time, frequency * Math.sqrt(3), phase * 0.7) +
+      0.075 * wander(2, 29));
   return {
     x: softBound(x, home.left + home.width / 2, extentX, viewport.width),
     y: softBound(y, home.top + home.height / 2, extentY, viewport.height),
