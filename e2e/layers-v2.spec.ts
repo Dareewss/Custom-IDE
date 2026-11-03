@@ -1,4 +1,50 @@
 import { test, expect } from '@playwright/test';
+import { materialAlphas } from '../src/features/appearance/material';
+
+test('maps live materials independently while keeping text opaque over extreme backdrops', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  const textColors = new Map<string, string>();
+  for (const theme of ['dark', 'light'] as const) {
+    await page.getByLabel('Color theme').selectOption(theme);
+    await page.evaluate((mode) => {
+      document.body.style.background = mode === 'dark' ? '#fff' : '#000';
+    }, theme);
+    for (const slider of [0, 50, 100]) {
+      await page
+        .getByRole('slider', { name: 'Background transparency', exact: true })
+        .fill(String(slider));
+      const expected = materialAlphas(slider, theme);
+      const actual = await page.evaluate(() => {
+        const color = (selector: string) =>
+          getComputedStyle(document.querySelector(selector)!).backgroundColor;
+        return {
+          backing: color('.background-pane'),
+          editor: color('.editor-card'),
+          panel: color('.titlebar'),
+          elevated: color('.settings-dialog'),
+          text: getComputedStyle(document.querySelector('.brand-wordmark')!).color,
+          opacity: getComputedStyle(document.querySelector('.brand-wordmark')!).opacity,
+          grain: getComputedStyle(document.querySelector('.editor-card')!, '::after').opacity,
+        };
+      });
+      for (const key of ['backing', 'editor', 'panel', 'elevated'] as const)
+        expect(
+          Math.abs(Number(actual[key].match(/, ([\d.]+)\)$/)![1]) - expected[key]),
+        ).toBeLessThanOrEqual(1 / 255);
+      if (!textColors.has(theme)) textColors.set(theme, actual.text);
+      expect(actual.text).toBe(textColors.get(theme));
+      expect(actual.opacity).toBe('1');
+      expect(actual.grain).toBe('0.035');
+      await expect(page.locator('.editor-card')).toHaveCSS(
+        'backdrop-filter',
+        'blur(24px) saturate(1.6)',
+      );
+    }
+  }
+});
 
 test('keeps creation dialogs outside blurred surfaces with a stronger smoky material', async ({
   page,

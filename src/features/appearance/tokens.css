@@ -13,7 +13,7 @@
   --danger: #ffb4b4;
   --warning: #f5dc9e;
   --glass-fg-rgb: 18 18 22;
-  --glass-fg-tint: calc(0.78 + var(--workspace-opacity) * 0.12);
+  --glass-fg-tint: calc(0.86 + var(--workspace-opacity) * 0.06);
   --glass-editor-tint: calc(0.88 + var(--workspace-opacity) * 0.08);
   --glass-elevated-tint: calc(0.9 + var(--workspace-opacity) * 0.07);
   --glass-tint-alpha: var(--glass-fg-tint);
@@ -31,8 +31,6 @@
   --glass-highlight: rgb(255 255 255 / 0.14);
   --glass-shadow: 0 24px 60px rgb(0 0 0 / 0.28);
   --glass-overlay: rgb(4 10 7 / 0.3);
-  --text-scrim: 14 21 17;
-  --text-scrim-opacity: 0.78;
   --widget-background: #1d2b22f5;
   --widget-border: #69747c;
   --control-fill: rgb(14 21 17 / 0.38);
@@ -70,6 +68,9 @@
   --danger: #8f1f30;
   --warning: #704300;
   --glass-fg-rgb: 250 253 247;
+  --glass-fg-tint: calc(0.88 + var(--workspace-opacity) * 0.06);
+  --glass-editor-tint: calc(0.92 + var(--workspace-opacity) * 0.05);
+  --glass-elevated-tint: calc(0.94 + var(--workspace-opacity) * 0.04);
   --glass-border-from: rgb(255 255 255 / 0.95);
   --glass-border-mid: rgb(105 116 124 / 0.12);
   --glass-border-to: rgb(107 170 117 / 0.42);
@@ -77,8 +78,6 @@
   --glass-highlight: rgb(255 255 255 / 0.8);
   --glass-shadow: 0 24px 60px rgb(37 65 36 / 0.12);
   --glass-overlay: rgb(226 239 221 / 0.38);
-  --text-scrim: 250 253 247;
-  --text-scrim-opacity: 0.92;
   --widget-background: #f6faf3f5;
   --widget-border: #69747c;
   --control-fill: rgb(255 255 255 / 0.4);

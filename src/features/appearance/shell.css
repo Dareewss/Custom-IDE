@@ -81,3 +81,20 @@ select {
   accent-color: var(--accent);
   background: var(--control-fill);
 }
+.breadcrumbs {
+  opacity: 1;
+}
+/* Preserve the existing pale semantic colors on their own dark readability backing. */
+:root[data-theme='light']
+  :is(
+    .runtime-badge.paused,
+    .runtime-badge.error,
+    .runtime-badge.loading,
+    .run-status.paused,
+    .app-connectivity:not(:empty),
+    .inline-error,
+    .restore-screen pre
+  ) {
+  background: rgb(18 18 22 / 0.94);
+  border-radius: 6px;
+}
