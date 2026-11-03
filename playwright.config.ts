@@ -6,6 +6,7 @@ export default defineConfig({
   expect: { timeout: 10000 },
   workers: 1,
   fullyParallel: false,
+  snapshotPathTemplate: '{testDir}/fixtures/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:4173',
     channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
