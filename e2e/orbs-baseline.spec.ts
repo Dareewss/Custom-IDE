@@ -10,6 +10,27 @@ for (const preset of ['neon', 'ocean', 'nebula']) {
     await page.getByRole('checkbox', { name: /^Background animation/ }).uncheck();
     await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('88');
     await page.getByRole('button', { name: 'Done', exact: true }).click();
+    const homes = await page.locator('.scene-shape').evaluateAll((nodes) =>
+      nodes.map((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return {
+          visible:
+            style.display !== 'none' &&
+            rect.right > 0 &&
+            rect.left < innerWidth &&
+            rect.bottom > 0 &&
+            rect.top < innerHeight,
+          opacity: Number(style.opacity),
+          gradient: style.backgroundImage,
+        };
+      }),
+    );
+    expect(homes.filter((home) => home.visible).length).toBeGreaterThanOrEqual(3);
+    for (const home of homes.filter((home) => home.visible)) {
+      expect(home.opacity).toBe(0.95);
+      expect(home.gradient).toContain('radial-gradient');
+    }
     await page.addStyleTag({
       content: `
       .workspace, .background-pane { visibility: hidden !important; }

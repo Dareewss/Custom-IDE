@@ -1,5 +1,5 @@
 import { useLayoutEffect, type ReactNode } from 'react';
-import { BackgroundLayer } from './BackgroundLayer';
+import { OrbLayer } from './OrbLayer';
 import { debugLayers } from './layers';
 
 export function BackgroundPane() {
@@ -9,7 +9,7 @@ export function BackgroundPane() {
 export function OrbPlane() {
   return (
     <div className="orb-plane" data-layer="orbs" aria-hidden="true">
-      <BackgroundLayer />
+      <OrbLayer />
     </div>
   );
 }
