@@ -20,6 +20,7 @@ import { IconButton } from './IconButton';
 import { OutputDock } from './OutputDock';
 import { GlassPanel } from './GlassPanel';
 import { DesktopResizeHandles, DesktopWindowControls } from '../features/desktop/DesktopChrome';
+import { AppearanceControls } from '../features/appearance/AppearanceControls';
 
 interface ShellProps {
   languageName?: string;
@@ -87,17 +88,20 @@ export function Shell(props: ShellProps) {
           <span className="project-switcher-name">{props.projectName ?? 'Untitled workspace'}</span>
           <ChevronDown size={14} />
         </button>
-        <div className="layout-switch" role="group" aria-label="Workspace layout">
-          {layouts.map((layout) => (
-            <button
-              key={layout.id}
-              aria-pressed={ui.layout === layout.id}
-              onClick={() => ui.setLayout(layout.id)}
-            >
-              {layout.icon}
-              <span>{layout.label}</span>
-            </button>
-          ))}
+        <div className="header-layout">
+          <div className="layout-switch" role="group" aria-label="Workspace layout">
+            {layouts.map((layout) => (
+              <button
+                key={layout.id}
+                aria-pressed={ui.layout === layout.id}
+                onClick={() => ui.setLayout(layout.id)}
+              >
+                {layout.icon}
+                <span>{layout.label}</span>
+              </button>
+            ))}
+          </div>
+          <AppearanceControls />
         </div>
         <div className="header-search">{props.palette}</div>
         <div className="title-actions">

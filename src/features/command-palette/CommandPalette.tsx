@@ -9,6 +9,7 @@ import { useUI } from '../../shared/ui-store';
 import { FormDialog } from '../../shared/FormDialog';
 import { exportProject } from '../projects/ZipActions';
 import { useCursor } from '../editor/navigation';
+import { useSettings } from '../settings/store';
 
 const setMode = (paletteMode: 'commands' | 'files' | null) => useUI.setState({ paletteMode });
 const setQuery = (paletteQuery: string) => useUI.setState({ paletteQuery });
@@ -91,6 +92,22 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    {
+      name: 'Toggle orb animation',
+      shortcut: '',
+      run: () => {
+        const s = useSettings.getState();
+        s.setSetting('backgroundAnimation', !s.backgroundAnimation);
+      },
+    },
+    {
+      name: 'Toggle orbs',
+      shortcut: '',
+      run: () => {
+        const s = useSettings.getState();
+        s.setSetting('backgroundBlobs', !s.backgroundBlobs);
+      },
+    },
     ...(['code', 'split', 'focus'] as const).map((layout) => ({
       name: `${layout[0].toUpperCase() + layout.slice(1)} layout`,
       shortcut: '',

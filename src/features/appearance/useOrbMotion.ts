@@ -1,7 +1,7 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import { useSettings } from '../settings/store';
 import { blendPose, orbPose, restingPose, type OrbPose } from './orb-motion';
-import { useReducedMotionPreference } from './preferences';
+import { useReducedMotionPreference, useReducedTransparency } from './preferences';
 
 export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boolean) {
   const animation = useSettings((s) => s.backgroundAnimation);
@@ -10,6 +10,7 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
   const performanceMode = useSettings((s) => s.performanceMode);
   const preset = useSettings((s) => s.backgroundPreset);
   const reduced = useReducedMotionPreference();
+  const reducedTransparency = useReducedTransparency();
   const phase = useRef(0);
   const poses = useRef<OrbPose[]>([]);
   const frames = useRef(0);
@@ -57,9 +58,18 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
       root.dataset.orbFrames = String(frames.current);
     };
     if (!poses.current.length) poses.current = rest();
-    if (!visible || !orbs || reduced || performanceMode) {
+    if (!visible || !orbs || reduced || performanceMode || reducedTransparency) {
       if (reduced || performanceMode || !animation) paint(rest());
-      publish(!visible ? 'hidden' : !orbs ? 'orbs-off' : reduced ? 'reduced' : 'performance', 0);
+      publish(
+        !visible
+          ? 'hidden'
+          : !orbs
+            ? 'orbs-off'
+            : reduced || reducedTransparency
+              ? 'reduced'
+              : 'performance',
+        0,
+      );
       return;
     }
     const from = poses.current.map((pose) => ({ ...pose }));
@@ -125,5 +135,5 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
       cancelAnimationFrame(frameId);
       window.removeEventListener('resize', resize);
     };
-  }, [ref, visible, animation, orbs, speed, performanceMode, preset, reduced]);
+  }, [ref, visible, animation, orbs, speed, performanceMode, preset, reduced, reducedTransparency]);
 }
