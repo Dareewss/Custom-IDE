@@ -37,7 +37,7 @@ test('migrates existing frost to a clear background once and preserves motion/ed
   await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgba(18, 18, 22, 0)');
   await expect(page.locator('.editor-card')).toHaveCSS('background-image', 'none');
   await transparency.fill('30');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   await page.reload();
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   await expect(transparency).toHaveValue('30');
@@ -89,7 +89,7 @@ test('keeps creation dialogs outside blurred surfaces with a stronger smoky mate
   page,
 }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Search files and commands/ }).click();
+  await page.getByRole('button', { name: /Search commands/ }).click();
   await page.getByRole('combobox').fill('New file');
   await page.getByRole('option', { name: 'New file', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'New file', exact: true });

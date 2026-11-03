@@ -1,5 +1,6 @@
 /* Workspace geometry. Appearance is defined by semantic theme tokens. */
 :root {
+  --corner-radius: 0px;
   --workspace-opacity: 1;
 }
 html,
@@ -34,7 +35,7 @@ button {
 .editor-card,
 .output-card {
   border: 1px solid var(--border);
-  border-radius: 13px;
+  border-radius: var(--corner-radius);
   background: transparent;
 }
 .titlebar {
@@ -52,7 +53,7 @@ button {
   gap: 10px;
   letter-spacing: -0.3px;
   flex-shrink: 0;
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
 }
 .brand-symbol {
   width: 35px;
@@ -60,7 +61,7 @@ button {
   display: grid;
   place-items: center;
   color: var(--accent);
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   background: color-mix(in srgb, var(--accent) 3.92%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 14.51%, transparent);
 }
@@ -86,7 +87,7 @@ button {
 .workspace-title {
   border: 1px solid var(--border);
   background: #ffffff03;
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
   padding: 9px 11px;
   gap: 10px;
   font-size: 12px;
@@ -108,7 +109,7 @@ button {
   margin: 0 auto;
   background: #ffffff05;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--corner-radius);
 }
 .layout-switch button {
   display: flex;
@@ -117,7 +118,7 @@ button {
   gap: 6px;
   height: 30px;
   padding: 0 12px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   color: var(--muted);
   font-size: 12px;
   transition:
@@ -137,7 +138,7 @@ button {
   min-width: 0;
   width: 100%;
   padding: 8px 10px;
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
   font-size: 11px;
   background: #00000012;
 }
@@ -172,7 +173,7 @@ button {
 .activitybar .icon-button {
   height: 44px;
   width: 44px;
-  border-radius: 11px;
+  border-radius: var(--corner-radius);
   position: relative;
   color: var(--muted);
 }
@@ -193,7 +194,7 @@ button {
   height: 18px;
   width: 3px;
   background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  border-radius: var(--corner-radius);
 }
 :root[data-theme='light'] .activitybar .icon-button {
   color: var(--muted);
@@ -253,7 +254,7 @@ button {
   gap: 9px;
   font-size: 12px;
   color: var(--muted);
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   padding-right: 11px;
 }
 :root[data-theme='light'] .tree-row {
@@ -305,7 +306,7 @@ button {
 .separator:hover,
 .separator[data-separator='active'] {
   background: color-mix(in srgb, var(--accent) 7.84%, transparent);
-  border-radius: 8px;
+  border-radius: var(--corner-radius);
 }
 .editor-layout {
   height: 100%;
@@ -346,7 +347,7 @@ button {
   font-size: 9px;
   padding: 2px 5px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   text-transform: capitalize;
   margin-left: 3px;
 }
@@ -375,7 +376,7 @@ button {
   background: var(--accent);
   color: var(--on-accent);
   border: 1px solid var(--accent);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   font-weight: 600;
   font-size: 11px;
   padding: 6px 11px;
@@ -401,7 +402,7 @@ button {
 }
 .file-tab {
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   padding-right: 5px;
 }
 .file-tab.active {
@@ -415,7 +416,7 @@ button {
   padding: 9px 9px;
   font-size: 12px;
   gap: 8px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
 }
 .file-tab .dirty-dot {
   width: 6px;
@@ -470,7 +471,7 @@ button {
   font-size: 9px;
   color: var(--accent);
   border: 1px solid color-mix(in srgb, var(--accent) 12.55%, transparent);
-  border-radius: 20px;
+  border-radius: var(--corner-radius);
   padding: 3px 6px;
   background: color-mix(in srgb, var(--accent) 2.35%, transparent);
 }
@@ -551,7 +552,7 @@ button {
   display: grid;
   place-items: center;
   color: var(--muted);
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   width: 24px;
   height: 24px;
 }
@@ -567,7 +568,7 @@ button {
   padding: 8px;
   font-size: 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   white-space: nowrap;
   color: var(--muted);
   background: #ffffff03;
@@ -642,7 +643,7 @@ button {
   display: grid;
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--accent) 12.55%, transparent);
-  border-radius: 22px;
+  border-radius: var(--corner-radius);
   background: color-mix(in srgb, var(--accent) 4.31%, transparent);
   margin: 0 auto 24px;
 }
@@ -685,7 +686,7 @@ button {
 .welcome-shortcut kbd {
   padding: 3px 6px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   font:
     9px 'Segoe UI',
     sans-serif;
@@ -693,14 +694,14 @@ button {
 .primary-button {
   background: var(--accent);
   color: var(--on-accent);
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
 }
 .secondary-button {
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
 }
 .dialog,
 .command-dialog {
-  border-radius: 14px;
+  border-radius: var(--corner-radius);
   background: var(--surface);
   box-shadow:
     0 24px 100px #0008,
@@ -771,12 +772,12 @@ button {
     height: 55px;
     padding: 0 9px;
     gap: 9px;
-    border-radius: 10px;
+    border-radius: var(--corner-radius);
   }
   .brand-symbol {
     height: 30px;
     width: 30px;
-    border-radius: 8px;
+    border-radius: var(--corner-radius);
   }
   .brand-wordmark {
     display: none;
@@ -815,12 +816,12 @@ button {
   .activitybar {
     width: 47px;
     padding: 9px 3px;
-    border-radius: 10px;
+    border-radius: var(--corner-radius);
   }
   .activitybar .icon-button {
     width: 37px;
     height: 40px;
-    border-radius: 9px;
+    border-radius: var(--corner-radius);
   }
   .activitybar .icon-button svg {
     width: 20px;
@@ -843,7 +844,7 @@ button {
   .editor-card,
   .output-card,
   .sidebar {
-    border-radius: 10px;
+    border-radius: var(--corner-radius);
   }
   .editor-toolbar {
     height: 43px;

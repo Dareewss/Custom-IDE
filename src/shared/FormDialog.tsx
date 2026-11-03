@@ -1,7 +1,5 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { X } from 'lucide-react';
-import { IconButton } from './IconButton';
 
 export function FormDialog({
   title,
@@ -45,9 +43,6 @@ export function FormDialog({
       >
         <div className="dialog-heading">
           <h2>{title}</h2>
-          <IconButton label="Close dialog" onClick={onClose}>
-            <X size={16} />
-          </IconButton>
         </div>
         {children}
         <label className="field">

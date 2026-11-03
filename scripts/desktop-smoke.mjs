@@ -74,7 +74,7 @@ try {
     await slider.press(value === 0 ? 'Home' : 'End');
     if (value === 50) for (let i = 0; i < 50; i++) await slider.press('ArrowLeft');
     await expect(slider).toHaveValue(String(value));
-    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     await expect
       .poll(async () => (await native()).alpha)
       .toBeCloseTo(((100 - value) / 100) * 0.96 * 255, 1);
@@ -107,7 +107,7 @@ try {
   const partialSlider = page.getByRole('slider', { name: 'Background transparency', exact: true });
   await partialSlider.press('End');
   for (let i = 0; i < 25; i++) await partialSlider.press('ArrowLeft');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   const zip = new JSZip();
   zip.file('main.py', 'from helper import greet\nname = input("Name? ")\ngreet(name)\n');
   zip.file('helper.py', 'def greet(name):\n    print("Native hello " + name)\n');

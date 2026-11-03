@@ -28,7 +28,7 @@
 .layout-switch,
 .layout-switch button,
 .quick-action-grid button {
-  border-radius: var(--glass-pill-radius);
+  border-radius: var(--corner-radius);
 }
 .secondary-button,
 .command-trigger,
@@ -63,7 +63,7 @@
   color: var(--palette-lime);
 }
 .glass.statusbar {
-  --glass-radius: var(--glass-pill-radius);
+  --glass-radius: var(--corner-radius);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 .glass.context-menu,
@@ -96,7 +96,7 @@ select {
     .restore-screen pre
   ) {
   background: rgb(18 18 22 / 0.94);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
 }
 .header-layout {
   display: flex;
@@ -111,14 +111,14 @@ select {
 .appearance-controls {
   display: flex;
   border: 1px solid var(--border);
-  border-radius: var(--glass-pill-radius);
+  border-radius: var(--corner-radius);
   padding: 3px;
   background: var(--control-fill);
 }
 .appearance-controls .icon-button {
   width: 30px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: var(--corner-radius);
 }
 .appearance-controls .icon-button[aria-pressed='true'] {
   background: var(--accent-soft);

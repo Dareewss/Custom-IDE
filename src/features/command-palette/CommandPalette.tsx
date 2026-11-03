@@ -123,11 +123,6 @@ export function CommandPalette() {
       },
     },
     { name: 'Export project as ZIP', shortcut: '', run: exportProject },
-    {
-      name: 'Import project from ZIP',
-      shortcut: '',
-      run: () => useUI.setState({ modal: 'projects' }),
-    },
     { name: 'Manage projects', shortcut: '', run: () => useUI.setState({ modal: 'projects' }) },
     { name: 'Open settings', shortcut: 'Ctrl ,', run: () => useUI.setState({ modal: 'settings' }) },
     { name: 'Run active file', shortcut: 'F5', run: runActive },
@@ -147,7 +142,7 @@ export function CommandPalette() {
     },
     { name: 'Clear console', shortcut: '', run: () => useRunner.setState({ output: [] }) },
     { name: 'Toggle explorer', shortcut: '', run: () => useUI.getState().toggleSidebar() },
-    { name: 'Toggle bottom panel', shortcut: '', run: () => useUI.getState().toggleBottom() },
+    { name: 'Toggle workbench', shortcut: '', run: () => useUI.getState().toggleBottom() },
     ...(['Console', 'Problems', 'Variables', 'Call Stack'] as const).map((panel) => ({
       name: `Show ${panel}`,
       shortcut: '',
@@ -158,7 +153,7 @@ export function CommandPalette() {
     <>
       <button className="command-trigger" onClick={() => open('commands')}>
         <Search size={13} />
-        <span>Search files and commands</span>
+        <span>Search commands</span>
         <kbd>Ctrl K</kbd>
       </button>
       <Command.Dialog
@@ -202,6 +197,7 @@ export function CommandPalette() {
                   <Command.Item
                     key={item.name}
                     value={item.name}
+                    keywords={item.name === 'Manage projects' ? ['import', 'zip', 'projects'] : []}
                     onSelect={() => {
                       setMode(null);
                       Promise.resolve(item.run()).catch((error: unknown) =>

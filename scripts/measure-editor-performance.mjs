@@ -54,7 +54,7 @@ try {
   for (const mode of [false, true]) {
     await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
     await page.getByRole('checkbox', { name: /Performance mode/ }).setChecked(mode);
-    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', mode ? 'none' : /blur/);
     await expect(page.locator('.scene')).toHaveAttribute(
       'data-motion',

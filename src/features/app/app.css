@@ -5,7 +5,7 @@
   padding: 7px 10px;
   border: 1px solid color-mix(in srgb, var(--accent) 21.96%, transparent);
   background: color-mix(in srgb, var(--accent) 4.31%, transparent);
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
   color: var(--accent);
   font-size: 11px;
   white-space: nowrap;
@@ -33,11 +33,11 @@
   gap: 14px;
   padding: 17px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   background: #ffffff03;
 }
 .install-app-preview img {
-  border-radius: 13px;
+  border-radius: var(--corner-radius);
 }
 .install-app-preview > div {
   flex: 1;
@@ -82,7 +82,7 @@
   color: var(--accent);
   font-size: 9px;
   border: 1px solid color-mix(in srgb, var(--accent) 10.98%, transparent);
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   margin-top: 1px;
 }
 .install-steps strong {
@@ -103,7 +103,7 @@
   padding: 8px 10px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
 }
 .install-address code {
   font-size: 11px;
@@ -113,7 +113,7 @@
 .install-address button {
   width: 28px;
   height: 28px;
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   display: grid;
   place-items: center;
   color: var(--accent);

@@ -8,7 +8,7 @@ async function settings(page: Page) {
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
 }
 async function done(page: Page) {
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
 }
 
 test('moves smoothly at a capped rate, eases to exact home, and resumes the preserved phase', async ({
@@ -85,13 +85,13 @@ test('stops while hidden or with orbs off and applies persisted animation speed'
   await expect(page.getByRole('slider', { name: 'Animation speed', exact: true })).toHaveValue('2');
 });
 
-test('uses no animation loop under reduced motion and keeps at least three moving orbs on screen', async ({
-  page,
-}) => {
-  await page.clock.install();
-  await page.goto('/');
-  await expect(scene(page)).toHaveAttribute('data-motion', 'running');
-  for (const preset of ['neon', 'ocean', 'nebula']) {
+for (const preset of ['neon', 'ocean', 'nebula']) {
+  test(`keeps three ${preset} orbs on screen and stops its loop for reduced motion`, async ({
+    page,
+  }) => {
+    await page.clock.install();
+    await page.goto('/');
+    await expect(scene(page)).toHaveAttribute('data-motion', 'running');
     await settings(page);
     await page.getByLabel('Background preset').selectOption(preset);
     await done(page);
@@ -111,11 +111,11 @@ test('uses no animation loop under reduced motion and keeps at least three movin
           }).length,
       ),
     ).toBeGreaterThanOrEqual(3);
-  }
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(scene(page)).toHaveAttribute('data-motion', 'reduced');
-  const reduced = await frames(page);
-  await page.clock.runFor(2000);
-  expect(await frames(page)).toBe(reduced);
-  await expect(page.locator('.scene-shape-2')).toHaveCSS('transform', 'none');
-});
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(scene(page)).toHaveAttribute('data-motion', 'reduced');
+    const reduced = await frames(page);
+    await page.clock.runFor(2000);
+    expect(await frames(page)).toBe(reduced);
+    await expect(page.locator('.scene-shape-2')).toHaveCSS('transform', 'none');
+  });
+}

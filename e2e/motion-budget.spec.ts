@@ -77,7 +77,7 @@ test('reduced transparency stops motion and native material calls ignore slider 
       .fill(String(value));
   await page.getByLabel('Background preset').selectOption('ocean');
   expect(await calls()).toBe(before);
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   const session = await page.context().newCDPSession(page);
   await session.send('Emulation.setEmulatedMedia', {
     features: [{ name: 'prefers-reduced-transparency', value: 'reduce' }],

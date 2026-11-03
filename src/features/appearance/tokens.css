@@ -21,9 +21,9 @@
   --glass-grain-opacity: 0;
   --glass-blur: 4px;
   --glass-saturate: 160%;
-  --glass-radius: 13px;
-  --glass-popover-radius: 18px;
-  --glass-pill-radius: 999px;
+  --glass-radius: var(--corner-radius);
+  --glass-popover-radius: var(--corner-radius);
+  --glass-pill-radius: var(--corner-radius);
   --glass-border-from: rgb(255 255 255 / 0.32);
   --glass-border-mid: rgb(255 255 255 / 0.07);
   --glass-border-to: rgb(132 221 99 / 0.35);

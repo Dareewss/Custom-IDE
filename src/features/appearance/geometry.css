@@ -1,0 +1,74 @@
+/* One geometry rule for app surfaces and native-looking form controls. */
+:root {
+  --vscode-cornerRadius-small: 0px;
+  --vscode-cornerRadius-medium: 0px;
+  --vscode-cornerRadius-large: 0px;
+}
+.monaco-editor .suggest-widget,
+.monaco-hover,
+.monaco-editor .monaco-editor-overlaymessage,
+.monaco-editor .find-widget,
+.monaco-menu-container {
+  border-radius: var(--corner-radius) !important;
+}
+input[type='checkbox'] {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-content: center;
+  border-radius: var(--corner-radius);
+  border: 1px solid var(--border);
+  background: var(--control-fill);
+}
+input[type='checkbox']:checked {
+  background: var(--accent);
+}
+input[type='checkbox']:checked::before {
+  content: '✓';
+  color: var(--on-accent);
+  font: bold 11px/1 system-ui;
+}
+input[type='checkbox']:disabled {
+  opacity: 0.4;
+}
+input[type='range'] {
+  appearance: none;
+  background: transparent;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: var(--corner-radius);
+  background: var(--border);
+}
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 14px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: var(--corner-radius);
+  background: var(--accent);
+}
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: var(--corner-radius);
+  background: var(--border);
+}
+input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 14px;
+  border: 0;
+  border-radius: var(--corner-radius);
+  background: var(--accent);
+}
+/* Settings apply live; one close action stays available during long scrolling. */
+.settings-dialog .dialog-heading {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgb(var(--glass-fg-rgb) / 0.98);
+  padding: 10px 0;
+}

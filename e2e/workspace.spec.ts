@@ -60,14 +60,14 @@ test('uses frosted surfaces and persists background-only transparency from 0 to 
   await slider.press('Home');
   await slider.press('ArrowRight');
   await expect(slider).toHaveValue('1');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   await page.reload();
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   await expect(
     page.getByRole('slider', { name: 'Background transparency', exact: true }),
   ).toHaveValue('1');
   await page.getByRole('slider', { name: 'Background transparency', exact: true }).press('Home');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('exit 0');
 });
@@ -101,7 +101,7 @@ test('provides a valid standalone manifest, icons and installation guide', async
   await expect(page.getByRole('dialog', { name: 'Install Code Atlas', exact: true })).toContainText(
     'Workspace available offline',
   );
-  await page.getByRole('button', { name: 'Back to workspace', exact: false }).click();
+  await page.getByRole('button', { name: 'Close installation guide', exact: true }).click();
 });
 test('restores projects and executes cached Python with the network offline', async ({
   page,
@@ -142,9 +142,9 @@ test('switches Code, Split and Focus layouts and opens rail tools', async ({ pag
   await expect(page.getByRole('dialog', { name: 'Quick open file' })).toBeVisible();
   await page.keyboard.press('Escape');
   await modes.getByRole('button', { name: 'Split', exact: true }).click();
-  await page.getByRole('button', { name: 'Debugger', exact: true }).click();
+  await page.getByRole('tab', { name: 'Variables', exact: true }).click();
   await expect(page.getByRole('tabpanel', { name: 'Variables' })).toBeVisible();
-  await page.getByRole('button', { name: 'Open project switcher', exact: true }).click();
+  await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Project manager' })).toBeVisible();
 });
 
@@ -263,7 +263,7 @@ test('formats Python, completes contextually, validates syntax and persists sett
   await page.keyboard.press('Enter');
   await page.getByLabel('Color theme').selectOption('light');
   await page.getByLabel('Editor font size').fill('18');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await importProject(page, { 'main.py': 'greeting = "hello"\ngreeting.up' }, 'Completion');

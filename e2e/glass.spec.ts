@@ -6,7 +6,7 @@ async function openSettings(page: Page) {
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
 }
 async function closeSettings(page: Page) {
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
 }
 async function transparency(page: Page, amount: number) {
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });

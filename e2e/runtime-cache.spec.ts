@@ -23,7 +23,7 @@ test('can open, analyze and run Python offline immediately after app installatio
   await editor.focus();
   await editor.press('Control+A');
   await page.keyboard.insertText("value={'a':1}\nprint(value)\n");
-  await page.getByRole('button', { name: 'Format file', exact: true }).click();
+  await page.getByRole('button', { name: 'Format Document', exact: true }).click();
   await expect(page.locator('.view-lines')).toContainText('value = {"a": 1}');
   await editor.focus();
   await editor.press('Control+A');

@@ -237,11 +237,6 @@ export function SettingsDialog() {
             />
           </label>
         ))}
-        <div className="dialog-actions">
-          <button className="primary-button" onClick={close}>
-            Done
-          </button>
-        </div>
       </div>
     </dialog>
   );

@@ -3,7 +3,7 @@ import { Explorer } from './features/explorer/Explorer';
 import { useWorkspace } from './features/explorer/store';
 import { EditorArea } from './features/editor/EditorArea';
 import { useEffect } from 'react';
-import { startPersistence, usePersistence } from './features/projects/persistence';
+import { startPersistence, usePersistence, persistCurrent } from './features/projects/persistence';
 import { RunButton } from './features/runner/RunButton';
 import { Console } from './features/terminal/Console';
 import { RunStatus } from './features/runner/RunStatus';
@@ -12,7 +12,7 @@ import { FormatButton } from './features/editor/FormatButton';
 import { CommandPalette } from './features/command-palette/CommandPalette';
 import { SettingsDialog } from './features/settings/SettingsDialog';
 import { useAppearance } from './features/appearance/useAppearance';
-import { Settings, FolderOpen } from 'lucide-react';
+import { Settings, Save } from 'lucide-react';
 import { ProjectManager } from './features/projects/ProjectManager';
 import { IconButton } from './shared/IconButton';
 import { useUI } from './shared/ui-store';
@@ -57,12 +57,6 @@ export function App() {
         navigation={
           <>
             <IconButton
-              label="Manage projects"
-              onClick={() => useUI.setState({ modal: 'projects' })}
-            >
-              <FolderOpen size={20} />
-            </IconButton>
-            <IconButton
               label="Settings (Ctrl+,)"
               onClick={() => useUI.setState({ modal: 'settings' })}
             >
@@ -87,6 +81,12 @@ export function App() {
         }
         actions={
           <>
+            <IconButton
+              label="Save workspace (Ctrl+S)"
+              onClick={() => void persistCurrent().catch(useUI.getState().reportError)}
+            >
+              <Save size={14} />
+            </IconButton>
             <FormatButton />
             <RunButton />
             <DebugControls />

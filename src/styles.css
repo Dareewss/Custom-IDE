@@ -51,7 +51,7 @@ select {
   color: var(--text);
   border: 1px solid var(--border);
   padding: 8px 10px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
 }
 svg {
   flex-shrink: 0;
@@ -94,7 +94,7 @@ svg {
   font-size: 9px;
   font-weight: 500;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--corner-radius);
   padding: 2px 4px;
   margin-left: 9px;
   color: var(--muted);
@@ -130,7 +130,7 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   color: var(--muted);
   transition:
     background 0.15s,
@@ -202,7 +202,7 @@ svg {
   letter-spacing: 0.8px;
   color: var(--muted);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: var(--corner-radius);
   padding: 2px 4px;
 }
 .muted {
@@ -378,7 +378,7 @@ svg {
   max-width: min(480px, 90vw);
   border: 1px solid #a85c5c;
   background: var(--surface);
-  border-radius: 7px;
+  border-radius: var(--corner-radius);
   padding: 12px 16px;
   box-shadow: 0 8px 32px #0005;
   display: flex;
@@ -485,7 +485,7 @@ svg {
 .dialog {
   width: min(430px, 92vw);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   padding: 22px;
   background: var(--surface);
   color: var(--text);
@@ -523,7 +523,7 @@ svg {
   background: var(--accent);
   color: var(--bg);
   padding: 7px 14px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   font-weight: 600;
   font-size: 12px;
 }
@@ -533,7 +533,7 @@ svg {
 .secondary-button {
   border: 1px solid var(--border);
   padding: 7px 13px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   font-size: 12px;
 }
 .error-text {
@@ -547,7 +547,7 @@ svg {
   padding: 5px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--corner-radius);
   box-shadow: 0 8px 30px #0007;
 }
 .context-menu button {
@@ -556,7 +556,7 @@ svg {
   text-align: left;
   padding: 8px 11px;
   font-size: 12px;
-  border-radius: 3px;
+  border-radius: var(--corner-radius);
 }
 .menu-dismiss {
   position: fixed;
@@ -596,7 +596,7 @@ svg {
 .tab-close {
   width: 21px;
   height: 22px;
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   display: grid;
   place-items: center;
 }
@@ -625,7 +625,7 @@ svg {
   align-items: center;
   gap: 7px;
   padding: 5px 11px;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   font-size: 11px;
 }
 .console-output {
@@ -749,7 +749,7 @@ svg {
   margin-left: auto;
   border: 1px solid var(--border);
   background: var(--bg);
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   display: flex;
   align-items: center;
   gap: 9px;
@@ -774,7 +774,7 @@ svg {
   transform: translateX(-50%);
   width: min(540px, 92vw);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--corner-radius);
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 20px 100px #000b;
@@ -809,7 +809,7 @@ svg {
   border: 1px solid var(--border);
   font-size: 10px;
   padding: 1px 4px;
-  border-radius: 3px;
+  border-radius: var(--corner-radius);
 }
 [cmdk-list] {
   max-height: 360px;
@@ -827,7 +827,7 @@ svg {
   align-items: center;
   gap: 10px;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: var(--corner-radius);
   cursor: pointer;
 }
 [cmdk-item][data-selected='true'] {
@@ -1162,7 +1162,7 @@ svg {
   gap: 12px;
   padding: 10px;
   border: 1px solid #e7787850;
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   background: #e7787809;
   color: #e77878;
   font-size: 12px;

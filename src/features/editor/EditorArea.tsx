@@ -1,9 +1,8 @@
 import { lazy, Suspense } from 'react';
-import { FileCode2, X, Box, FolderPlus, ArrowUpRight } from 'lucide-react';
+import { FileCode2, X, Box, ArrowUpRight } from 'lucide-react';
 import { useWorkspace } from '../explorer/store';
 import { basename } from '../../core/fs/vfs';
 import { motion, useReducedMotion } from 'motion/react';
-import { useUI } from '../../shared/ui-store';
 
 const CodeEditor = lazy(() => import('./CodeEditor'));
 export function EditorArea() {
@@ -114,13 +113,6 @@ export function EditorArea() {
             ) : (
               <p className="muted">Create your first file with New file in the explorer.</p>
             )}
-            <button
-              className="primary-button"
-              onClick={() => useUI.setState({ modal: 'projects' })}
-            >
-              <FolderPlus size={13} />
-              Browse projects
-            </button>
           </div>
           <div className="welcome-shortcut">
             <kbd>Ctrl</kbd>

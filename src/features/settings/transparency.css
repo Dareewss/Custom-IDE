@@ -21,7 +21,7 @@
   min-width: 43px;
   color: var(--accent);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: var(--corner-radius);
   font:
     11px Consolas,
     monospace;

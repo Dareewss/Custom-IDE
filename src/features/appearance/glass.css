@@ -5,7 +5,7 @@
 :root[data-theme] .glass {
   background: rgb(var(--glass-fg-rgb) / var(--glass-tint-alpha));
   border: 1px solid var(--border);
-  border-radius: var(--glass-radius);
+  border-radius: var(--corner-radius);
   box-shadow: none;
   text-shadow: 0 1px 2px rgb(0 0 0 / 0.8);
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -14,10 +14,10 @@
 .glass--popover,
 .glass--modal {
   --glass-tint-alpha: var(--glass-elevated-tint);
-  border-radius: var(--glass-popover-radius);
+  border-radius: var(--corner-radius);
 }
 .glass--modal {
-  border-radius: var(--glass-radius);
+  border-radius: var(--corner-radius);
 }
 .glass--editor {
   --glass-tint-alpha: var(--glass-editor-tint);

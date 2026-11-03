@@ -2,13 +2,10 @@ import { useSyncExternalStore, type ReactNode } from 'react';
 import {
   Box,
   Files,
-  PanelBottom,
-  PanelLeft,
   Terminal,
   X,
   ChevronDown,
   Search,
-  Bug,
   Columns2,
   Code2,
   Maximize2,
@@ -66,22 +63,19 @@ export function Shell(props: ShellProps) {
       aria-label="Code Atlas workspace"
     >
       <GlassPanel as="header" className="titlebar">
-        <button
-          className="brand"
-          onClick={() => useUI.setState({ modal: 'projects' })}
-          aria-label="Code Atlas home"
-        >
+        <div className="brand">
           <span className="brand-symbol">
             <Box size={23} strokeWidth={1.6} />
           </span>
           <span className="brand-wordmark">
             Code Atlas<small>Personal workspace</small>
           </span>
-        </button>
+        </div>
         <span className="header-divider" />
         <button
           className="workspace-title"
-          aria-label="Open project switcher"
+          aria-label="Manage projects"
+          title="Manage projects"
           onClick={() => useUI.setState({ modal: 'projects' })}
         >
           <Box size={15} />
@@ -93,6 +87,8 @@ export function Shell(props: ShellProps) {
             {layouts.map((layout) => (
               <button
                 key={layout.id}
+                aria-label={layout.label}
+                title={`${layout.label} layout`}
                 aria-pressed={ui.layout === layout.id}
                 onClick={() => ui.setLayout(layout.id)}
               >
@@ -106,22 +102,19 @@ export function Shell(props: ShellProps) {
         <div className="header-search">{props.palette}</div>
         <div className="title-actions">
           {props.appControls}
-          <IconButton label="Toggle explorer" onClick={ui.toggleSidebar}>
-            <PanelLeft size={16} />
-          </IconButton>
-          <IconButton label="Toggle bottom panel" onClick={ui.toggleBottom}>
-            <PanelBottom size={16} />
-          </IconButton>
-          <IconButton
-            label="Enter fullscreen"
-            disabled={!document.fullscreenEnabled}
-            onClick={() => {
-              if (document.fullscreenElement) void document.exitFullscreen().catch(ui.reportError);
-              else void document.documentElement.requestFullscreen().catch(ui.reportError);
-            }}
-          >
-            <Maximize2 size={16} />
-          </IconButton>
+          {!window.codeAtlasDesktop && (
+            <IconButton
+              label="Enter fullscreen"
+              disabled={!document.fullscreenEnabled}
+              onClick={() => {
+                if (document.fullscreenElement)
+                  void document.exitFullscreen().catch(ui.reportError);
+                else void document.documentElement.requestFullscreen().catch(ui.reportError);
+              }}
+            >
+              <Maximize2 size={16} />
+            </IconButton>
+          )}
           <DesktopWindowControls />
         </div>
       </GlassPanel>
@@ -136,44 +129,18 @@ export function Shell(props: ShellProps) {
               <Search size={23} />
             </IconButton>
             <span className="rail-divider" />
-            <IconButton
-              label="Debugger"
-              aria-pressed={ui.bottom && ui.panel === 'Variables'}
-              onClick={() => ui.setPanel('Variables')}
-            >
-              <Bug size={22} />
-            </IconButton>
-            <IconButton
-              label="Console"
-              aria-pressed={ui.bottom && ui.panel === 'Console'}
-              onClick={() => ui.setPanel('Console')}
-            >
+            <IconButton label="Workbench" aria-pressed={ui.bottom} onClick={ui.toggleBottom}>
               <Terminal size={22} />
             </IconButton>
           </div>
-          <div>
-            {props.navigation}
-            <span className="rail-divider" />
-            <button
-              className="local-badge"
-              aria-label="Open local workspace settings"
-              onClick={() => useUI.setState({ modal: 'settings' })}
-            >
-              CA
-            </button>
-          </div>
+          <div>{props.navigation}</div>
         </GlassPanel>
         <Group orientation="horizontal" className="main-group">
           {ui.sidebar && (
             <>
               <Panel defaultSize="244px" minSize="185px" maxSize="420px">
                 <GlassPanel as="aside" className="sidebar">
-                  <div className="section-heading">
-                    Explorer
-                    <IconButton label="Hide explorer" onClick={ui.toggleSidebar}>
-                      <PanelLeft size={15} />
-                    </IconButton>
-                  </div>
+                  <div className="section-heading">Explorer</div>
                   {props.explorer}
                   <div className="sidebar-foot">
                     <span className="workspace-dot" />

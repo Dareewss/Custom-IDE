@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Download, Check, WifiOff, RefreshCw, X, Box, Copy, ArrowUpRight } from 'lucide-react';
+import { Download, Check, WifiOff, RefreshCw, X, Box, Copy } from 'lucide-react';
 import { installApp, applyAppUpdate, useAppState } from './install';
 import { useUI } from '../../shared/ui-store';
 import { IconButton } from '../../shared/IconButton';
@@ -145,10 +145,6 @@ export function InstallDialog() {
             Install now
           </button>
         )}
-        <button className="secondary-button" onClick={close}>
-          Back to workspace
-          <ArrowUpRight size={12} />
-        </button>
       </div>
     </dialog>
   );

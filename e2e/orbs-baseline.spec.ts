@@ -9,7 +9,7 @@ for (const preset of ['neon', 'ocean', 'nebula']) {
     await page.getByLabel('Background preset').selectOption(preset);
     await page.getByRole('checkbox', { name: /^Background animation/ }).uncheck();
     await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('88');
-    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await page.getByRole('button', { name: 'Close settings', exact: true }).click();
     const homes = await page.locator('.scene-shape').evaluateAll((nodes) =>
       nodes.map((node) => {
         const rect = node.getBoundingClientRect();

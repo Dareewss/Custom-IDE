@@ -34,7 +34,7 @@ test('captures the complete five-layer appearance matrix with real code and outp
           await page
             .getByRole('slider', { name: 'Background transparency', exact: true })
             .fill(String(transparency));
-          await page.getByRole('button', { name: 'Done', exact: true }).click();
+          await page.getByRole('button', { name: 'Close settings', exact: true }).click();
           await page.clock.runFor(1200);
           await expect(page.locator('.scene')).toHaveAttribute(
             'data-motion',

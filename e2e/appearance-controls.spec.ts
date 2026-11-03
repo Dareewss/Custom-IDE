@@ -19,9 +19,9 @@ test('shares persisted live controls between header, settings and commands', asy
   await expect(page.getByRole('checkbox', { name: /^Background animation/ })).not.toBeChecked();
   await expect(page.getByRole('checkbox', { name: /^Background blobs/ })).not.toBeChecked();
   await page.getByRole('slider', { name: 'Animation speed', exact: true }).fill('0.25');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   for (const name of ['Toggle orbs', 'Toggle orb animation']) {
-    await page.getByRole('button', { name: /Search files and commands/ }).click();
+    await page.getByRole('button', { name: /Search commands/ }).click();
     await page.getByRole('combobox').fill(name);
     await page.getByRole('option', { name, exact: true }).click();
   }

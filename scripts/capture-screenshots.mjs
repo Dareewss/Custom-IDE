@@ -35,7 +35,7 @@ try {
   await expect(page.getByRole('status')).toContainText('exit 0');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   await page.getByRole('slider', { name: 'Background transparency', exact: true }).fill('100');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   const folder = page.getByRole('treeitem', { name: 'algorithms', exact: true });
   if ((await folder.getAttribute('aria-expanded')) === 'false') await folder.click();
   await page.getByRole('treeitem', { name: 'search.py', exact: true }).click();
@@ -64,7 +64,7 @@ try {
   });
   await page.screenshot({ path: 'docs/screenshots/settings.png' });
   await transparency.fill('100');
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   await page.setViewportSize({ width: 375, height: 812 });
   await page.reload();
   await page.addStyleTag({ content: 'body { background: #202522; }' });
