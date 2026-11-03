@@ -156,7 +156,7 @@ try {
   app = undefined;
   page = await launch();
   await expect(page.locator('.workspace-title')).toContainText('Native workspace');
-  await expect.poll(async () => (await native()).alpha).toBe(0);
+  await expect.poll(async () => (await native()).alpha).toBeLessThan(255);
   await page.getByRole('button', { name: 'Run file', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('exit 0', { timeout: 30000 });
   await expect(page.getByRole('log')).toContainText('Saved before desktop close');

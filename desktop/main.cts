@@ -70,6 +70,12 @@ else {
           backgroundThrottling: process.env.CODE_ATLAS_TEST_MODE !== '1',
         },
       });
+      // Native builds serve their own complete bundle; an old PWA controller must
+      // not intercept hashed runtime assets after an executable update.
+      await window.webContents.session.clearStorageData({
+        origin,
+        storages: ['serviceworkers', 'cachestorage'],
+      });
       window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
       window.webContents.on('will-navigate', (event, url) => {
         if (new URL(url).origin !== origin) event.preventDefault();
