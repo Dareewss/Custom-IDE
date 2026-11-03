@@ -35,7 +35,7 @@ try {
   });
   const page = await browser.newPage({
     viewport: { width: 1440, height: 960 },
-    reducedMotion: 'reduce',
+    reducedMotion: 'no-preference',
   });
   await page.goto(origin);
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
@@ -56,19 +56,29 @@ try {
     await page.getByRole('checkbox', { name: /Performance mode/ }).setChecked(mode);
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', mode ? 'none' : /blur/);
+    await expect(page.locator('.scene')).toHaveAttribute(
+      'data-motion',
+      mode ? 'performance' : 'running',
+    );
+    const orbFramesBefore = Number(await page.locator('.scene').getAttribute('data-orb-frames'));
     const editor = page.getByRole('textbox', { name: 'Editor content' });
     await editor.focus();
     await editor.press('Control+End');
     await editor.press('Enter');
     await page.keyboard.type('# ');
     await page.evaluate(() => {
-      const data = { keys: [], frames: [] };
+      const data = { keys: [], scroll: [], frames: [] };
       window.__glassQa = data;
       window.__glassQaListener = () => {
         const start = performance.now();
         requestAnimationFrame(() => data.keys.push(performance.now() - start));
       };
       document.addEventListener('keydown', window.__glassQaListener);
+      window.__glassQaWheel = () => {
+        const start = performance.now();
+        requestAnimationFrame(() => data.scroll.push(performance.now() - start));
+      };
+      document.addEventListener('wheel', window.__glassQaWheel, { passive: true, capture: true });
     });
     const frames = page.evaluate(
       () =>
@@ -86,11 +96,14 @@ try {
     );
     await page.keyboard.type('abcdefghijklmnopqrstuvwxyz'.repeat(3), { delay: 8 });
     const box = await page.locator('.monaco-editor').boundingBox();
+    const linesBeforeScroll = await page.locator('.view-lines').innerText();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     for (let i = 0; i < 20; i++) await page.mouse.wheel(0, -200);
     await frames;
+    expect(await page.locator('.view-lines').innerText()).not.toBe(linesBeforeScroll);
     const result = await page.evaluate(() => {
       document.removeEventListener('keydown', window.__glassQaListener);
+      document.removeEventListener('wheel', window.__glassQaWheel, true);
       const p95 = (values) => {
         const sorted = [...values].sort((a, b) => a - b);
         return Math.round(sorted[Math.floor(sorted.length * 0.95)] * 10) / 10;
@@ -99,12 +112,27 @@ try {
         keySamples: window.__glassQa.keys.length,
         keyToFrameP95Ms: p95(window.__glassQa.keys),
         frameP95Ms: p95(window.__glassQa.frames),
+        scrollSamples: window.__glassQa.scroll.length,
+        scrollToFrameP95Ms: p95(window.__glassQa.scroll),
       };
     });
     expect(result.keySamples).toBeGreaterThanOrEqual(70);
     expect(result.keyToFrameP95Ms).toBeLessThan(250);
     expect(result.frameP95Ms).toBeLessThan(100);
-    measurements.push({ performanceMode: mode, ...result });
+    expect(result.scrollSamples).toBeGreaterThanOrEqual(15);
+    expect(result.scrollToFrameP95Ms).toBeLessThan(250);
+    const orbFrames =
+      Number(await page.locator('.scene').getAttribute('data-orb-frames')) - orbFramesBefore;
+    if (!mode) {
+      expect(orbFrames).toBeGreaterThan(10);
+      await expect(page.locator('.scene')).toHaveAttribute('data-motion', 'running');
+    }
+    measurements.push({
+      performanceMode: mode,
+      orbFrames,
+      orbFps: await page.locator('.scene').getAttribute('data-orb-fps'),
+      ...result,
+    });
   }
   await mkdir('docs', { recursive: true });
   await appendFile(

@@ -1,6 +1,7 @@
 import { useLayoutEffect, type ReactNode } from 'react';
 import { OrbLayer } from './OrbLayer';
 import { debugLayers } from './layers';
+import { MotionNotice } from './MotionNotice';
 
 export function BackgroundPane() {
   return <div className="background-pane" data-layer="backing" aria-hidden="true" />;
@@ -25,6 +26,7 @@ export function LayerStack({ children }: { children: ReactNode }) {
       <BackgroundPane />
       <OrbPlane />
       {children}
+      <MotionNotice />
     </div>
   );
 }

@@ -28,20 +28,12 @@ export function useAppearance() {
     root.style.setProperty('--glass-fg-tint', String(alphas.panel));
     root.style.setProperty('--glass-editor-tint', String(alphas.editor));
     root.style.setProperty('--glass-elevated-tint', String(alphas.elevated));
+  }, [theme, transparency, preset, blur, blobs, animation, performanceMode]);
+  useLayoutEffect(() => {
     window.codeAtlasDesktop?.setTheme(theme);
     if (window.codeAtlasDesktop?.supportsDesktopBlur)
       void window.codeAtlasDesktop
         .setDesktopBlur(desktopBlur && !performanceMode && !reducedTransparency)
         .catch(useUI.getState().reportError);
-  }, [
-    theme,
-    transparency,
-    preset,
-    blur,
-    blobs,
-    animation,
-    performanceMode,
-    desktopBlur,
-    reducedTransparency,
-  ]);
+  }, [theme, performanceMode, desktopBlur, reducedTransparency]);
 }

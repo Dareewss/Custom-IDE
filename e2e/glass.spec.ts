@@ -130,7 +130,10 @@ test('performance mode and system accessibility preferences disable expensive ef
   });
   await expect(page.locator('.editor-card')).toHaveCSS('backdrop-filter', 'none');
   await expect(page.locator('.scene-shape-1')).toHaveCSS('display', 'none');
-  await expect(page.locator('.editor-card')).toHaveCSS('background-color', 'rgb(26, 33, 28)');
+  await expect(page.locator('.editor-card')).toHaveCSS(
+    'background-color',
+    'rgba(18, 18, 22, 0.98)',
+  );
 });
 
 test('pauses scene animation when the page becomes hidden', async ({ page }) => {

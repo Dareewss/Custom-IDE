@@ -2,6 +2,7 @@ import { Orbit, Pause, Play } from 'lucide-react';
 import { useSettings } from '../settings/store';
 import { IconButton } from '../../shared/IconButton';
 import { useReducedMotionPreference, useReducedTransparency } from './preferences';
+import { useMotionBudget, retryOrbMotion } from './motion-budget';
 
 export function AppearanceControls() {
   const animation = useSettings((s) => s.backgroundAnimation);
@@ -10,6 +11,8 @@ export function AppearanceControls() {
   const reduced = useReducedMotionPreference();
   const reducedTransparency = useReducedTransparency();
   const blocked = reduced || reducedTransparency || performanceMode;
+  const budgetPaused = useMotionBudget((s) => s.fps === 0);
+  const playing = animation && !blocked && !budgetPaused;
   return (
     <div className="appearance-controls" role="group" aria-label="Background effects">
       <IconButton
@@ -17,15 +20,19 @@ export function AppearanceControls() {
         title={
           blocked
             ? 'Animation paused by system preferences or Performance mode'
-            : animation
+            : playing
               ? 'Pause orb animation'
               : 'Play orb animation'
         }
-        aria-pressed={animation && !blocked}
+        aria-pressed={playing}
         disabled={blocked}
-        onClick={() => useSettings.getState().setSetting('backgroundAnimation', !animation)}
+        onClick={() => {
+          if (budgetPaused) retryOrbMotion();
+          if (!budgetPaused || !animation)
+            useSettings.getState().setSetting('backgroundAnimation', !animation);
+        }}
       >
-        {animation && !blocked ? <Pause size={14} /> : <Play size={14} />}
+        {playing ? <Pause size={14} /> : <Play size={14} />}
       </IconButton>
       <IconButton
         label="Toggle orbs"

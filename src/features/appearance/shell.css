@@ -151,3 +151,20 @@ select {
     max-width: 76px;
   }
 }
+.motion-notice {
+  position: fixed;
+  bottom: 36px;
+  right: 24px;
+  z-index: var(--layer-notice);
+  max-width: min(380px, calc(100vw - 32px));
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+.motion-notice button {
+  flex-shrink: 0;
+  padding: 7px 9px;
+}
