@@ -3,13 +3,7 @@
 }
 .glass,
 :root[data-theme] .glass {
-  background:
-    var(--glass-sheen),
-    linear-gradient(
-      rgb(var(--glass-floor) / var(--glass-floor-opacity)),
-      rgb(var(--glass-floor) / var(--glass-floor-opacity))
-    ),
-    rgb(var(--glass-tint) / var(--glass-opacity));
+  background: var(--glass-sheen), rgb(var(--glass-fg-rgb) / var(--glass-tint-alpha));
   border: 1px solid transparent;
   border-radius: var(--glass-radius);
   box-shadow:
@@ -44,9 +38,22 @@
 }
 .glass--popover,
 .glass--modal {
-  --glass-floor-opacity: var(--glass-elevated-floor);
+  --glass-tint-alpha: var(--glass-elevated-tint);
   border-radius: var(--glass-popover-radius);
 }
 .glass--modal {
   border-radius: var(--glass-radius);
+}
+.glass--editor {
+  --glass-tint-alpha: var(--glass-editor-tint);
+}
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--glass-grain);
+  opacity: var(--glass-grain-opacity);
+  pointer-events: none;
+  z-index: 1;
 }

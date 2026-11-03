@@ -22,6 +22,7 @@ export function OutputDock({
   return (
     <GlassPanel
       as="section"
+      variant="editor"
       className={`bottom-panel output-card ${docked ? 'docked' : ''}`}
       aria-label="Output panel"
     >

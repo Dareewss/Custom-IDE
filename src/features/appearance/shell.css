@@ -79,4 +79,5 @@
 input,
 select {
   accent-color: var(--accent);
+  background: var(--control-fill);
 }

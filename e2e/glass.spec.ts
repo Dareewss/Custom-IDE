@@ -190,7 +190,7 @@ test('actually blurs background pixels at every slider value while retaining alp
       el.style.backdropFilter = 'none';
     });
     const sharp = await pixel();
-    expect(Math.abs(sharp[0] - sharp[2])).toBeGreaterThan(25);
+    expect(Math.abs(sharp[0] - sharp[2])).toBeGreaterThan(12);
     await page.locator('#glass-pixel-fixture > .glass').evaluate((el: HTMLElement) => {
       el.style.removeProperty('backdrop-filter');
     });

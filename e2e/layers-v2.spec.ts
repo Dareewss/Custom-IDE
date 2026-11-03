@@ -1,5 +1,23 @@
 import { test, expect } from '@playwright/test';
 
+test('keeps creation dialogs outside blurred surfaces with a stronger smoky material', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Search files and commands/ }).click();
+  await page.getByRole('combobox').fill('New file');
+  await page.getByRole('option', { name: 'New file', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'New file', exact: true });
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((el) => el.parentElement === document.body)).toBe(true);
+  await expect(dialog).toHaveCSS('backdrop-filter', 'blur(24px) saturate(1.6)');
+  await expect(dialog).toHaveCSS('background-color', 'rgba(18, 18, 22, 0.97)');
+  await expect(dialog.locator('form')).toHaveCSS('opacity', '1');
+  await dialog.getByLabel('Project path').fill('frost.py');
+  await dialog.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(page.locator('.monaco-editor')).toBeVisible();
+});
+
 test('keeps the colorless backing translucent and lightly frosted throughout the slider', async ({
   page,
 }) => {

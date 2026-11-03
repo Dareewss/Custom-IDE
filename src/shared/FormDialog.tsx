@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { IconButton } from './IconButton';
@@ -26,7 +27,7 @@ export function FormDialog({
   useEffect(() => {
     ref.current?.showModal();
   }, []);
-  return (
+  return createPortal(
     <dialog className="glass glass--modal dialog" ref={ref} onCancel={onClose} aria-label={title}>
       <form
         onSubmit={async (event) => {
@@ -72,6 +73,7 @@ export function FormDialog({
           </button>
         </div>
       </form>
-    </dialog>
+    </dialog>,
+    document.body,
   );
 }

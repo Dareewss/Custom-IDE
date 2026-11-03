@@ -186,7 +186,7 @@ export function Shell(props: ShellProps) {
           <Panel minSize="200px">
             <Group className="editor-layout" orientation={docked ? 'horizontal' : 'vertical'}>
               <Panel minSize={docked ? '250px' : '120px'} defaultSize={docked ? '68%' : '72%'}>
-                <GlassPanel className="editor-card">
+                <GlassPanel className="editor-card" variant="editor">
                   <div className="editor-toolbar">
                     <span className="editor-section-label">
                       <Code2 size={14} />

@@ -138,7 +138,7 @@ export function SettingsDialog() {
         <input
           id="glass-blur"
           type="range"
-          min={0}
+          min={24}
           max={48}
           value={settings.blurStrength}
           aria-valuetext={`${settings.blurStrength} pixels`}

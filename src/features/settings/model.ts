@@ -52,7 +52,7 @@ export function parseSettings(input: unknown): Settings {
       value.backgroundPreset === 'ocean' || value.backgroundPreset === 'nebula'
         ? value.backgroundPreset
         : 'neon',
-    blurStrength: number('blurStrength', 0, 48),
+    blurStrength: number('blurStrength', 24, 48),
     backgroundBlobs: typeof value.backgroundBlobs === 'boolean' ? value.backgroundBlobs : true,
     backgroundAnimation:
       typeof value.backgroundAnimation === 'boolean' ? value.backgroundAnimation : true,

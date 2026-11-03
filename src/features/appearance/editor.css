@@ -1,6 +1,6 @@
 .monaco-host,
 .panel-body {
-  background: rgb(var(--text-scrim) / var(--text-scrim-opacity));
+  background: transparent;
   color: var(--code-foreground);
 }
 .monaco-editor,

@@ -4,7 +4,6 @@
   --blob-2: #61d7ff;
   --blob-3: #132b75;
   --blob-4: #2e87fb;
-  --glass-tint: 36 67 106;
   --glass-border-to: rgb(97 215 255 / 0.38);
 }
 :root[data-theme='light'][data-preset='ocean'] {
@@ -13,7 +12,6 @@
   --blob-2: #dbfaff;
   --blob-3: #96abe2;
   --blob-4: #c3e5fb;
-  --glass-tint: 235 248 255;
 }
 :root[data-preset='ocean'] .scene-shape {
   background: radial-gradient(
@@ -50,7 +48,6 @@
   --blob-3: #8241d6;
   --blob-4: #f1bc9c;
   --orb-center: #080910;
-  --glass-tint: 60 56 72;
   --glass-border-to: rgb(175 142 255 / 0.4);
 }
 :root[data-theme='light'][data-preset='nebula'] {
@@ -60,7 +57,6 @@
   --blob-3: #baa0dc;
   --blob-4: #f2d7c6;
   --orb-center: #e9e2f1;
-  --glass-tint: 249 242 255;
 }
 :root[data-preset='nebula'] .scene-shape {
   background: radial-gradient(
