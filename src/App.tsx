@@ -25,6 +25,7 @@ import { startAppLifecycle } from './features/app/install';
 import { AppControls, InstallDialog } from './features/app/AppControls';
 import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
 import { LayerStack } from './features/appearance/LayerStack';
+import { OverviewPanel } from './features/overview/OverviewPanel';
 
 export function App() {
   useDesktopLifecycle();
@@ -67,6 +68,7 @@ export function App() {
         palette={<CommandPalette />}
         explorer={<Explorer />}
         editor={<EditorArea />}
+        overview={<OverviewPanel />}
         projectName={name}
         status={
           <>
