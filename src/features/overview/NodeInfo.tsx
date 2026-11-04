@@ -6,7 +6,7 @@ export function NodeInfo() {
     state.indexes?.nodeById.get(state.hoveredNodeId ?? state.selectedNodeId ?? ''),
   );
   const detail = useOverview((state) => state.hoveredDetail);
-  if (!node || !['variable', 'collection'].includes(node.kind)) return null;
+  if (!node || !['variable', 'collection', 'loop', 'condition'].includes(node.kind)) return null;
   const entries = collectionEntries(node);
   return (
     <aside className="overview-node-info" role="tooltip" id="overview-node-info">
@@ -16,6 +16,14 @@ export function NodeInfo() {
           (node.kind === 'collection' ? node.meta.collectionKind : node.meta.valueType) ??
           node.kind}
       </span>
+      {node.kind === 'loop' && (
+        <p>
+          {node.meta.loopKind ?? 'Loop'} · {node.children.length} body objects
+        </p>
+      )}
+      {node.kind === 'condition' && (
+        <p>{node.meta.branchCount ?? 2} possible branches · static structure</p>
+      )}
       {node.kind === 'collection' && (
         <>
           <p>

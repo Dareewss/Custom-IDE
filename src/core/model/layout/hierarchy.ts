@@ -1,3 +1,4 @@
+import { branchDimensions, branchGroups, branchLanes, loopDimensions } from './control-flow';
 import { collectionCells, collectionDimensions } from './collections';
 import { functionWidth, headerPosition } from './metrics';
 import { geometryTokens as tokens } from './tokens';
@@ -28,6 +29,14 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
     const children = node.children
       .filter((id) => byId.get(id)?.meta.role !== 'parameter')
       .map((id) => sizes.get(id)!);
+    if (node.kind === 'condition') {
+      sizes.set(node.id, branchDimensions(branchGroups(node, byId, sizes)));
+      continue;
+    }
+    if (node.kind === 'loop') {
+      sizes.set(node.id, loopDimensions(children));
+      continue;
+    }
     const isFunction = node.kind === 'function' || node.kind === 'method';
     const collection = node.kind === 'collection' ? collectionDimensions(node) : null;
     const variableSize = tokens.variableRadius * 2;
@@ -111,6 +120,33 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
           current.position[2] + tokens.depthStep,
         ],
       });
+    if (node.kind === 'condition') {
+      const groups = branchGroups(node, byId, sizes);
+      const lanes = branchLanes(groups, items[node.id]);
+      for (const lane of lanes) {
+        let branchTop = current.position[1] + size[1] / 2 - tokens.branchHeader;
+        for (const child of lane.children) {
+          const childSize = sizes.get(child)!;
+          place.push({
+            id: child,
+            position: [
+              lane.position[0],
+              branchTop - childSize[1] / 2,
+              current.position[2] + tokens.depthStep,
+            ],
+          });
+          branchTop -= childSize[1] + tokens.siblingGap;
+        }
+      }
+      continue;
+    }
+    if (node.kind === 'loop') {
+      const bodyHeight = node.children.reduce(
+        (sum, child) => sum + sizes.get(child)![1] + tokens.siblingGap,
+        0,
+      );
+      top = current.position[1] + bodyHeight / 2;
+    }
     for (const child of node.children.filter((id) => byId.get(id)?.meta.role !== 'parameter')) {
       const childSize = sizes.get(child)!;
       place.push({
@@ -124,16 +160,22 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       top -= childSize[1] + tokens.siblingGap;
     }
   }
-  if (!roots.length) return { items, cells: {}, bounds: { min: [-1, -1, -1], max: [1, 1, 1] } };
+  if (!roots.length)
+    return { items, cells: {}, branches: {}, bounds: { min: [-1, -1, -1], max: [1, 1, 1] } };
   const center = min.map((value, axis) => (value + max[axis]) / 2);
   for (const item of Object.values(items))
     for (let axis = 0; axis < 3; axis++) item.position[axis] -= center[axis];
   const cells: GraphLayout['cells'] = Object.create(null) as GraphLayout['cells'];
   for (const node of model.nodes)
     if (node.kind === 'collection') cells[node.id] = collectionCells(node, items[node.id]);
+  const branches: GraphLayout['branches'] = {};
+  for (const node of model.nodes)
+    if (node.kind === 'condition')
+      branches[node.id] = branchLanes(branchGroups(node, byId, sizes), items[node.id]);
   return {
     items,
     cells,
+    branches,
     bounds: {
       min: min.map((value, i) => value - center[i]) as Vec3,
       max: max.map((value, i) => value - center[i]) as Vec3,

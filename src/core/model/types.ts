@@ -46,6 +46,7 @@ export interface NodeMetadata {
   entries?: CollectionEntry[];
   loopKind?: 'for' | 'async for' | 'while' | 'comprehension';
   branchCount?: number;
+  conditionKind?: 'if' | 'ternary' | 'match' | 'filter';
   branch?: 'true' | 'false' | 'elif';
   hasError?: boolean;
   externalKind?: 'module' | 'call' | 'base';

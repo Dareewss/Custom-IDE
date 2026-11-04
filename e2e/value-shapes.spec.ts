@@ -20,7 +20,7 @@ test('renders instanced values, bounded dictionary previews and picks the correc
     .getByRole('button', { name: '3D', exact: true })
     .click();
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '5');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '6');
   await expect
     .poll(() =>
       canvas.evaluate(
@@ -57,6 +57,6 @@ test('renders instanced values, bounded dictionary previews and picks the correc
   await outline.getByRole('treeitem', { name: 'collection computed', exact: true }).click();
   await expect(tooltip).toContainText('Computed collection');
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '5');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '6');
   await page.screenshot({ path: 'docs/screenshots/phase2/value-shapes.png' });
 });

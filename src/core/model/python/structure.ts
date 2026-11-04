@@ -428,6 +428,13 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
         `${name} ${preview(field(syntax, 'condition')) ?? ''}`.trim(),
         frame,
         {
+          conditionKind: ternary
+            ? 'ternary'
+            : name === 'match'
+              ? 'match'
+              : syntax.type === 'if_clause'
+                ? 'filter'
+                : 'if',
           branchCount: ternary
             ? 2
             : name === 'match'
@@ -438,18 +445,23 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
       );
       const nested = { ...frame, parent: created.node, identity: created.identity };
       const consequence = field(syntax, 'consequence');
+      const ternaryParts = ternary ? syntax.namedChildren : [];
       for (const child of syntax.namedChildren.slice().reverse())
         stack.push({
           ...nested,
           syntax: child,
           branch:
-            child.type === 'else_clause'
-              ? 'false'
-              : child.type === 'elif_clause'
-                ? 'elif'
-                : child.id === consequence?.id
-                  ? 'true'
-                  : undefined,
+            ternary && child.id === ternaryParts[0]?.id
+              ? 'true'
+              : ternary && child.id === ternaryParts[2]?.id
+                ? 'false'
+                : child.type === 'else_clause'
+                  ? 'false'
+                  : child.type === 'elif_clause'
+                    ? 'elif'
+                    : child.id === consequence?.id
+                      ? 'true'
+                      : undefined,
         });
       continue;
     }

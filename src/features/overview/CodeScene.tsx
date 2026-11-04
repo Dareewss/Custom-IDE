@@ -22,6 +22,7 @@ import { CollectionShape } from './CollectionShape';
 import { ValueInstances } from './ValueInstances';
 import { valueInstances } from './value-instances';
 import { selectOverviewNode, setOverviewHover } from './selection';
+import { ControlFlowShape } from './ControlFlowShapes';
 
 function Contents({
   model,
@@ -42,7 +43,11 @@ function Contents({
   const values = useMemo(() => valueInstances(model, layout), [model, layout]);
   const labeledNodes = new Set(
     model.nodes
-      .filter((node) => ['file', 'class', 'function', 'method', 'collection'].includes(node.kind))
+      .filter((node) =>
+        ['file', 'class', 'function', 'method', 'collection', 'loop', 'condition'].includes(
+          node.kind,
+        ),
+      )
       .sort((a, b) => Number(b.kind === 'file') - Number(a.kind === 'file'))
       .slice(0, geometryTokens.labelBudget)
       .map((node) => node.id),
@@ -81,6 +86,17 @@ function Contents({
         const item = layout.items[node.id];
         if (!item) return null;
         const active = selected === node.id;
+        if (node.kind === 'loop' || node.kind === 'condition')
+          return (
+            <ControlFlowShape
+              key={node.id}
+              node={node}
+              item={item}
+              colors={colors}
+              label={labeledNodes.has(node.id)}
+              lanes={layout.branches[node.id]}
+            />
+          );
         if (node.kind === 'class')
           return (
             <ClassBlock
