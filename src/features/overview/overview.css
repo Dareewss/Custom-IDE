@@ -3,6 +3,8 @@
   --overview-container-opacity: 0.12;
   --overview-active-opacity: 0.7;
   --overview-rim-opacity: 0.5;
+  --overview-value-opacity: 0.9;
+  --overview-light: #fff;
 }
 .source-overview-layout {
   height: 100%;
@@ -114,4 +116,41 @@
   padding: 12px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.overview-node-info {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 40;
+  max-width: 270px;
+  max-height: 55%;
+  overflow: hidden;
+  padding: 12px;
+  pointer-events: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+  font-size: 12px;
+}
+.overview-node-info > strong,
+.overview-node-info > span,
+.overview-node-info > small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.overview-node-info > span,
+.overview-node-info small {
+  color: var(--muted);
+}
+.overview-node-info p {
+  margin: 8px 0;
+}
+.overview-node-info ol {
+  margin: 8px 0;
+  padding-inline-start: 20px;
+}
+.overview-node-info li {
+  overflow-wrap: anywhere;
 }

@@ -13,6 +13,12 @@ export interface SceneColors {
   classFill: string;
   functionFill: string;
   error: string;
+  number: string;
+  string: string;
+  bool: string;
+  other: string;
+  light: string;
+  valueOpacity: number;
 }
 const subscribe = (notify: () => void) => {
   const observer = new MutationObserver(notify);
@@ -37,6 +43,12 @@ const snapshot = () => {
     classFill: style.getPropertyValue('--blob-3').trim(),
     functionFill: style.getPropertyValue('--blob-2').trim(),
     error: style.getPropertyValue('--danger').trim(),
+    number: style.getPropertyValue('--blob-1').trim(),
+    string: style.getPropertyValue('--blob-3').trim(),
+    bool: style.getPropertyValue('--blob-2').trim(),
+    other: style.getPropertyValue('--palette-slate').trim(),
+    light: style.getPropertyValue('--overview-light').trim(),
+    valueOpacity: Number(style.getPropertyValue('--overview-value-opacity').trim()),
   });
 };
 /** Observe the applied CSS tokens, including preset overrides, without stale theme reads. */

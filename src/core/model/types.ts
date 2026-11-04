@@ -12,6 +12,13 @@ export const nodeKinds = [
 ] as const;
 export type NodeKind = (typeof nodeKinds)[number];
 export type EdgeKind = 'import' | 'call' | 'inherits';
+export type ValueKind = 'number' | 'string' | 'bool' | 'other';
+export interface CollectionEntry {
+  key?: string;
+  keyType?: ValueKind;
+  value: string;
+  valueType: ValueKind;
+}
 
 /** Monaco-compatible, 1-based UTF-16 coordinates; the end is exclusive. */
 export interface SourceRange {
@@ -31,11 +38,12 @@ export interface NodeMetadata {
   params?: Parameter[];
   typeHint?: string;
   returnType?: string;
-  valueType?: 'number' | 'string' | 'bool' | 'other';
+  valueType?: ValueKind;
   role?: 'parameter' | 'attribute';
   collectionKind?: 'list' | 'tuple' | 'set' | 'dict' | 'generator';
   elementCount?: number;
   preview?: string[];
+  entries?: CollectionEntry[];
   loopKind?: 'for' | 'async for' | 'while' | 'comprehension';
   branchCount?: number;
   branch?: 'true' | 'false' | 'elif';

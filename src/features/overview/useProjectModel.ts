@@ -28,6 +28,7 @@ export function useProjectModel() {
             layout: null,
             selectedNodeId: null,
             hoveredNodeId: null,
+            hoveredDetail: null,
             focusRequest: null,
           }
         : {}),
@@ -63,6 +64,7 @@ export function useProjectModel() {
               ? state.selectedNodeId
               : null,
           hoveredNodeId: null,
+          hoveredDetail: null,
         }));
       })().catch((error: unknown) => {
         if (!cancelled) useOverview.setState({ loading: false, error: String(error) });

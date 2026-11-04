@@ -12,6 +12,7 @@ interface OverviewState {
   error: string | null;
   selectedNodeId: string | null;
   hoveredNodeId: string | null;
+  hoveredDetail: string | null;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -23,5 +24,6 @@ export const useOverview = create<OverviewState>(() => ({
   error: null,
   selectedNodeId: null,
   hoveredNodeId: null,
+  hoveredDetail: null,
   focusRequest: null,
 }));

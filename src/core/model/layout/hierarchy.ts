@@ -1,3 +1,4 @@
+import { collectionCells, collectionDimensions } from './collections';
 import { functionWidth, headerPosition } from './metrics';
 import { geometryTokens as tokens } from './tokens';
 import type { CodeModel } from '../types';
@@ -28,27 +29,36 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       .filter((id) => byId.get(id)?.meta.role !== 'parameter')
       .map((id) => sizes.get(id)!);
     const isFunction = node.kind === 'function' || node.kind === 'method';
+    const collection = node.kind === 'collection' ? collectionDimensions(node) : null;
+    const variableSize = tokens.variableRadius * 2;
     const baseWidth =
-      node.kind === 'file'
-        ? tokens.fileWidth
-        : node.kind === 'class'
-          ? tokens.classWidth
-          : isFunction
-            ? functionWidth(node, parameters.length)
-            : tokens.leafWidth;
+      collection?.width ??
+      (node.kind === 'variable'
+        ? variableSize
+        : node.kind === 'file'
+          ? tokens.fileWidth
+          : node.kind === 'class'
+            ? tokens.classWidth
+            : isFunction
+              ? functionWidth(node, parameters.length)
+              : tokens.leafWidth);
+    const contentInset = collection?.height ?? tokens.inset;
     const baseHeight =
-      node.kind === 'file'
-        ? tokens.fileHeight
-        : node.kind === 'class'
-          ? tokens.classHeight
-          : isFunction
-            ? tokens.functionHeaderHeight
-            : tokens.leafHeight;
+      collection?.height ??
+      (node.kind === 'variable'
+        ? variableSize
+        : node.kind === 'file'
+          ? tokens.fileHeight
+          : node.kind === 'class'
+            ? tokens.classHeight
+            : isFunction
+              ? tokens.functionHeaderHeight
+              : tokens.leafHeight);
     const width = Math.max(baseWidth, ...children.map((size) => size[0] + tokens.inset));
     const height = Math.max(
       baseHeight,
       children.length
-        ? children.reduce<number>((sum, size) => sum + size[1] + tokens.siblingGap, tokens.inset)
+        ? children.reduce<number>((sum, size) => sum + size[1] + tokens.siblingGap, contentInset)
         : 0,
     );
     const depth =
@@ -56,9 +66,13 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
         ? tokens.classDepth
         : isFunction
           ? tokens.functionRadius * 2
-          : node.kind === 'file' || children.length
-            ? tokens.containerDepth
-            : tokens.leafDepth;
+          : node.kind === 'collection'
+            ? (tokens.cellOffset + tokens.cellDepth / 2) * 2
+            : node.kind === 'variable'
+              ? variableSize
+              : node.kind === 'file' || children.length
+                ? tokens.containerDepth
+                : tokens.leafDepth;
     sizes.set(node.id, [width, height, depth]);
   }
   const columns = Math.max(1, Math.ceil(Math.sqrt(roots.length)));
@@ -82,7 +96,10 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       min[axis] = Math.min(min[axis], current.position[axis] - size[axis] / 2);
       max[axis] = Math.max(max[axis], current.position[axis] + size[axis] / 2);
     }
-    let top = current.position[1] + size[1] / 2 - tokens.inset;
+    let top =
+      current.position[1] +
+      size[1] / 2 -
+      (node.kind === 'collection' ? collectionDimensions(node).height : tokens.inset);
     const parameters = node.children.filter((id) => byId.get(id)?.meta.role === 'parameter');
     const header = headerPosition(items[node.id]);
     for (let index = 0; index < parameters.length; index++)
@@ -107,12 +124,16 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       top -= childSize[1] + tokens.siblingGap;
     }
   }
-  if (!roots.length) return { items, bounds: { min: [-1, -1, -1], max: [1, 1, 1] } };
+  if (!roots.length) return { items, cells: {}, bounds: { min: [-1, -1, -1], max: [1, 1, 1] } };
   const center = min.map((value, axis) => (value + max[axis]) / 2);
   for (const item of Object.values(items))
     for (let axis = 0; axis < 3; axis++) item.position[axis] -= center[axis];
+  const cells: GraphLayout['cells'] = Object.create(null) as GraphLayout['cells'];
+  for (const node of model.nodes)
+    if (node.kind === 'collection') cells[node.id] = collectionCells(node, items[node.id]);
   return {
     items,
+    cells,
     bounds: {
       min: min.map((value, i) => value - center[i]) as Vec3,
       max: max.map((value, i) => value - center[i]) as Vec3,

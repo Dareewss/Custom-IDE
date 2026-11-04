@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type ComponentRef,
@@ -17,6 +18,10 @@ import type { CodeModel } from '../../core/model/types';
 import type { GraphLayout } from '../../core/model/layout/types';
 import { geometryTokens } from '../../core/model/layout/tokens';
 import { FileSlab } from './FileSlab';
+import { CollectionShape } from './CollectionShape';
+import { ValueInstances } from './ValueInstances';
+import { valueInstances } from './value-instances';
+import { selectOverviewNode, setOverviewHover } from './selection';
 
 function Contents({
   model,
@@ -34,9 +39,10 @@ function Contents({
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
   const reducedMotion = useReducedMotion();
+  const values = useMemo(() => valueInstances(model, layout), [model, layout]);
   const labeledNodes = new Set(
     model.nodes
-      .filter((node) => ['file', 'class', 'function', 'method'].includes(node.kind))
+      .filter((node) => ['file', 'class', 'function', 'method', 'collection'].includes(node.kind))
       .sort((a, b) => Number(b.kind === 'file') - Number(a.kind === 'file'))
       .slice(0, geometryTokens.labelBudget)
       .map((node) => node.id),
@@ -64,6 +70,13 @@ function Contents({
   return (
     <>
       <OrbitControls ref={controls} makeDefault enableDamping={!reducedMotion} />
+      <ambientLight intensity={geometryTokens.ambientLight} />
+      <directionalLight
+        position={geometryTokens.lightPosition}
+        intensity={geometryTokens.directionalLight}
+      />
+      <ValueInstances instances={values.variables} shape="sphere" colors={colors} />
+      <ValueInstances instances={values.cells} shape="cell" colors={colors} />
       {model.nodes.map((node) => {
         const item = layout.items[node.id];
         if (!item) return null;
@@ -90,6 +103,17 @@ function Contents({
           );
         if (node.meta.role === 'parameter')
           return <ParameterPort key={node.id} node={node} item={item} colors={colors} />;
+        if (node.kind === 'variable') return null;
+        if (node.kind === 'collection')
+          return (
+            <CollectionShape
+              key={node.id}
+              node={node}
+              item={item}
+              colors={colors}
+              label={labeledNodes.has(node.id)}
+            />
+          );
         if (node.kind === 'file')
           return (
             <FileSlab
@@ -106,13 +130,13 @@ function Contents({
             position={item.position}
             onClick={(event) => {
               event.stopPropagation();
-              useOverview.setState({ selectedNodeId: node.id });
+              selectOverviewNode(node);
             }}
             onPointerOver={(event) => {
               event.stopPropagation();
-              useOverview.setState({ hoveredNodeId: node.id });
+              setOverviewHover(node.id);
             }}
-            onPointerOut={() => useOverview.setState({ hoveredNodeId: null })}
+            onPointerOut={() => setOverviewHover(null)}
           >
             <boxGeometry args={item.size} />
             <meshBasicMaterial

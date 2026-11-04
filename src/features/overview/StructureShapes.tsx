@@ -1,3 +1,4 @@
+import { valueColor } from './value-colors';
 import { Edges } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import type { CodeNode } from '../../core/model/types';
@@ -108,7 +109,9 @@ export function ParameterPort({ node, item, colors }: Omit<ShapeProps, 'label'>)
     <group position={item.position} {...events}>
       <mesh>
         <sphereGeometry args={[tokens.portRadius, tokens.portSegments, tokens.portSegments]} />
-        <meshBasicMaterial color={selected || hovered ? colors.active : colors.hover} />
+        <meshBasicMaterial
+          color={selected || hovered ? colors.active : valueColor(node.meta.valueType, colors)}
+        />
       </mesh>
       {(selected || hovered) && (
         <SceneLabel

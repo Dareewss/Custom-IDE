@@ -7,6 +7,7 @@ import { useUI } from '../../shared/ui-store';
 import { IconButton } from '../../shared/IconButton';
 import { Outline } from './Outline';
 import { SceneBoundary } from './SceneBoundary';
+import { NodeInfo } from './NodeInfo';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -57,6 +58,7 @@ export function OverviewPanel() {
         </p>
       )}
       <div className="overview-body">
+        <NodeInfo />
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">
             Analyzing project…

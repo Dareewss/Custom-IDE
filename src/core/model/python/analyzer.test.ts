@@ -103,6 +103,25 @@ it('models loops and condition branches while leaving dynamic collection counts 
   expect(named(model, 'computed').meta.preview).toBeUndefined();
 });
 
+it('extracts capped typed collection entries without evaluating expressions', async () => {
+  const model = analyze(create(), await readFile('tests/fixtures/python/values.py', 'utf8'));
+  expect(named(model, 'items').meta.entries).toHaveLength(8);
+  expect(named(model, 'items').meta.entries?.slice(0, 4)).toEqual([
+    { value: '1', valueType: 'number' },
+    { value: '"two"', valueType: 'string' },
+    { value: 'True', valueType: 'bool' },
+    { value: 'None', valueType: 'other' },
+  ]);
+  expect(named(model, 'options').meta.entries?.[1]).toEqual({
+    key: '"enabled"',
+    keyType: 'string',
+    value: 'True',
+    valueType: 'bool',
+  });
+  expect(named(model, 'empty').meta.entries).toEqual([]);
+  expect(named(model, 'computed').meta.entries).toBeUndefined();
+});
+
 it('keeps correct UTF-16 ranges after astral characters', () => {
   const model = analyze(create(), constructs);
   const line = constructs.split('\n').findIndex((text) => text.includes('after ='));

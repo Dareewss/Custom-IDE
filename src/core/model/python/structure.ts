@@ -2,7 +2,15 @@ import { emptyPythonFacts, type PythonFacts, type PythonImport, type PythonSymbo
 import type { Node } from 'web-tree-sitter';
 import { basename } from '../../fs/vfs';
 import { stableNodeId } from '../identity';
-import type { CodeIssue, CodeNode, NodeKind, NodeMetadata, Parameter, SourceRange } from '../types';
+import type {
+  CodeIssue,
+  CodeNode,
+  NodeKind,
+  NodeMetadata,
+  Parameter,
+  SourceRange,
+  ValueKind,
+} from '../types';
 
 type SourceNode = Extract<CodeNode, { fileId: string }>;
 export interface PythonFileAnalysis {
@@ -39,7 +47,7 @@ const collections: Record<string, NonNullable<NodeMetadata['collectionKind']>> =
   dictionary_comprehension: 'dict',
   generator_expression: 'generator',
 };
-function valueType(node?: Node | null, hint = ''): NodeMetadata['valueType'] {
+function valueType(node?: Node | null, hint = ''): ValueKind {
   if (node?.type === 'integer' || node?.type === 'float' || /^(int|float|complex)$/.test(hint))
     return 'number';
   if (node?.type === 'string' || node?.type === 'concatenated_string' || hint === 'str')
@@ -60,6 +68,15 @@ function collectionMeta(node: Node): NodeMetadata {
       : {
           elementCount: elements.length,
           preview: elements.slice(0, 8).map((c) => c.text.slice(0, 100)),
+          entries: elements.slice(0, 8).map((child) => {
+            const key = field(child, 'key');
+            const value = field(child, 'value') ?? child;
+            return {
+              ...(key ? { key: preview(key), keyType: valueType(key) } : {}),
+              value: value.text.slice(0, 100),
+              valueType: valueType(value),
+            };
+          }),
         }),
   };
 }
