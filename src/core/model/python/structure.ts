@@ -1,3 +1,4 @@
+import { emptyPythonFacts, type PythonFacts, type PythonImport, type PythonSymbol } from './facts';
 import type { Node } from 'web-tree-sitter';
 import { basename } from '../../fs/vfs';
 import { stableNodeId } from '../identity';
@@ -5,6 +6,7 @@ import type { CodeIssue, CodeNode, NodeKind, NodeMetadata, Parameter, SourceRang
 
 type SourceNode = Extract<CodeNode, { fileId: string }>;
 export interface PythonFileAnalysis {
+  facts: PythonFacts;
   fileId: string;
   nodes: SourceNode[];
   issues: CodeIssue[];
@@ -13,6 +15,7 @@ interface Frame {
   syntax: Node;
   parent: SourceNode;
   scope: SourceNode;
+  scopeId: string;
   qualified: string;
   identity: string;
   branch?: 'true' | 'false' | 'elif';
@@ -110,7 +113,12 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
     children: [],
     meta: { qualifiedName: fileId, hasError: root.hasError },
   };
-  const result: PythonFileAnalysis = { fileId, nodes: [file], issues: [] };
+  const result: PythonFileAnalysis = {
+    fileId,
+    nodes: [file],
+    issues: [],
+    facts: emptyPythonFacts(fileId),
+  };
   const errors = [root];
   while (errors.length && result.issues.length < 100) {
     const syntax = errors.pop()!;
@@ -133,7 +141,14 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
   const stack: Frame[] = root.namedChildren
     .slice()
     .reverse()
-    .map((syntax) => ({ syntax, parent: file, scope: file, qualified: '', identity: '<module>' }));
+    .map((syntax) => ({
+      syntax,
+      parent: file,
+      scope: file,
+      scopeId: file.id,
+      qualified: '',
+      identity: '<module>',
+    }));
   const add = (
     syntax: Node,
     kind: Exclude<NodeKind, 'external'>,
@@ -169,10 +184,79 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
     for (const child of syntax.namedChildren.slice().reverse())
       stack.push({ ...frame, syntax: child });
   };
+  const bind = (
+    node: SourceNode,
+    name: string,
+    kind: PythonSymbol['kind'],
+    frame: Frame,
+    imported?: PythonImport,
+  ) => {
+    result.facts.symbols.push({
+      name,
+      nodeId: node.id,
+      scopeId: frame.scopeId,
+      kind,
+      range: node.range,
+      conditional: frame.branch !== undefined || frame.parent.kind === 'loop',
+      ...(imported ? { imported } : {}),
+    });
+  };
+  const collectionFrame = (syntax: Node, frame: Frame): Frame => {
+    if (!syntax.type.includes('comprehension') && syntax.type !== 'generator_expression')
+      return frame;
+    const scopeId = `scope:${frame.parent.id}:${syntax.startIndex}`;
+    result.facts.scopes.push({ id: scopeId, parentId: frame.scopeId, kind: 'comprehension' });
+    return { ...frame, scopeId };
+  };
   while (stack.length) {
     const frame = stack.pop()!;
     const syntax = frame.syntax;
     if (syntax.type === 'comment') continue;
+    if (syntax.type === 'call') {
+      const callee = field(syntax, 'function');
+      if (callee)
+        result.facts.calls.push({
+          from: frame.scope.id,
+          scopeId: frame.scopeId,
+          name: callee.text,
+          range: syntaxRange(syntax),
+        });
+    }
+    if (syntax.type === 'import_statement' || syntax.type === 'import_from_statement') {
+      const created = add(syntax, 'import', syntax.text.slice(0, 120), frame, {}, syntax.text);
+      const moduleNode = field(syntax, 'module_name');
+      const moduleName = moduleNode?.text ?? '';
+      const level = moduleName.match(/^\.+/)?.[0].length ?? 0;
+      const entries = syntax.namedChildren.filter(
+        (child) => child.id !== moduleNode?.id && child.type !== 'comment',
+      );
+      for (const entry of entries) {
+        const original = field(entry, 'name')?.text ?? entry.text;
+        const alias = field(entry, 'alias')?.text;
+        const imported: PythonImport =
+          syntax.type === 'import_statement'
+            ? { nodeId: created.node.id, scopeId: frame.scopeId, module: original, level: 0, alias }
+            : {
+                nodeId: created.node.id,
+                scopeId: frame.scopeId,
+                module: moduleName.slice(level),
+                level,
+                name: original,
+                alias,
+              };
+        result.facts.imports.push(imported);
+        if (original !== '*')
+          bind(
+            created.node,
+            alias ?? (syntax.type === 'import_statement' ? original.split('.')[0] : original),
+            'import',
+            frame,
+            imported,
+          );
+      }
+      continue;
+    }
+
     if (
       syntax.type === 'function_definition' ||
       syntax.type === 'class_definition' ||
@@ -198,20 +282,39 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
               returnType: preview(field(syntax, 'return_type')),
             },
       );
+      bind(created.node, name, 'definition', frame);
+      result.facts.scopes.push({
+        id: created.node.id,
+        parentId: frame.scopeId,
+        kind: isClass ? 'class' : created.node.kind === 'method' ? 'method' : 'function',
+      });
+      if (isClass)
+        for (const base of field(syntax, 'superclasses')?.namedChildren ?? []) {
+          if (base.type !== 'keyword_argument' && base.type !== 'comment')
+            result.facts.bases.push({
+              from: created.node.id,
+              scopeId: frame.scopeId,
+              name: base.text,
+              range: syntaxRange(base),
+            });
+        }
       const nested: Frame = {
         ...frame,
         parent: created.node,
         scope: created.node,
+        scopeId: created.node.id,
         qualified: created.node.meta.qualifiedName!,
         identity: created.identity,
         branch: undefined,
       };
-      for (const parameter of params)
-        add(parameter.syntax, 'variable', parameter.info.name, nested, {
+      for (const parameter of params) {
+        const item = add(parameter.syntax, 'variable', parameter.info.name, nested, {
           role: 'parameter',
           typeHint: parameter.info.typeHint,
           valueType: valueType(null, parameter.info.typeHint),
         });
+        bind(item.node, parameter.info.name, 'parameter', nested);
+      }
       const body = field(syntax, 'body');
       if (body) stack.push({ ...nested, syntax: body });
       // Defaults/bases/annotations are evaluated in the containing lexical scope.
@@ -239,11 +342,18 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
           ...(target.type === 'attribute' ? { role: 'attribute' as const } : {}),
           ...(collection ? collectionMeta(right!) : {}),
         });
+        if (target.type === 'identifier')
+          bind(
+            created.node,
+            target.text,
+            'variable',
+            syntax.type === 'named_expression' ? { ...frame, scopeId: frame.scope.id } : frame,
+          );
         if (found.length === 1)
           owner = { ...frame, parent: created.node, identity: created.identity };
       }
       if (right) {
-        if (collections[right.type]) pushChildren(right, owner);
+        if (collections[right.type]) pushChildren(right, collectionFrame(right, owner));
         else stack.push({ ...owner, syntax: right });
       }
       continue;
@@ -272,8 +382,10 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
         isWhile ? 'while' : 'for',
       );
       const nested = { ...frame, parent: created.node, identity: created.identity };
-      for (const target of targets(field(syntax, 'left')))
-        add(target, 'variable', target.text, nested, { valueType: 'other' });
+      for (const target of targets(field(syntax, 'left'))) {
+        const item = add(target, 'variable', target.text, nested, { valueType: 'other' });
+        if (target.type === 'identifier') bind(item.node, target.text, 'variable', nested);
+      }
       for (const child of syntax.namedChildren.slice().reverse())
         if (child.id !== field(syntax, 'left')?.id) stack.push({ ...nested, syntax: child });
       continue;
@@ -332,7 +444,10 @@ export function analyzePythonStructure(fileId: string, root: Node): PythonFileAn
         frame,
         collectionMeta(syntax),
       );
-      pushChildren(syntax, { ...frame, parent: created.node, identity: created.identity });
+      pushChildren(
+        syntax,
+        collectionFrame(syntax, { ...frame, parent: created.node, identity: created.identity }),
+      );
       continue;
     }
     pushChildren(syntax, frame);

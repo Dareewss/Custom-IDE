@@ -1,6 +1,8 @@
 import { readFile, readdir } from 'node:fs/promises';
+import { resolve, relative } from 'node:path';
 import { test, expect } from '@playwright/test';
 import type { CodeModel } from '../src/core/model/types';
+import type { FileTree } from '../src/core/fs/vfs';
 
 test('analyzes actual Python in the bundled incremental worker and recovers after errors', async ({
   page,
@@ -48,4 +50,49 @@ test('analyzes actual Python in the bundled incremental worker and recovers afte
   expect(result.broken.result!.nodes.some((node) => node.name === 'Recoverable')).toBe(true);
   expect(result.invalid.error).toContain('Invalid project path');
   expect(result.recovered.result).toEqual(result.first.result);
+});
+
+test('builds real cross-file call and inheritance edges inside the bundled worker', async ({
+  page,
+}) => {
+  const root = resolve('tests/fixtures/python/graph');
+  const tree: FileTree = {};
+  for (const entry of await readdir(root, { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile()) continue;
+    const path = resolve(entry.parentPath, entry.name);
+    tree[relative(root, path).replaceAll('\\', '/')] = {
+      kind: 'file',
+      content: await readFile(path, 'utf8'),
+    };
+  }
+  const asset = (await readdir('dist/assets')).find((name) =>
+    /^analysis\.worker-.*\.js$/.test(name),
+  );
+  await page.goto('/');
+  const model = await page.evaluate(
+    ({ asset, tree }) =>
+      new Promise<CodeModel>((resolve, reject) => {
+        const worker = new Worker(`/assets/${asset}`, { type: 'module' });
+        worker.onerror = (event) => {
+          worker.terminate();
+          reject(new Error(event.message));
+        };
+        worker.onmessage = (event) => {
+          worker.terminate();
+          if (event.data.error) reject(new Error(event.data.error));
+          else resolve(event.data.result);
+        };
+        worker.postMessage({ id: 1, request: tree });
+      }),
+    { asset, tree },
+  );
+  const run = model.nodes.find((node) => node.name === 'run')!;
+  const calls = model.edges.filter((edge) => edge.kind === 'call' && edge.from === run.id);
+  expect(calls.filter((edge) => edge.resolved)).toHaveLength(7);
+  expect(calls.filter((edge) => !edge.resolved)).toHaveLength(4);
+  expect(model.edges.some((edge) => edge.kind === 'inherits' && edge.resolved)).toBe(true);
+  expect(model.edges.some((edge) => edge.kind === 'import' && edge.resolved)).toBe(true);
+  expect(
+    model.nodes.filter((node) => node.kind === 'external').every((node) => node.range === null),
+  ).toBe(true);
 });

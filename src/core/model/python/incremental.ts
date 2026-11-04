@@ -1,3 +1,5 @@
+import { emptyPythonFacts } from './facts';
+import { buildPythonGraph } from './graph';
 import type { Parser, Tree } from 'web-tree-sitter';
 import { normalizePath, type FileTree } from '../../fs/vfs';
 import { stableNodeId } from '../identity';
@@ -62,6 +64,7 @@ export class IncrementalPythonAnalyzer {
         const range = { startLine: 1, startCol: 1, endLine: end.row + 1, endCol: end.column + 1 };
         analyzed.push({
           fileId: path,
+          facts: emptyPythonFacts(path),
           nodes: [
             {
               id: stableNodeId(path, 'file', '<module>'),
@@ -80,13 +83,7 @@ export class IncrementalPythonAnalyzer {
         old?.tree.delete();
       }
     }
-    return {
-      schemaVersion: 1,
-      languageId: 'python',
-      nodes: analyzed.flatMap((f) => f.nodes),
-      edges: [],
-      issues: analyzed.flatMap((f) => f.issues),
-    };
+    return buildPythonGraph(analyzed);
   }
   dispose(): void {
     for (const entry of this.cache.values()) entry.tree.delete();
