@@ -17,7 +17,7 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'atlas-settings',
-      version: 10,
+      version: 11,
       migrate: migrateSettings,
       merge: (persisted, current) => ({ ...current, ...parseSettings(persisted) }),
     },

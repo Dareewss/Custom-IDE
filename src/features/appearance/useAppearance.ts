@@ -14,6 +14,10 @@ export function useAppearance() {
   const performanceMode = useSettings((s) => s.performanceMode);
   const desktopBlur = useSettings((s) => s.desktopBlur);
   const reducedTransparency = useReducedTransparency();
+  useLayoutEffect(
+    () => window.codeAtlasDesktop?.onDesktopBlurError?.(useUI.getState().reportError),
+    [],
+  );
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.dataset.theme = theme;

@@ -26,8 +26,8 @@ test('migrates existing frost to a clear background once and preserves motion/ed
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const transparency = page.getByRole('slider', { name: 'Background transparency', exact: true });
   await expect(transparency).toHaveValue('100');
-  await expect(page.getByRole('slider', { name: 'Blur strength', exact: true })).toHaveValue('4');
-  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).not.toBeChecked();
+  await expect(page.getByRole('slider', { name: 'Interface blur', exact: true })).toHaveValue('4');
+  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).toBeChecked();
   await expect(page.getByRole('checkbox', { name: /^Background blobs/ })).toBeChecked();
   await expect(page.getByRole('checkbox', { name: /^Background animation/ })).toBeChecked();
   await expect(page.getByLabel('Editor font size')).toHaveValue('18');
@@ -109,7 +109,7 @@ test('keeps the colorless backing translucent and lightly frosted throughout the
   await page.goto('/');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   const slider = page.getByRole('slider', { name: 'Background transparency', exact: true });
-  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).not.toBeChecked();
+  await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).toBeChecked();
   await expect(page.getByRole('checkbox', { name: /^Desktop blur/ })).toBeDisabled();
   for (const [value, alpha] of [
     [0, 0.96],

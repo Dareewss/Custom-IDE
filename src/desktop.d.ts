@@ -3,6 +3,7 @@ interface CodeAtlasDesktop {
   readonly platform: string;
   readonly supportsDesktopBlur: boolean;
   setDesktopBlur: (enabled: boolean) => Promise<boolean>;
+  onDesktopBlurError?: (callback: (message: string) => void) => () => void;
   setTheme: (theme: 'dark' | 'light') => void;
   minimize: () => void;
   toggleExpand: () => void;

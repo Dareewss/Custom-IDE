@@ -22,7 +22,7 @@ export const defaultSettings: Settings = {
   backgroundBlobs: true,
   backgroundAnimation: true,
   performanceMode: false,
-  desktopBlur: false,
+  desktopBlur: true,
   animationSpeed: 1,
   fontSize: 14,
   tabSize: 4,
@@ -57,7 +57,8 @@ export function parseSettings(input: unknown): Settings {
     backgroundAnimation:
       typeof value.backgroundAnimation === 'boolean' ? value.backgroundAnimation : true,
     performanceMode: value.performanceMode === true,
-    desktopBlur: typeof value.desktopBlur === 'boolean' ? value.desktopBlur : false,
+    desktopBlur:
+      typeof value.desktopBlur === 'boolean' ? value.desktopBlur : defaultSettings.desktopBlur,
     animationSpeed:
       typeof value.animationSpeed === 'number' &&
       Number.isFinite(value.animationSpeed) &&
@@ -79,7 +80,11 @@ export function parseSettings(input: unknown): Settings {
 export function migrateSettings(input: unknown, version: number): Settings {
   const settings = parseSettings(input);
   // Apply the requested clear style once; preserve projects, editor and motion choices.
-  return version < 10
-    ? { ...settings, backgroundTransparency: 100, blurStrength: 4, desktopBlur: false }
-    : settings;
+  if (version < 10) {
+    settings.backgroundTransparency = 100;
+    settings.blurStrength = 4;
+  }
+  // Enable the newly requested native blur once, then retain explicit opt-outs.
+  if (version < 11) settings.desktopBlur = true;
+  return settings;
 }

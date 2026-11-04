@@ -63,10 +63,10 @@ it('enables performance mode only for an explicit persisted boolean', () => {
   for (const performanceMode of [false, undefined, null, 'true', 1])
     expect(parseSettings({ performanceMode }).performanceMode).toBe(false);
 });
-it('leaves native Acrylic off by default and preserves an explicit preference', () => {
-  expect(parseSettings({}).desktopBlur).toBe(false);
+it('enables native desktop blur by default and preserves an explicit opt-out', () => {
+  expect(parseSettings({}).desktopBlur).toBe(true);
   expect(parseSettings({ desktopBlur: false }).desktopBlur).toBe(false);
-  expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(false);
+  expect(parseSettings({ desktopBlur: 'false' }).desktopBlur).toBe(true);
 });
 it('validates quarter-step animation speeds and migrates missing values', () => {
   for (const animationSpeed of [0.25, 0.5, 1, 1.75, 2])
@@ -89,9 +89,22 @@ it('migrates heavy frost to clear once without changing editor or motion prefere
     ...old,
     backgroundTransparency: 100,
     blurStrength: 4,
-    desktopBlur: false,
+    desktopBlur: true,
   });
   expect(migrateSettings(old, 10)).toEqual(parseSettings(old));
   expect(parseSettings({ blurStrength: 0 }).blurStrength).toBe(0);
   expect(parseSettings({ blurStrength: 6 }).blurStrength).toBe(6);
+});
+
+it('enables the native blur upgrade once without resetting tint or editor preferences', () => {
+  const old = {
+    ...defaultSettings,
+    desktopBlur: false,
+    backgroundTransparency: 73,
+    blurStrength: 6,
+    fontSize: 18,
+    animationSpeed: 1.25,
+  };
+  expect(migrateSettings(old, 10)).toEqual({ ...old, desktopBlur: true });
+  expect(migrateSettings(old, 11)).toEqual(old);
 });

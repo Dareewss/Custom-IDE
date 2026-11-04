@@ -89,8 +89,8 @@ export function SettingsDialog() {
               <strong>Desktop blur</strong>
               <small>
                 {window.codeAtlasDesktop?.supportsDesktopBlur
-                  ? 'Windows Acrylic. Windows controls its blur and tint; turn off for a clear desktop view.'
-                  : 'Available in the supported Windows desktop app. The CSS backing stays available here.'}
+                  ? 'Softens the desktop behind this window with almost no added tint. Windows controls the blur radius.'
+                  : 'Desktop blur requires the Windows executable. Browser blur only softens the shapes inside the app.'}
               </small>
             </span>
             <input
@@ -133,7 +133,7 @@ export function SettingsDialog() {
             onChange={(event) => settings.setSetting('animationSpeed', Number(event.target.value))}
           />
           <div className="transparency-heading">
-            <label htmlFor="glass-blur">Blur strength</label>
+            <label htmlFor="glass-blur">Interface blur</label>
             <output htmlFor="glass-blur">{settings.blurStrength}px</output>
           </div>
           <input
@@ -204,8 +204,8 @@ export function SettingsDialog() {
             Only workspace backgrounds fade. Text, icons and controls stay fully visible.
           </p>
           <p className="transparency-platform-note">
-            Subtle blur softens the blobs inside the app. Desktop blur is optional; use a little
-            tint if your wallpaper makes text hard to read.
+            Interface blur softens the shapes inside the app. Desktop blur softens the desktop
+            behind the Windows app; turn it off for a completely clear view.
           </p>
         </div>
         {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (

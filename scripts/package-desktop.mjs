@@ -1,9 +1,10 @@
 import { packager } from '@electron/packager';
-import { cp, mkdir, writeFile, rm } from 'node:fs/promises';
+import { cp, mkdir, writeFile, rm, access } from 'node:fs/promises';
 import { resolve, relative } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
+await access(resolve('desktop-out/native-blur.exe'));
 const stage = resolve('release/staging');
 if (relative(resolve('release'), stage) !== 'staging') throw new Error('Invalid staging path');
 await rm(stage, { recursive: true, force: true });
@@ -38,7 +39,7 @@ const paths = await packager({
     : {}),
   icon: resolve('public/icons/atlas.ico'),
   overwrite: true,
-  asar: true,
+  asar: { unpack: '**/native-blur.exe' },
   prune: false,
   windowsMetadata: { ProductName: 'Code Atlas', FileDescription: 'Code Atlas Python workspace' },
 });

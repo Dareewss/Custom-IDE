@@ -1,6 +1,6 @@
 import { rm } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
-import { resolve, relative } from 'node:path';
+import { resolve, relative, join } from 'node:path';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -15,3 +15,24 @@ execFileSync(
     stdio: 'inherit',
   },
 );
+if (process.platform === 'win32') {
+  const compiler = join(
+    process.env.WINDIR || 'C:\\Windows',
+    'Microsoft.NET',
+    'Framework64',
+    'v4.0.30319',
+    'csc.exe',
+  );
+  execFileSync(
+    compiler,
+    [
+      '/nologo',
+      '/target:exe',
+      '/platform:x64',
+      '/optimize+',
+      `/out:${join(output, 'native-blur.exe')}`,
+      resolve('desktop/native/DesktopBlur.cs'),
+    ],
+    { stdio: 'inherit', windowsHide: true },
+  );
+}

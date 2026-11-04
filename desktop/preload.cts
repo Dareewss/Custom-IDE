@@ -4,6 +4,11 @@ const bridge: CodeAtlasDesktop = {
   platform: process.platform,
   supportsDesktopBlur: process.argv.includes('--atlas-desktop-blur=1'),
   setDesktopBlur: (enabled) => ipcRenderer.invoke('atlas:desktop-blur', enabled),
+  onDesktopBlurError: (callback) => {
+    const listener = (_event: Electron.IpcRendererEvent, message: string) => callback(message);
+    ipcRenderer.on('atlas:desktop-blur-error', listener);
+    return () => ipcRenderer.removeListener('atlas:desktop-blur-error', listener);
+  },
   setTheme: (theme) => ipcRenderer.send('atlas:theme', theme),
   minimize: () => ipcRenderer.send('atlas:window', 'minimize'),
   toggleExpand: () => ipcRenderer.send('atlas:window', 'expand'),

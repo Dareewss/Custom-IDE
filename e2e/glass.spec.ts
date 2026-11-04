@@ -77,7 +77,7 @@ test('persists glass settings and keeps blur only on independent surfaces', asyn
   await openSettings(page);
   await page.getByLabel('Color theme').selectOption('light');
   await page.getByLabel('Background preset').selectOption('ocean');
-  await page.getByRole('slider', { name: 'Blur strength', exact: true }).fill('36');
+  await page.getByRole('slider', { name: 'Interface blur', exact: true }).fill('36');
   await page.getByRole('checkbox', { name: /^Background animation/ }).uncheck();
   await transparency(page, 75);
   await closeSettings(page);
