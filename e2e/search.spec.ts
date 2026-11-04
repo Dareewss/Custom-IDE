@@ -44,6 +44,8 @@ test('Ctrl+Space opens search from the editor without inserting text or stealing
   await page.getByRole('treeitem', { name: 'main.py', exact: true }).click();
   const editor = page.getByRole('textbox', { name: 'Editor content' });
   await editor.focus();
+  // Monaco mounts the textbox before it finishes painting all visible lines.
+  await expect(page.locator('.view-lines')).toContainText('print("Hello, world!")');
   const before = await page.locator('.view-lines').innerText();
   await page.keyboard.press('Control+Space');
   await floating(page);
