@@ -1,3 +1,4 @@
+import { ClassBlock, FunctionCapsule, ParameterPort } from './StructureShapes';
 import {
   useCallback,
   useEffect,
@@ -8,7 +9,7 @@ import {
 } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { PerspectiveCamera } from 'three';
+import { InstancedMesh, Mesh, PerspectiveCamera } from 'three';
 import { useReducedMotion } from 'motion/react';
 import { useSceneColors, type SceneColors } from './scene-tokens';
 import { useOverview } from './store';
@@ -33,9 +34,10 @@ function Contents({
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
   const reducedMotion = useReducedMotion();
-  const labeledFiles = new Set(
+  const labeledNodes = new Set(
     model.nodes
-      .filter((node) => node.kind === 'file')
+      .filter((node) => ['file', 'class', 'function', 'method'].includes(node.kind))
+      .sort((a, b) => Number(b.kind === 'file') - Number(a.kind === 'file'))
       .slice(0, geometryTokens.labelBudget)
       .map((node) => node.id),
   );
@@ -66,6 +68,28 @@ function Contents({
         const item = layout.items[node.id];
         if (!item) return null;
         const active = selected === node.id;
+        if (node.kind === 'class')
+          return (
+            <ClassBlock
+              key={node.id}
+              node={node}
+              item={item}
+              colors={colors}
+              label={labeledNodes.has(node.id)}
+            />
+          );
+        if (node.kind === 'function' || node.kind === 'method')
+          return (
+            <FunctionCapsule
+              key={node.id}
+              node={node}
+              item={item}
+              colors={colors}
+              label={labeledNodes.has(node.id)}
+            />
+          );
+        if (node.meta.role === 'parameter')
+          return <ParameterPort key={node.id} node={node} item={item} colors={colors} />;
         if (node.kind === 'file')
           return (
             <FileSlab
@@ -73,7 +97,7 @@ function Contents({
               node={node}
               item={item}
               colors={colors}
-              label={labeledFiles.has(node.id)}
+              label={labeledNodes.has(node.id)}
             />
           );
         return (
@@ -140,16 +164,29 @@ export default function CodeScene({
       }}
     >
       <ContextLoss onLost={onLost} />
-      <FrameCounter />
+      <FrameCounter model={model} />
       <Contents model={model} layout={layout} colors={colors} />
     </Canvas>
   );
 }
 
-function FrameCounter() {
+function FrameCounter({ model }: { model: CodeModel }) {
   const frames = useRef(0);
-  useFrame(({ gl }) => {
+  const measured = useRef<{ model: CodeModel; labels: string } | null>(null);
+  useFrame(({ gl, scene }) => {
     gl.domElement.dataset.renderFrames = String(++frames.current);
+    const labels = gl.domElement.dataset.labelsReady ?? '0';
+    if (measured.current?.model !== model || measured.current.labels !== labels) {
+      const counts: Record<string, number> = {};
+      scene.traverse((object) => {
+        if (object instanceof Mesh)
+          counts[object.geometry.type] =
+            (counts[object.geometry.type] ?? 0) +
+            (object instanceof InstancedMesh ? object.count : 1);
+      });
+      gl.domElement.dataset.geometryCounts = JSON.stringify(counts);
+      measured.current = { model, labels };
+    }
   });
   return null;
 }

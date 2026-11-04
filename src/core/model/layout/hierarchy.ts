@@ -1,3 +1,4 @@
+import { functionWidth, headerPosition } from './metrics';
 import { geometryTokens as tokens } from './tokens';
 import type { CodeModel } from '../types';
 import type { GraphLayout, Vec3 } from './types';
@@ -18,21 +19,47 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       for (const child of node.children) pending.push({ id: child, visited: false });
       continue;
     }
-    const children = node.children.map((id) => sizes.get(id)!);
-    const width = Math.max(
-      node.kind === 'file' ? tokens.fileWidth : tokens.leafWidth,
-      ...children.map((size) => size[0] + tokens.inset),
-    );
-    const height = children.length
-      ? children.reduce<number>((sum, size) => sum + size[1] + tokens.siblingGap, tokens.inset)
-      : node.kind === 'file'
+    if (node.meta.role === 'parameter') {
+      sizes.set(node.id, [tokens.portRadius * 2, tokens.portRadius * 2, tokens.portRadius * 2]);
+      continue;
+    }
+    const parameters = node.children.filter((id) => byId.get(id)?.meta.role === 'parameter');
+    const children = node.children
+      .filter((id) => byId.get(id)?.meta.role !== 'parameter')
+      .map((id) => sizes.get(id)!);
+    const isFunction = node.kind === 'function' || node.kind === 'method';
+    const baseWidth =
+      node.kind === 'file'
+        ? tokens.fileWidth
+        : node.kind === 'class'
+          ? tokens.classWidth
+          : isFunction
+            ? functionWidth(node, parameters.length)
+            : tokens.leafWidth;
+    const baseHeight =
+      node.kind === 'file'
         ? tokens.fileHeight
-        : tokens.leafHeight;
-    sizes.set(node.id, [
-      width,
-      height,
-      node.children.length ? tokens.containerDepth : tokens.leafDepth,
-    ]);
+        : node.kind === 'class'
+          ? tokens.classHeight
+          : isFunction
+            ? tokens.functionHeaderHeight
+            : tokens.leafHeight;
+    const width = Math.max(baseWidth, ...children.map((size) => size[0] + tokens.inset));
+    const height = Math.max(
+      baseHeight,
+      children.length
+        ? children.reduce<number>((sum, size) => sum + size[1] + tokens.siblingGap, tokens.inset)
+        : 0,
+    );
+    const depth =
+      node.kind === 'class'
+        ? tokens.classDepth
+        : isFunction
+          ? tokens.functionRadius * 2
+          : node.kind === 'file' || children.length
+            ? tokens.containerDepth
+            : tokens.leafDepth;
+    sizes.set(node.id, [width, height, depth]);
   }
   const columns = Math.max(1, Math.ceil(Math.sqrt(roots.length)));
   const cellWidth =
@@ -56,7 +83,18 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
       max[axis] = Math.max(max[axis], current.position[axis] + size[axis] / 2);
     }
     let top = current.position[1] + size[1] / 2 - tokens.inset;
-    for (const child of node.children) {
+    const parameters = node.children.filter((id) => byId.get(id)?.meta.role === 'parameter');
+    const header = headerPosition(items[node.id]);
+    for (let index = 0; index < parameters.length; index++)
+      place.push({
+        id: parameters[index],
+        position: [
+          current.position[0] + (index - (parameters.length - 1) / 2) * tokens.portGap,
+          header[1] + tokens.functionRadius + tokens.portRadius,
+          current.position[2] + tokens.depthStep,
+        ],
+      });
+    for (const child of node.children.filter((id) => byId.get(id)?.meta.role !== 'parameter')) {
       const childSize = sizes.get(child)!;
       place.push({
         id: child,

@@ -10,6 +10,9 @@ export interface SceneColors {
   rimOpacity: number;
   labelText: string;
   labelBacking: string;
+  classFill: string;
+  functionFill: string;
+  error: string;
 }
 const subscribe = (notify: () => void) => {
   const observer = new MutationObserver(notify);
@@ -31,6 +34,9 @@ const snapshot = () => {
     rimOpacity: Number(style.getPropertyValue('--overview-rim-opacity').trim()),
     labelText: style.getPropertyValue('--text').trim(),
     labelBacking: style.getPropertyValue('--surface').trim(),
+    classFill: style.getPropertyValue('--blob-3').trim(),
+    functionFill: style.getPropertyValue('--blob-2').trim(),
+    error: style.getPropertyValue('--danger').trim(),
   });
 };
 /** Observe the applied CSS tokens, including preset overrides, without stale theme reads. */
