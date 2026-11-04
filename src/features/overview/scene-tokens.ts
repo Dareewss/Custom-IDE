@@ -7,6 +7,9 @@ export interface SceneColors {
   nodeOpacity: number;
   containerOpacity: number;
   activeOpacity: number;
+  rimOpacity: number;
+  labelText: string;
+  labelBacking: string;
 }
 const subscribe = (notify: () => void) => {
   const observer = new MutationObserver(notify);
@@ -25,6 +28,9 @@ const snapshot = () => {
     nodeOpacity: Number(style.getPropertyValue('--overview-node-opacity').trim()),
     containerOpacity: Number(style.getPropertyValue('--overview-container-opacity').trim()),
     activeOpacity: Number(style.getPropertyValue('--overview-active-opacity').trim()),
+    rimOpacity: Number(style.getPropertyValue('--overview-rim-opacity').trim()),
+    labelText: style.getPropertyValue('--text').trim(),
+    labelBacking: style.getPropertyValue('--surface').trim(),
   });
 };
 /** Observe the applied CSS tokens, including preset overrides, without stale theme reads. */

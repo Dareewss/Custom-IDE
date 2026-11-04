@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState, type ComponentRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentRef,
+} from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { PerspectiveCamera } from 'three';
@@ -7,6 +14,8 @@ import { useSceneColors, type SceneColors } from './scene-tokens';
 import { useOverview } from './store';
 import type { CodeModel } from '../../core/model/types';
 import type { GraphLayout } from '../../core/model/layout/types';
+import { geometryTokens } from '../../core/model/layout/tokens';
+import { FileSlab } from './FileSlab';
 
 function Contents({
   model,
@@ -24,8 +33,14 @@ function Contents({
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
   const reducedMotion = useReducedMotion();
-  useEffect(() => {
-    const { camera } = get();
+  const labeledFiles = new Set(
+    model.nodes
+      .filter((node) => node.kind === 'file')
+      .slice(0, geometryTokens.labelBudget)
+      .map((node) => node.id),
+  );
+  useLayoutEffect(() => {
+    const { camera, gl } = get();
     if (!(camera instanceof PerspectiveCamera)) return;
     const span = layout.bounds.max.map((value, axis) => value - layout.bounds.min[axis]);
     const center = layout.bounds.max.map((value, axis) => (value + layout.bounds.min[axis]) / 2);
@@ -41,6 +56,7 @@ function Contents({
     camera.updateProjectionMatrix();
     controls.current?.target.set(center[0], center[1], center[2]);
     controls.current?.update();
+    gl.domElement.dataset.cameraReady = `${Math.round(width)}x${Math.round(height)}`;
     invalidate();
   }, [get, layout, width, height, invalidate]);
   return (
@@ -50,6 +66,16 @@ function Contents({
         const item = layout.items[node.id];
         if (!item) return null;
         const active = selected === node.id;
+        if (node.kind === 'file')
+          return (
+            <FileSlab
+              key={node.id}
+              node={node}
+              item={item}
+              colors={colors}
+              label={labeledFiles.has(node.id)}
+            />
+          );
         return (
           <mesh
             key={node.id}
@@ -102,6 +128,7 @@ export default function CodeScene({
       className="code-canvas"
       aria-label="3D code scene"
       frameloop="demand"
+      flat
       dpr={[1, 1.5]}
       gl={{ alpha: true, premultipliedAlpha: true, antialias: true, powerPreference: 'low-power' }}
       camera={{ position: [0, 2, 20], fov: 45 }}

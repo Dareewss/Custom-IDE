@@ -27,12 +27,15 @@ export function appWorkerPlugin(): Plugin {
           .filter((name) => /\.(js|css|ttf|wasm)$/.test(name))
           .sort()
           .map((name) => `/${name}`),
+        ...(await readdir('public/fonts')).sort().map((name) => `/fonts/${name}`),
         ...runtimeFiles.map(
           (file) => `/${relative(resolve('public'), file).replaceAll('\\', '/')}`,
         ),
       ];
       const hash = createHash('sha256').update(JSON.stringify(resources)).update(template);
       for (const file of runtimeFiles) hash.update(await readFile(file));
+      for (const name of (await readdir('public/fonts')).sort())
+        hash.update(await readFile(resolve('public/fonts', name)));
       const version = hash.digest('hex').slice(0, 16);
       if (!template.includes('const SHELL = [];'))
         throw new Error('Service worker shell insertion point is missing.');

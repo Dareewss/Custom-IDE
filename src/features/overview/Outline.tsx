@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { CodeNode } from '../../core/model/types';
 import { useOverview } from './store';
+import { selectOverviewNode } from './selection';
 
 export function Outline({ nodes }: { nodes: CodeNode[] }) {
   const selected = useOverview((state) => state.selectedNodeId);
@@ -36,7 +37,7 @@ export function Outline({ nodes }: { nodes: CodeNode[] }) {
           tabIndex={focus === index ? 0 : -1}
           style={{ paddingInlineStart: `${12 + (depth - 1) * 12}px` }}
           onFocus={() => setFocus(index)}
-          onClick={() => useOverview.setState({ selectedNodeId: node.id })}
+          onClick={() => selectOverviewNode(node)}
           onPointerEnter={() => useOverview.setState({ hoveredNodeId: node.id })}
           onPointerLeave={() => useOverview.setState({ hoveredNodeId: null })}
           onKeyDown={(event) => {

@@ -2,6 +2,7 @@
   --overview-node-opacity: 0.4;
   --overview-container-opacity: 0.12;
   --overview-active-opacity: 0.7;
+  --overview-rim-opacity: 0.5;
 }
 .source-overview-layout {
   height: 100%;

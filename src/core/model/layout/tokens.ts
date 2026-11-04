@@ -11,4 +11,12 @@ export const geometryTokens = {
   depthStep: 0.5,
   fileGap: 3,
   labelSize: 0.28,
+  labelAdvance: 0.6,
+  labelPadding: 0.12,
+  labelMinPixels: 13,
+  labelMaxCharacters: 40,
+  labelInset: 0.55,
+  labelDepth: 0.04,
+  labelOutline: 0.015,
+  labelBudget: 48,
 } as const;
