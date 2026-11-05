@@ -5,6 +5,7 @@ import type { GraphLayout } from '../../core/model/layout/types';
 import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
 import type { SearchKind } from '../../core/model/search';
+import type { IsolateView } from '../../core/model/isolate';
 
 interface OverviewState {
   projectId: string | null;
@@ -30,6 +31,9 @@ interface OverviewState {
   searchQuery: string;
   searchKind: SearchKind;
   searchFocusRequest: number;
+  isolate: IsolateView | null;
+  isolatedIds: Set<string> | null;
+  fitAfterView: boolean;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -56,5 +60,8 @@ export const useOverview = create<OverviewState>(() => ({
   searchQuery: '',
   searchKind: 'all',
   searchFocusRequest: 0,
+  isolate: null,
+  isolatedIds: null,
+  fitAfterView: false,
   focusRequest: null,
 }));

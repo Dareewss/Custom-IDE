@@ -13,6 +13,37 @@
   z-index: 45;
   border-bottom: 1px solid var(--border);
 }
+.isolation-bar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.isolation-bar > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-inline-end: auto;
+}
+.isolation-bar label {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--muted);
+}
+.isolation-bar button,
+.isolation-bar select {
+  padding: 4px 6px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  white-space: nowrap;
+}
 .object-search-row {
   display: flex;
   gap: 5px;

@@ -11,6 +11,7 @@ import { NodeInfo } from './NodeInfo';
 import { EdgeOptions } from './EdgeOptions';
 import { DepthControl } from './DepthControl';
 import { ObjectSearch } from './ObjectSearch';
+import { IsolationBar } from './IsolationBar';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -36,6 +37,7 @@ export function OverviewPanel() {
       aria-busy={state.loading}
       data-model-nodes={model?.nodes.length ?? 0}
       data-visible-nodes={state.viewModel?.nodes.length ?? 0}
+      data-isolated={String(!!state.isolate)}
     >
       <header className="overview-toolbar">
         <span>
@@ -62,6 +64,7 @@ export function OverviewPanel() {
       </header>
       <DepthControl />
       <ObjectSearch />
+      <IsolationBar />
       {state.error && (
         <p className="overview-notice" role="alert">
           {state.error}

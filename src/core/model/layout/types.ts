@@ -30,6 +30,7 @@ export interface LayoutResponse {
   viewModel: CodeModel;
   ownerByNode: Record<string, string | null>;
   compactIds: string[];
+  isolatedIds: Set<string> | null;
 }
 export interface LayoutRequest {
   model: CodeModel;

@@ -28,6 +28,7 @@ self.onmessage = (event: MessageEvent<{ id: number; request: LayoutRequest }>) =
         viewModel: projected.model,
         ownerByNode: projected.ownerByNode,
         compactIds: projected.compactIds,
+        isolatedIds: projected.isolatedIds,
       },
     });
   } catch (error) {

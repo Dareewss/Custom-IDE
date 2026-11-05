@@ -1,5 +1,5 @@
 import { useGraphSearch, mutedColors } from './search';
-import { toggleOverviewNode } from './view-actions';
+import { toggleOverviewNode, isolateSelected, exitIsolation } from './view-actions';
 import { CameraRig } from './CameraRig';
 import { CameraTools } from './CameraTools';
 import { cameraKey, requestCamera } from './camera-actions';
@@ -212,6 +212,12 @@ export default function CodeScene({
       onContextMenu={(event) => event.preventDefault()}
       onKeyDown={(event) => {
         if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key.toLowerCase() === 'i') {
+          event.preventDefault();
+          if (useOverview.getState().isolate) exitIsolation();
+          else isolateSelected();
+          return;
+        }
         if (event.key.toLowerCase() === 'c') {
           const id = useOverview.getState().selectedNodeId;
           if (id) {
@@ -228,9 +234,9 @@ export default function CodeScene({
       }}
     >
       <span id="camera-help" className="sr-only">
-        C collapses or expands selection. Arrow keys orbit. Shift and arrows pan. Plus and minus
-        zoom. F fits selection. Home fits all. R resets. Drag to orbit, right drag to pan, scroll or
-        pinch to zoom.
+        I isolates selection or exits isolation. C collapses or expands selection. Arrow keys orbit.
+        Shift and arrows pan. Plus and minus zoom. F fits selection. Home fits all. R resets. Drag
+        to orbit, right drag to pan, scroll or pinch to zoom.
       </span>
       {ready && <CameraTools />}
       <Canvas

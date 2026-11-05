@@ -8,8 +8,9 @@ export function setOverviewView(patch: Partial<ModelView>): void {
   const view = {
     depth: patch.depth ?? state.depth,
     collapsedIds: patch.collapsedIds ?? state.collapsedIds,
+    isolate: patch.isolate === undefined ? state.isolate : patch.isolate,
   };
-  useOverview.setState(view);
+  useOverview.setState({ ...view, ...(patch.isolate !== undefined ? { isolatedIds: null } : {}) });
   if (state.projectId)
     try {
       writeView(state.projectId, view);
@@ -38,6 +39,10 @@ export function toggleOverviewNode(id: string): void {
 }
 export function ensureOverviewVisible(id: string): void {
   const state = useOverview.getState();
+  if (state.isolate && !state.isolatedIds?.has(id)) {
+    setOverviewView({ isolate: null });
+    useOverview.setState({ fitAfterView: false });
+  }
   if (state.ownerByNode[id] === id) return;
   const ancestors = new Set<string>();
   let current = state.indexes?.nodeById.get(id)?.parentId;
@@ -48,5 +53,18 @@ export function ensureOverviewVisible(id: string): void {
   setOverviewView({
     depth: 'all',
     collapsedIds: state.collapsedIds.filter((nodeId) => !ancestors.has(nodeId)),
+    ...(state.isolate && !state.isolatedIds?.has(id) ? { isolate: null } : {}),
   });
+}
+export function isolateSelected(): void {
+  const state = useOverview.getState(),
+    node = state.selectedNodeId ? state.indexes?.nodeById.get(state.selectedNodeId) : undefined;
+  if (!node || !['function', 'method', 'class'].includes(node.kind)) return;
+  ensureOverviewVisible(node.id);
+  setOverviewView({ isolate: { nodeId: node.id, depth: 1 } });
+  useOverview.setState({ fitAfterView: true });
+}
+export function exitIsolation(): void {
+  setOverviewView({ isolate: null });
+  useOverview.setState({ fitAfterView: true });
 }

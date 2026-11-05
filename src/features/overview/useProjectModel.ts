@@ -6,6 +6,7 @@ import type { CodeModel } from '../../core/model/types';
 import type { LayoutRequest, LayoutResponse } from '../../core/model/layout/types';
 import { useOverview } from './store';
 import { readView } from './view-state';
+import { setOverviewView } from './view-actions';
 
 const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
   () =>
@@ -18,10 +19,11 @@ export function useProjectModel() {
   const revision = useOverview((state) => state.layoutRevision);
   const collapsedIds = useOverview((state) => state.collapsedIds);
   const depth = useOverview((state) => state.depth);
+  const isolate = useOverview((state) => state.isolate);
   useEffect(() => {
     let cancelled = false;
     const changedProject = useOverview.getState().projectId !== projectId;
-    const view = changedProject ? readView(projectId) : { collapsedIds, depth };
+    const view = changedProject ? readView(projectId) : { collapsedIds, depth, isolate };
     useOverview.setState({
       projectId,
       loading: true,
@@ -40,6 +42,8 @@ export function useProjectModel() {
             viewModel: null,
             ownerByNode: {},
             compactIds: [],
+            isolatedIds: null,
+            fitAfterView: false,
             searchQuery: '',
             searchKind: 'all',
             ...view,
@@ -66,6 +70,7 @@ export function useProjectModel() {
         };
         const result = await layout.call({ model, projectId, revision, view });
         if (cancelled) return;
+        if (view.isolate && !result.isolatedIds) setOverviewView({ isolate: null });
         useOverview.setState((state) => {
           const selectedNodeId =
             state.selectedNodeId && result.indexes.nodeById.has(state.selectedNodeId)
@@ -78,6 +83,16 @@ export function useProjectModel() {
             viewModel: result.viewModel,
             ownerByNode: result.ownerByNode,
             compactIds: result.compactIds,
+            isolatedIds: result.isolatedIds,
+            ...(state.fitAfterView
+              ? {
+                  cameraRequest: {
+                    action: 'fit-all' as const,
+                    sequence: (state.cameraRequest?.sequence ?? 0) + 1,
+                  },
+                  fitAfterView: false,
+                }
+              : {}),
             loading: false,
             error: null,
             selectedNodeId,
@@ -101,5 +116,5 @@ export function useProjectModel() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [tree, projectId, revision, collapsedIds, depth]);
+  }, [tree, projectId, revision, collapsedIds, depth, isolate]);
 }
