@@ -1,4 +1,5 @@
 import { useOverview } from './store';
+import type { Vec3 } from '../../core/model/layout/types';
 
 export type CameraAction =
   | 'fit-all'
@@ -13,7 +14,13 @@ export type CameraAction =
   | 'pan-left'
   | 'pan-right'
   | 'pan-up'
-  | 'pan-down';
+  | 'pan-down'
+  | 'pan-to';
+export function panCameraTo(point: Vec3) {
+  useOverview.setState((state) => ({
+    cameraRequest: { action: 'pan-to', point, sequence: (state.cameraRequest?.sequence ?? 0) + 1 },
+  }));
+}
 export function requestCamera(action: CameraAction) {
   useOverview.setState((state) => ({
     cameraRequest: { action, sequence: (state.cameraRequest?.sequence ?? 0) + 1 },

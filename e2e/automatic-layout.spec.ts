@@ -17,7 +17,7 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
     });
     await expect(page.locator('.workspace-title')).toContainText('Layout');
     const panel = page.getByRole('region', { name: 'Code overview', exact: true });
-    const canvas = panel.locator('canvas');
+    const canvas = panel.locator('.code-canvas canvas');
     await expect(canvas).toHaveAttribute('data-labels-ready', '7');
     await page.waitForTimeout(700);
     const before = Number(await canvas.getAttribute('data-render-frames'));

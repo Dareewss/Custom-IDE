@@ -7,7 +7,7 @@ test('shows transparent real 3D in Split, keeps outline accessible and stops ren
   const overview = page.getByRole('region', { name: 'Code overview', exact: true });
   await expect(overview).toHaveAttribute('aria-busy', 'false');
   await expect(overview).not.toHaveAttribute('data-model-nodes', '0');
-  const canvas = overview.locator('canvas');
+  const canvas = overview.locator('.code-canvas canvas');
   await expect(canvas).toBeVisible();
   await expect(canvas).toHaveAttribute('data-render-frames', /[1-9]/);
   await expect(page.locator('.editor-card')).toBeVisible();

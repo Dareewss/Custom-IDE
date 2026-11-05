@@ -21,6 +21,7 @@ import { selectOverviewNode, setOverviewHover } from './selection';
 import { ControlFlowShape } from './ControlFlowShapes';
 import { GraphEdges } from './GraphEdges';
 import { ExternalShapes } from './ExternalShapes';
+import { Minimap, MinimapDrawing } from './Minimap';
 
 function Contents({
   model,
@@ -200,6 +201,8 @@ export default function CodeScene({
   const colors = useSceneColors();
   const [lost, setLost] = useState(false);
   const [ready, setReady] = useState(false);
+  const minimap = useRef<HTMLCanvasElement>(null);
+  const getMinimap = useCallback(() => minimap.current, []);
   const onLost = useCallback(() => setLost(true), []);
   if (lost) return unavailable;
   return (
@@ -239,6 +242,7 @@ export default function CodeScene({
         to orbit, right drag to pan, scroll or pinch to zoom.
       </span>
       {ready && <CameraTools />}
+      {ready && <Minimap canvas={minimap} model={model} layout={layout} />}
       <Canvas
         className="code-canvas"
         aria-label="3D code scene"
@@ -264,6 +268,7 @@ export default function CodeScene({
         <ContextLoss onLost={onLost} />
         <FrameCounter model={model} />
         <Contents model={model} layout={layout} colors={colors} />
+        <MinimapDrawing getCanvas={getMinimap} model={model} layout={layout} colors={colors} />
       </Canvas>
     </div>
   );

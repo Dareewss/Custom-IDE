@@ -107,6 +107,12 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
       return;
     }
     fitMode.current = null;
+    if (action === 'pan-to' && request.point) {
+      const point = new Vector3(...request.point),
+        delta = point.clone().sub(target);
+      move(camera.position.clone().add(delta).toArray() as Vec3, request.point, true);
+      return;
+    }
     const offset = camera.position.clone().sub(target),
       position = camera.position.clone();
     if (action.startsWith('zoom-'))

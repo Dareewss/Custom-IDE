@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
-import type { GraphLayout } from '../../core/model/layout/types';
+import type { GraphLayout, Vec3 } from '../../core/model/layout/types';
 import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
 import type { SearchKind } from '../../core/model/search';
@@ -22,7 +22,7 @@ interface OverviewState {
   showExternal: boolean;
   externalExpanded: boolean;
   layoutRevision: number;
-  cameraRequest: { action: CameraAction; sequence: number } | null;
+  cameraRequest: { action: CameraAction; sequence: number; point?: Vec3 } | null;
   viewModel: CodeModel | null;
   ownerByNode: Record<string, string | null>;
   collapsedIds: string[];

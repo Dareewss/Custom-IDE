@@ -216,6 +216,30 @@
   background: var(--surface);
   border: 1px solid var(--border);
 }
+.overview-minimap {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 25;
+  display: block;
+  max-width: 38%;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  touch-action: none;
+}
+.overview-minimap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.overview-minimap > span {
+  display: block;
+  padding: 2px 6px;
+  font-size: 9px;
+  text-align: left;
+}
 .sr-only {
   position: absolute;
   width: 1px;

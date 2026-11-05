@@ -69,4 +69,10 @@ export const geometryTokens = {
   forceAttraction: 0.006,
   forceEpsilon: 0.001,
   layoutSpring: { mass: 1, tension: 150, friction: 24 },
+  minimapWidth: 160,
+  minimapHeight: 112,
+  minimapPadding: 10,
+  minimapNodeMin: 2,
+  minimapFrustumOpacity: 0.12,
+  minimapNodeOpacity: 0.7,
 } as const;
