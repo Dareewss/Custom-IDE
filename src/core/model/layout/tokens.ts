@@ -75,4 +75,8 @@ export const geometryTokens = {
   minimapNodeMin: 2,
   minimapFrustumOpacity: 0.12,
   minimapNodeOpacity: 0.7,
+  enterScale: 0.7,
+  updateDuration: 200,
+  ghostOpacity: 0.35,
+  ghostBudget: 128,
 } as const;

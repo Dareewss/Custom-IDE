@@ -1,3 +1,5 @@
+import { NodeMotion } from './NodeMotion';
+import { GhostNodes } from './GhostNodes';
 import { useGraphSearch, mutedColors } from './search';
 import { toggleOverviewNode, isolateSelected, exitIsolation } from './view-actions';
 import { CameraRig } from './CameraRig';
@@ -32,6 +34,8 @@ function Contents({
   layout: GraphLayout;
   colors: SceneColors;
 }) {
+  const addedIds = useOverview((state) => state.diff.added);
+  const added = useMemo(() => new Set(addedIds), [addedIds]);
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
   const search = useGraphSearch(model);
@@ -78,109 +82,138 @@ function Contents({
         position={geometryTokens.lightPosition}
         intensity={geometryTokens.directionalLight}
       />
+      <GhostNodes colors={colors} />
       <GraphEdges model={model} layout={layout} colors={colors} search={search} />
       <ExternalShapes model={model} layout={layout} colors={colors} search={search} />
       {groups.map((group) => (
         <FileMotion key={group.id} position={layout.items[group.id].position}>
-          <ValueInstances instances={group.variables} shape="sphere" colors={colors} />
-          <ValueInstances instances={group.cells} shape="cell" colors={colors} />
+          <ValueInstances
+            instances={group.variables}
+            shape="sphere"
+            colors={colors}
+            root={layout.items[group.id].position}
+            added={added}
+          />
+          <ValueInstances
+            instances={group.cells}
+            shape="cell"
+            colors={colors}
+            root={layout.items[group.id].position}
+            added={added}
+          />
           {group.nodes.map((node) => {
-            if (node.kind === 'external') return null;
+            if (node.kind === 'variable' && node.meta.role !== 'parameter') return null;
+            const result = (() => {
+              if (node.kind === 'external') return null;
+              const item = layout.items[node.id];
+              if (!item) return null;
+              const nodeColors =
+                search.active && !search.context.has(node.id) && selected !== node.id
+                  ? dimColors
+                  : colors;
+              const active = selected === node.id;
+              if (node.kind === 'loop' || node.kind === 'condition')
+                return (
+                  <ControlFlowShape
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    label={labeledNodes.has(node.id)}
+                    lanes={layout.branches[node.id]}
+                  />
+                );
+              if (node.kind === 'class')
+                return (
+                  <ClassBlock
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    label={labeledNodes.has(node.id)}
+                  />
+                );
+              if (node.kind === 'function' || node.kind === 'method')
+                return (
+                  <FunctionCapsule
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    label={labeledNodes.has(node.id)}
+                  />
+                );
+              if (node.meta.role === 'parameter')
+                return <ParameterPort key={node.id} node={node} item={item} colors={nodeColors} />;
+              if (node.kind === 'variable') return null;
+              if (node.kind === 'collection')
+                return (
+                  <CollectionShape
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    label={labeledNodes.has(node.id)}
+                  />
+                );
+              if (node.kind === 'file')
+                return (
+                  <FileSlab
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    label={labeledNodes.has(node.id)}
+                  />
+                );
+              return (
+                <mesh
+                  key={node.id}
+                  position={item.position}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    selectOverviewNode(node);
+                  }}
+                  onPointerOver={(event) => {
+                    event.stopPropagation();
+                    setOverviewHover(node.id);
+                  }}
+                  onPointerOut={() => setOverviewHover(null)}
+                >
+                  <boxGeometry args={item.size} />
+                  <meshBasicMaterial
+                    color={
+                      active
+                        ? nodeColors.active
+                        : hovered === node.id
+                          ? nodeColors.hover
+                          : nodeColors.fill
+                    }
+                    transparent
+                    opacity={
+                      active
+                        ? nodeColors.activeOpacity
+                        : node.children.length
+                          ? nodeColors.containerOpacity
+                          : nodeColors.nodeOpacity
+                    }
+                    depthWrite={false}
+                  />
+                </mesh>
+              );
+            })();
             const item = layout.items[node.id];
             if (!item) return null;
-            const nodeColors =
-              search.active && !search.context.has(node.id) && selected !== node.id
-                ? dimColors
-                : colors;
-            const active = selected === node.id;
-            if (node.kind === 'loop' || node.kind === 'condition')
-              return (
-                <ControlFlowShape
-                  key={node.id}
-                  node={node}
-                  item={item}
-                  colors={nodeColors}
-                  label={labeledNodes.has(node.id)}
-                  lanes={layout.branches[node.id]}
-                />
-              );
-            if (node.kind === 'class')
-              return (
-                <ClassBlock
-                  key={node.id}
-                  node={node}
-                  item={item}
-                  colors={nodeColors}
-                  label={labeledNodes.has(node.id)}
-                />
-              );
-            if (node.kind === 'function' || node.kind === 'method')
-              return (
-                <FunctionCapsule
-                  key={node.id}
-                  node={node}
-                  item={item}
-                  colors={nodeColors}
-                  label={labeledNodes.has(node.id)}
-                />
-              );
-            if (node.meta.role === 'parameter')
-              return <ParameterPort key={node.id} node={node} item={item} colors={nodeColors} />;
-            if (node.kind === 'variable') return null;
-            if (node.kind === 'collection')
-              return (
-                <CollectionShape
-                  key={node.id}
-                  node={node}
-                  item={item}
-                  colors={nodeColors}
-                  label={labeledNodes.has(node.id)}
-                />
-              );
-            if (node.kind === 'file')
-              return (
-                <FileSlab
-                  key={node.id}
-                  node={node}
-                  item={item}
-                  colors={nodeColors}
-                  label={labeledNodes.has(node.id)}
-                />
-              );
             return (
-              <mesh
+              <NodeMotion
                 key={node.id}
-                position={item.position}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  selectOverviewNode(node);
-                }}
-                onPointerOver={(event) => {
-                  event.stopPropagation();
-                  setOverviewHover(node.id);
-                }}
-                onPointerOut={() => setOverviewHover(null)}
+                node={node}
+                item={item}
+                root={layout.items[group.id].position}
+                added={added.has(node.id)}
               >
-                <boxGeometry args={item.size} />
-                <meshBasicMaterial
-                  color={
-                    active
-                      ? nodeColors.active
-                      : hovered === node.id
-                        ? nodeColors.hover
-                        : nodeColors.fill
-                  }
-                  transparent
-                  opacity={
-                    active
-                      ? nodeColors.activeOpacity
-                      : node.children.length
-                        ? nodeColors.containerOpacity
-                        : nodeColors.nodeOpacity
-                  }
-                  depthWrite={false}
-                />
-              </mesh>
+                {result}
+              </NodeMotion>
             );
           })}
         </FileMotion>
@@ -278,6 +311,9 @@ function FrameCounter({ model }: { model: CodeModel }) {
   const frames = useRef(0);
   const measured = useRef<{ model: CodeModel; labels: string } | null>(null);
   useFrame(({ gl, scene }) => {
+    gl.domElement.dataset.ghostCount = String(
+      scene.getObjectByName('removed-code-ghosts')?.children.length ?? 0,
+    );
     gl.domElement.dataset.renderFrames = String(++frames.current);
     const labels = gl.domElement.dataset.labelsReady ?? '0';
     if (measured.current?.model !== model || measured.current.labels !== labels) {

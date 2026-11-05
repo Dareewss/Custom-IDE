@@ -25,6 +25,7 @@ export function valueInstances(model: CodeModel, layout: GraphLayout) {
         node,
         position: cell.position,
         kind: cell.part === 'key' ? entry.keyType : entry.valueType,
+        slot: `${cell.part}:${cell.index}`,
         detail: `${cell.part} ${cell.index + 1}: ${cell.part === 'key' ? entry.key : entry.value}`,
       });
     }

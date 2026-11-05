@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
-import type { GraphLayout, Vec3 } from '../../core/model/layout/types';
+import type { GraphLayout, LayoutItem, Vec3 } from '../../core/model/layout/types';
+import type { CodeNode } from '../../core/model/types';
+import { emptyDiff, type ModelDiff } from '../../core/model/diff';
+import type { CollectionCell } from '../../core/model/layout/collections';
 import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
 import type { SearchKind } from '../../core/model/search';
@@ -34,6 +37,9 @@ interface OverviewState {
   isolate: IsolateView | null;
   isolatedIds: Set<string> | null;
   fitAfterView: boolean;
+  diff: ModelDiff;
+  ghosts: { node: CodeNode; item: LayoutItem; cells: CollectionCell[] }[];
+  modelRevision: number;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -63,5 +69,8 @@ export const useOverview = create<OverviewState>(() => ({
   isolate: null,
   isolatedIds: null,
   fitAfterView: false,
+  diff: emptyDiff(),
+  ghosts: [],
+  modelRevision: 0,
   focusRequest: null,
 }));

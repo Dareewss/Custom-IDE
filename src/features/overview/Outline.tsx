@@ -39,6 +39,7 @@ export function Outline({ nodes }: { nodes: CodeNode[] }) {
             refs.current[index] = element;
           }}
           role="treeitem"
+          data-node-id={node.id}
           aria-label={`${node.kind} ${node.name}${node.meta.hasError ? ' (incomplete)' : ''}`}
           aria-level={depth}
           aria-expanded={node.children.length ? !compact.includes(node.id) : undefined}

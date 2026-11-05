@@ -3,6 +3,7 @@ import type { BranchLane } from './control-flow';
 import type { CodeEdge, CodeModel } from '../types';
 import type { ModelIndexes } from '../indexes';
 import type { ModelView } from '../view';
+import type { ModelDiff } from '../diff';
 
 export type Vec3 = [number, number, number];
 export interface LayoutItem {
@@ -31,6 +32,7 @@ export interface LayoutResponse {
   ownerByNode: Record<string, string | null>;
   compactIds: string[];
   isolatedIds: Set<string> | null;
+  diff: ModelDiff;
 }
 export interface LayoutRequest {
   model: CodeModel;

@@ -7,6 +7,8 @@ import type { LayoutRequest, LayoutResponse } from '../../core/model/layout/type
 import { useOverview } from './store';
 import { readView } from './view-state';
 import { setOverviewView } from './view-actions';
+import { emptyDiff } from '../../core/model/diff';
+import { geometryTokens } from '../../core/model/layout/tokens';
 
 const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
   () =>
@@ -44,6 +46,9 @@ export function useProjectModel() {
             compactIds: [],
             isolatedIds: null,
             fitAfterView: false,
+            diff: emptyDiff(),
+            ghosts: [],
+            modelRevision: 0,
             searchQuery: '',
             searchKind: 'all',
             ...view,
@@ -72,12 +77,26 @@ export function useProjectModel() {
         if (cancelled) return;
         if (view.isolate && !result.isolatedIds) setOverviewView({ isolate: null });
         useOverview.setState((state) => {
+          const diff = state.model ? result.diff : emptyDiff();
+          const removed = new Set(diff.removed);
+          const ghosts =
+            state.viewModel?.nodes
+              .filter((node) => removed.has(node.id) && state.layout?.items[node.id])
+              .slice(0, geometryTokens.ghostBudget)
+              .map((node) => ({
+                node,
+                item: state.layout!.items[node.id],
+                cells: state.layout!.cells[node.id] ?? [],
+              })) ?? [];
           const selectedNodeId =
             state.selectedNodeId && result.indexes.nodeById.has(state.selectedNodeId)
               ? (result.ownerByNode[state.selectedNodeId] ?? null)
               : null;
           return {
             model,
+            diff,
+            ghosts,
+            modelRevision: state.modelRevision + 1,
             layout: result.layout,
             indexes: result.indexes,
             viewModel: result.viewModel,

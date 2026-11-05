@@ -38,6 +38,10 @@ export function OverviewPanel() {
       data-model-nodes={model?.nodes.length ?? 0}
       data-visible-nodes={state.viewModel?.nodes.length ?? 0}
       data-isolated={String(!!state.isolate)}
+      data-added-nodes={state.diff.added.length}
+      data-removed-nodes={state.diff.removed.length}
+      data-model-revision={state.modelRevision}
+      data-selected-node={state.selectedNodeId ?? ''}
     >
       <header className="overview-toolbar">
         <span>
