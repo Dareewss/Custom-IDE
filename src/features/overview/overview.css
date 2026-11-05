@@ -6,6 +6,13 @@
   --overview-value-opacity: 0.9;
   --overview-light: #fff;
 }
+.monaco-editor .overview-source-selected {
+  background: var(--accent-soft);
+}
+.monaco-editor .overview-source-hover {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
 .source-overview-layout {
   height: 100%;
   min-height: 0;

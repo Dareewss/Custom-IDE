@@ -3,7 +3,7 @@ import type { CodeNode } from '../../core/model/types';
 import type { LayoutItem } from '../../core/model/layout/types';
 import { geometryTokens as tokens } from '../../core/model/layout/tokens';
 import { useOverview } from './store';
-import { selectOverviewNode } from './selection';
+import { selectOverviewNode, setOverviewHover } from './selection';
 import { SceneLabel } from './SceneLabel';
 import type { SceneColors } from './scene-tokens';
 
@@ -29,9 +29,9 @@ export function FileSlab({
       }}
       onPointerOver={(event) => {
         event.stopPropagation();
-        useOverview.setState({ hoveredNodeId: node.id });
+        setOverviewHover(node.id);
       }}
-      onPointerOut={() => useOverview.setState({ hoveredNodeId: null })}
+      onPointerOut={() => setOverviewHover(null)}
     >
       <mesh>
         <boxGeometry args={item.size} />

@@ -6,7 +6,7 @@ import type { LayoutItem } from '../../core/model/layout/types';
 import { geometryTokens as tokens } from '../../core/model/layout/tokens';
 import { functionWidth, headerPosition } from '../../core/model/layout/metrics';
 import { useOverview } from './store';
-import { selectOverviewNode } from './selection';
+import { selectOverviewNode, setOverviewHover } from './selection';
 import type { SceneColors } from './scene-tokens';
 import { SceneLabel } from './SceneLabel';
 
@@ -29,9 +29,9 @@ function useNodeEvents(node: CodeNode) {
       },
       onPointerOver: (event: ThreeEvent<PointerEvent>) => {
         event.stopPropagation();
-        useOverview.setState({ hoveredNodeId: node.id });
+        setOverviewHover(node.id);
       },
-      onPointerOut: () => useOverview.setState({ hoveredNodeId: null }),
+      onPointerOut: () => setOverviewHover(null),
     },
   };
 }

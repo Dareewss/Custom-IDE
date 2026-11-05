@@ -11,6 +11,7 @@ import { useSettings } from '../settings/store';
 import { useRunner } from '../runner/store';
 import { useReducedMotion } from 'motion/react';
 import { glassEditorTheme } from './glass-theme';
+import { attachOverviewSync } from '../overview/editor-sync';
 
 function decorate(
   editor: monaco.editor.IStandaloneCodeEditor,
@@ -84,6 +85,7 @@ export default function CodeEditor() {
     monaco.editor.defineTheme('atlas-glass', glassEditorTheme());
     monaco.editor.setTheme('atlas-glass');
     ref.current = editor;
+    attachOverviewSync(editor);
     collection.current = editor.createDecorationsCollection();
     decorate(editor, collection.current);
     const toggle = () => {

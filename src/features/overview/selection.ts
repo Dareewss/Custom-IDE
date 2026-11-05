@@ -8,6 +8,7 @@ export function selectOverviewNode(node: CodeNode) {
     selectedNodeId: node.id,
     hoveredNodeId: null,
     hoveredDetail: null,
+    hoveredEdgeId: null,
     focusRequest: { nodeId: node.id, sequence: (state.focusRequest?.sequence ?? 0) + 1 },
   }));
   if (node.kind !== 'external') {
@@ -18,6 +19,14 @@ export function selectOverviewNode(node: CodeNode) {
 
 export function setOverviewHover(nodeId: string | null, detail: string | null = null): void {
   const state = useOverview.getState();
-  if (state.hoveredNodeId !== nodeId || state.hoveredDetail !== detail)
-    useOverview.setState({ hoveredNodeId: nodeId, hoveredDetail: detail });
+  if (
+    state.hoveredNodeId !== nodeId ||
+    state.hoveredDetail !== detail ||
+    (nodeId && state.hoveredEdgeId)
+  )
+    useOverview.setState({
+      hoveredNodeId: nodeId,
+      hoveredDetail: detail,
+      ...(nodeId ? { hoveredEdgeId: null } : {}),
+    });
 }
