@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState } from 'react';
-import { Box, ListTree } from 'lucide-react';
+import { Box, ListTree, RotateCcw } from 'lucide-react';
 import { useProjectModel } from './useProjectModel';
 import { useOverview } from './store';
 import { useWorkspace } from '../explorer/store';
@@ -40,6 +40,13 @@ export function OverviewPanel() {
           3D overview
         </span>
         <div className="overview-actions">
+          <IconButton
+            label="Re-layout graph"
+            disabled={state.loading}
+            onClick={() => useOverview.setState({ layoutRevision: state.layoutRevision + 1 })}
+          >
+            <RotateCcw size={14} />
+          </IconButton>
           <EdgeOptions />
           <IconButton
             label="Show code outline"

@@ -1,6 +1,6 @@
 import type { CollectionCell } from './collections';
 import type { BranchLane } from './control-flow';
-import type { CodeEdge } from '../types';
+import type { CodeEdge, CodeModel } from '../types';
 import type { ModelIndexes } from '../indexes';
 
 export type Vec3 = [number, number, number];
@@ -25,4 +25,9 @@ export interface LayoutEdge {
 export interface LayoutResponse {
   layout: GraphLayout;
   indexes: ModelIndexes;
+}
+export interface LayoutRequest {
+  model: CodeModel;
+  projectId: string;
+  revision: number;
 }

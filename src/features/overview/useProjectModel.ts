@@ -3,10 +3,10 @@ import { useWorkspace } from '../explorer/store';
 import { languageForPath, type LanguageAdapter } from '../../core/language/adapter';
 import { WorkerClient } from '../../core/workers/client';
 import type { CodeModel } from '../../core/model/types';
-import type { LayoutResponse } from '../../core/model/layout/types';
+import type { LayoutRequest, LayoutResponse } from '../../core/model/layout/types';
 import { useOverview } from './store';
 
-const layout = new WorkerClient<CodeModel, LayoutResponse>(
+const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
   () =>
     new Worker(new URL('../../core/workers/layout.worker.ts', import.meta.url), { type: 'module' }),
 );
@@ -14,6 +14,7 @@ const layout = new WorkerClient<CodeModel, LayoutResponse>(
 export function useProjectModel() {
   const tree = useWorkspace((state) => state.tree);
   const projectId = useWorkspace((state) => state.projectId);
+  const revision = useOverview((state) => state.layoutRevision);
   useEffect(() => {
     let cancelled = false;
     const changedProject = useOverview.getState().projectId !== projectId;
@@ -52,7 +53,7 @@ export function useProjectModel() {
           edges: models.flatMap((m) => m.edges),
           issues: models.flatMap((m) => m.issues),
         };
-        const result = await layout.call(model);
+        const result = await layout.call({ model, projectId, revision });
         if (cancelled) return;
         useOverview.setState((state) => ({
           model,
@@ -76,5 +77,5 @@ export function useProjectModel() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [tree, projectId]);
+  }, [tree, projectId, revision]);
 }

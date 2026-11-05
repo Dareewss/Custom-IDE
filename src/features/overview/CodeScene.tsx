@@ -1,3 +1,4 @@
+import { FileMotion } from './FileMotion';
 import { ClassBlock, FunctionCapsule, ParameterPort } from './StructureShapes';
 import {
   useCallback,
@@ -42,7 +43,27 @@ function Contents({
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
   const reducedMotion = useReducedMotion();
-  const values = useMemo(() => valueInstances(model, layout), [model, layout]);
+  const groups = useMemo(() => {
+    const values = valueInstances(model, layout);
+    const groups = new Map<
+      string,
+      {
+        id: string;
+        nodes: CodeModel['nodes'];
+        variables: typeof values.variables;
+        cells: typeof values.cells;
+      }
+    >();
+    for (const node of model.nodes)
+      if (node.kind === 'file')
+        groups.set(node.fileId, { id: node.id, nodes: [], variables: [], cells: [] });
+    for (const node of model.nodes) if (node.fileId) groups.get(node.fileId)?.nodes.push(node);
+    for (const variable of values.variables)
+      if (variable.node.fileId) groups.get(variable.node.fileId)?.variables.push(variable);
+    for (const cell of values.cells)
+      if (cell.node.fileId) groups.get(cell.node.fileId)?.cells.push(cell);
+    return [...groups.values()];
+  }, [model, layout]);
   const labeledNodes = new Set(
     model.nodes
       .filter((node) =>
@@ -82,99 +103,103 @@ function Contents({
         position={geometryTokens.lightPosition}
         intensity={geometryTokens.directionalLight}
       />
-      <ValueInstances instances={values.variables} shape="sphere" colors={colors} />
-      <ValueInstances instances={values.cells} shape="cell" colors={colors} />
       <GraphEdges model={model} layout={layout} colors={colors} />
       <ExternalShapes model={model} layout={layout} colors={colors} />
-      {model.nodes.map((node) => {
-        if (node.kind === 'external') return null;
-        const item = layout.items[node.id];
-        if (!item) return null;
-        const active = selected === node.id;
-        if (node.kind === 'loop' || node.kind === 'condition')
-          return (
-            <ControlFlowShape
-              key={node.id}
-              node={node}
-              item={item}
-              colors={colors}
-              label={labeledNodes.has(node.id)}
-              lanes={layout.branches[node.id]}
-            />
-          );
-        if (node.kind === 'class')
-          return (
-            <ClassBlock
-              key={node.id}
-              node={node}
-              item={item}
-              colors={colors}
-              label={labeledNodes.has(node.id)}
-            />
-          );
-        if (node.kind === 'function' || node.kind === 'method')
-          return (
-            <FunctionCapsule
-              key={node.id}
-              node={node}
-              item={item}
-              colors={colors}
-              label={labeledNodes.has(node.id)}
-            />
-          );
-        if (node.meta.role === 'parameter')
-          return <ParameterPort key={node.id} node={node} item={item} colors={colors} />;
-        if (node.kind === 'variable') return null;
-        if (node.kind === 'collection')
-          return (
-            <CollectionShape
-              key={node.id}
-              node={node}
-              item={item}
-              colors={colors}
-              label={labeledNodes.has(node.id)}
-            />
-          );
-        if (node.kind === 'file')
-          return (
-            <FileSlab
-              key={node.id}
-              node={node}
-              item={item}
-              colors={colors}
-              label={labeledNodes.has(node.id)}
-            />
-          );
-        return (
-          <mesh
-            key={node.id}
-            position={item.position}
-            onClick={(event) => {
-              event.stopPropagation();
-              selectOverviewNode(node);
-            }}
-            onPointerOver={(event) => {
-              event.stopPropagation();
-              setOverviewHover(node.id);
-            }}
-            onPointerOut={() => setOverviewHover(null)}
-          >
-            <boxGeometry args={item.size} />
-            <meshBasicMaterial
-              color={active ? colors.active : hovered === node.id ? colors.hover : colors.fill}
-              transparent
-              opacity={
-                active
-                  ? colors.activeOpacity
-                  : node.children.length
-                    ? colors.containerOpacity
-                    : colors.nodeOpacity
-              }
-              depthWrite={false}
-            />
-          </mesh>
-        );
-      })}
+      {groups.map((group) => (
+        <FileMotion key={group.id} position={layout.items[group.id].position}>
+          <ValueInstances instances={group.variables} shape="sphere" colors={colors} />
+          <ValueInstances instances={group.cells} shape="cell" colors={colors} />
+          {group.nodes.map((node) => {
+            if (node.kind === 'external') return null;
+            const item = layout.items[node.id];
+            if (!item) return null;
+            const active = selected === node.id;
+            if (node.kind === 'loop' || node.kind === 'condition')
+              return (
+                <ControlFlowShape
+                  key={node.id}
+                  node={node}
+                  item={item}
+                  colors={colors}
+                  label={labeledNodes.has(node.id)}
+                  lanes={layout.branches[node.id]}
+                />
+              );
+            if (node.kind === 'class')
+              return (
+                <ClassBlock
+                  key={node.id}
+                  node={node}
+                  item={item}
+                  colors={colors}
+                  label={labeledNodes.has(node.id)}
+                />
+              );
+            if (node.kind === 'function' || node.kind === 'method')
+              return (
+                <FunctionCapsule
+                  key={node.id}
+                  node={node}
+                  item={item}
+                  colors={colors}
+                  label={labeledNodes.has(node.id)}
+                />
+              );
+            if (node.meta.role === 'parameter')
+              return <ParameterPort key={node.id} node={node} item={item} colors={colors} />;
+            if (node.kind === 'variable') return null;
+            if (node.kind === 'collection')
+              return (
+                <CollectionShape
+                  key={node.id}
+                  node={node}
+                  item={item}
+                  colors={colors}
+                  label={labeledNodes.has(node.id)}
+                />
+              );
+            if (node.kind === 'file')
+              return (
+                <FileSlab
+                  key={node.id}
+                  node={node}
+                  item={item}
+                  colors={colors}
+                  label={labeledNodes.has(node.id)}
+                />
+              );
+            return (
+              <mesh
+                key={node.id}
+                position={item.position}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  selectOverviewNode(node);
+                }}
+                onPointerOver={(event) => {
+                  event.stopPropagation();
+                  setOverviewHover(node.id);
+                }}
+                onPointerOut={() => setOverviewHover(null)}
+              >
+                <boxGeometry args={item.size} />
+                <meshBasicMaterial
+                  color={active ? colors.active : hovered === node.id ? colors.hover : colors.fill}
+                  transparent
+                  opacity={
+                    active
+                      ? colors.activeOpacity
+                      : node.children.length
+                        ? colors.containerOpacity
+                        : colors.nodeOpacity
+                  }
+                  depthWrite={false}
+                />
+              </mesh>
+            );
+          })}
+        </FileMotion>
+      ))}
     </>
   );
 }

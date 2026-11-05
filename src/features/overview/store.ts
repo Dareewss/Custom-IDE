@@ -17,6 +17,7 @@ interface OverviewState {
   edgeKinds: Record<EdgeKind, boolean>;
   showExternal: boolean;
   externalExpanded: boolean;
+  layoutRevision: number;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -33,5 +34,6 @@ export const useOverview = create<OverviewState>(() => ({
   edgeKinds: { import: true, call: true, inherits: true },
   showExternal: true,
   externalExpanded: false,
+  layoutRevision: 0,
   focusRequest: null,
 }));

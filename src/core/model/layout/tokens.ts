@@ -64,4 +64,9 @@ export const geometryTokens = {
   edgeArrowLength: 0.3,
   edgeArrowSegments: 6,
   edgePickThreshold: 0.12,
+  forceDepth: 4,
+  forceIterations: 100,
+  forceAttraction: 0.006,
+  forceEpsilon: 0.001,
+  layoutSpring: { mass: 1, tension: 150, friction: 24 },
 } as const;
