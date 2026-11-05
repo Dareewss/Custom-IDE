@@ -60,6 +60,7 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
     const value = current(),
       position = editor.getPosition();
     if (
+      awaitingAnalysis ||
       !value?.state.indexes ||
       !position ||
       !editor.hasTextFocus() ||
@@ -112,7 +113,13 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
     editor.onMouseLeave(() => setOverviewHover(null)),
   ];
   const unsubscribe = useOverview.subscribe((state, before) => {
-    decorate();
+    if (
+      state.selectedNodeId !== before.selectedNodeId ||
+      state.hoveredNodeId !== before.hoveredNodeId ||
+      state.indexes !== before.indexes ||
+      state.projectId !== before.projectId
+    )
+      decorate();
     if (awaitingAnalysis && state.indexes !== before.indexes) {
       awaitingAnalysis = false;
       schedule();

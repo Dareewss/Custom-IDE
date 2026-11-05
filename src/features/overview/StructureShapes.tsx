@@ -1,3 +1,6 @@
+import type { ComponentRef } from 'react';
+import { useDetailLOD } from './lod';
+import { boxGeometry, capsuleGeometry } from './resources';
 import { toggleOverviewNode } from './view-actions';
 import { valueColor } from './value-colors';
 import { Edges } from '@react-three/drei';
@@ -41,11 +44,12 @@ function useNodeEvents(node: CodeNode) {
   };
 }
 export function ClassBlock({ node, item, colors, label }: ShapeProps) {
+  const detail = useDetailLOD<ComponentRef<typeof Edges>>(Math.min(item.size[0], item.size[1]));
   const { selected, hovered, events } = useNodeEvents(node);
   return (
     <group position={item.position} {...events}>
       <mesh>
-        <boxGeometry args={item.size} />
+        <primitive attach="geometry" object={boxGeometry(item.size)} />
         <meshBasicMaterial
           color={node.meta.hasError ? colors.error : colors.classFill}
           transparent
@@ -53,13 +57,16 @@ export function ClassBlock({ node, item, colors, label }: ShapeProps) {
           depthWrite={false}
         />
         <Edges
+          ref={detail}
           color={selected || hovered ? colors.active : colors.classFill}
           transparent
           opacity={selected ? colors.activeOpacity : colors.rimOpacity}
         />
       </mesh>
-      {label && (
+      {(label || selected || hovered) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={4}
           name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={item.size[0]}
           colors={colors}
@@ -72,17 +79,11 @@ export function ClassBlock({ node, item, colors, label }: ShapeProps) {
 export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
   const { selected, hovered, events } = useNodeEvents(node);
   const width = functionWidth(node, node.meta.params?.length ?? 0);
+  const detail = useDetailLOD<ComponentRef<typeof Edges>>(width);
   return (
     <group position={headerPosition(item)} {...events}>
       <mesh rotation={[0, 0, Math.PI / 2]}>
-        <capsuleGeometry
-          args={[
-            tokens.functionRadius,
-            width - tokens.functionRadius * 2,
-            tokens.functionCapSegments,
-            tokens.functionRadialSegments,
-          ]}
-        />
+        <primitive attach="geometry" object={capsuleGeometry(width)} />
         <meshBasicMaterial
           color={
             node.meta.hasError
@@ -95,10 +96,12 @@ export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
           opacity={selected ? colors.activeOpacity : colors.nodeOpacity}
           depthWrite={false}
         />
-        <Edges color={colors.active} transparent opacity={colors.rimOpacity} />
+        <Edges ref={detail} color={colors.active} transparent opacity={colors.rimOpacity} />
       </mesh>
-      {label && (
+      {(label || selected || hovered) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={4}
           name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={width}
           colors={colors}
@@ -108,20 +111,29 @@ export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
     </group>
   );
 }
-export function ParameterPort({ node, item, colors }: Omit<ShapeProps, 'label'>) {
+export function ParameterPort({
+  node,
+  item,
+  colors,
+  hideShape = false,
+}: Omit<ShapeProps, 'label'> & { hideShape?: boolean }) {
   const { selected, hovered, events } = useNodeEvents(node);
   return (
     <group position={item.position} {...events}>
-      <mesh>
-        <sphereGeometry args={[tokens.portRadius, tokens.portSegments, tokens.portSegments]} />
-        <meshBasicMaterial
-          color={selected || hovered ? colors.active : valueColor(node.meta.valueType, colors)}
-          transparent
-          opacity={colors.valueOpacity}
-        />
-      </mesh>
+      {!hideShape && (
+        <mesh>
+          <sphereGeometry args={[tokens.portRadius, tokens.portSegments, tokens.portSegments]} />
+          <meshBasicMaterial
+            color={selected || hovered ? colors.active : valueColor(node.meta.valueType, colors)}
+            transparent
+            opacity={colors.valueOpacity}
+          />
+        </mesh>
+      )}
       {(selected || hovered) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={4}
           name={`${node.name}${node.meta.typeHint ? `: ${node.meta.typeHint}` : ''}`}
           width={tokens.leafWidth}
           colors={colors}

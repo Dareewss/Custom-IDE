@@ -80,6 +80,8 @@ export function ExternalShapes({
           </mesh>
           {index < tokens.labelBudget && (
             <SceneLabel
+              nodeId={node?.id}
+              priority={5}
               name={name}
               width={tokens.externalWidth}
               colors={colors}

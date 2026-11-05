@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useState, useMemo } from 'react';
 import { Box, ListTree, Shuffle } from 'lucide-react';
 import { useProjectModel } from './useProjectModel';
 import { useOverview } from './store';
@@ -24,11 +24,14 @@ export function OverviewPanel() {
   const [outline, setOutline] = useState(false);
   const current = state.projectId === projectId;
   const model = current ? state.model : null;
-  const fallback = (
-    <div className="overview-fallback">
-      <p aria-live="polite">3D is unavailable here. Explore the code outline.</p>
-      {model && <Outline nodes={model.nodes} />}
-    </div>
+  const fallback = useMemo(
+    () => (
+      <div className="overview-fallback">
+        <p aria-live="polite">3D is unavailable here. Explore the code outline.</p>
+        {model && <Outline nodes={model.nodes} />}
+      </div>
+    ),
+    [model],
   );
   return (
     <section
@@ -42,6 +45,8 @@ export function OverviewPanel() {
       data-removed-nodes={state.diff.removed.length}
       data-model-revision={state.modelRevision}
       data-selected-node={state.selectedNodeId ?? ''}
+      data-analysis-ms={state.analysisMs.toFixed(1)}
+      data-layout-ms={state.layoutMs.toFixed(1)}
     >
       <header className="overview-toolbar">
         <span>

@@ -1,3 +1,4 @@
+import { useOverview } from './store';
 import { Edges } from '@react-three/drei';
 import { collectionEntries } from '../../core/model/layout/collections';
 import { geometryTokens as tokens } from '../../core/model/layout/tokens';
@@ -18,6 +19,9 @@ export function CollectionShape({
   colors: SceneColors;
   label: boolean;
 }) {
+  const active = useOverview(
+    (state) => state.selectedNodeId === node.id || state.hoveredNodeId === node.id,
+  );
   const empty = collectionEntries(node).length === 0;
   const name = `${node.name} · ${node.meta.elementCount ?? '?'} ${node.meta.collectionKind === 'dict' ? 'entries' : 'items'}`;
   return (
@@ -42,8 +46,10 @@ export function CollectionShape({
           <Edges color={colors.other} transparent opacity={colors.rimOpacity} />
         </mesh>
       )}
-      {label && (
+      {(label || active) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={4}
           name={name}
           width={item.size[0]}
           colors={colors}

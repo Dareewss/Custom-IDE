@@ -1,3 +1,5 @@
+import { LabelCulling } from './LabelCulling';
+import { boxGeometry } from './resources';
 import { NodeMotion } from './NodeMotion';
 import { GhostNodes } from './GhostNodes';
 import { useGraphSearch, mutedColors } from './search';
@@ -7,13 +9,13 @@ import { CameraTools } from './CameraTools';
 import { cameraKey, requestCamera } from './camera-actions';
 import { FileMotion } from './FileMotion';
 import { ClassBlock, FunctionCapsule, ParameterPort } from './StructureShapes';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { InstancedMesh, Mesh } from 'three';
 import { useSceneColors, type SceneColors } from './scene-tokens';
 import { useOverview } from './store';
-import type { CodeModel } from '../../core/model/types';
-import type { GraphLayout } from '../../core/model/layout/types';
+import type { CodeModel, CodeNode } from '../../core/model/types';
+import type { GraphLayout, LayoutItem } from '../../core/model/layout/types';
 import { geometryTokens } from '../../core/model/layout/tokens';
 import { FileSlab } from './FileSlab';
 import { CollectionShape } from './CollectionShape';
@@ -24,6 +26,41 @@ import { ControlFlowShape } from './ControlFlowShapes';
 import { GraphEdges } from './GraphEdges';
 import { ExternalShapes } from './ExternalShapes';
 import { Minimap, MinimapDrawing } from './Minimap';
+
+function SourceBox({
+  node,
+  item,
+  colors,
+}: {
+  node: CodeNode;
+  item: LayoutItem;
+  colors: SceneColors;
+}) {
+  const selected = useOverview((state) => state.selectedNodeId === node.id);
+  const hovered = useOverview((state) => state.hoveredNodeId === node.id);
+  return (
+    <mesh
+      position={item.position}
+      onClick={(event) => {
+        event.stopPropagation();
+        selectOverviewNode(node);
+      }}
+      onPointerOver={(event) => {
+        event.stopPropagation();
+        setOverviewHover(node.id);
+      }}
+      onPointerOut={() => setOverviewHover(null)}
+    >
+      <primitive attach="geometry" object={boxGeometry(item.size)} />
+      <meshBasicMaterial
+        color={selected ? colors.active : hovered ? colors.hover : colors.fill}
+        transparent
+        opacity={selected ? colors.activeOpacity : colors.nodeOpacity}
+        depthWrite={false}
+      />
+    </mesh>
+  );
+}
 
 function Contents({
   model,
@@ -36,14 +73,15 @@ function Contents({
 }) {
   const addedIds = useOverview((state) => state.diff.added);
   const added = useMemo(() => new Set(addedIds), [addedIds]);
-  const selected = useOverview((state) => state.selectedNodeId);
-  const hovered = useOverview((state) => state.hoveredNodeId);
+  const focusFile = useOverview(
+    (state) => state.indexes?.nodeById.get(state.selectedNodeId ?? '')?.fileId ?? null,
+  );
   const search = useGraphSearch(model);
   const dimColors = useMemo(() => mutedColors(colors), [colors]);
   const groups = useMemo(() => {
     const values = valueInstances(model, layout);
     for (const item of [...values.variables, ...values.cells])
-      item.muted = search.active && !search.context.has(item.node.id) && item.node.id !== selected;
+      item.muted = search.active && !search.context.has(item.node.id);
     const groups = new Map<
       string,
       {
@@ -62,7 +100,9 @@ function Contents({
     for (const cell of values.cells)
       if (cell.node.fileId) groups.get(cell.node.fileId)?.cells.push(cell);
     return [...groups.values()];
-  }, [model, layout, search, selected]);
+  }, [model, layout, search]);
+  const labelPriority = (node: CodeModel['nodes'][number]) =>
+    focusFile && node.fileId === focusFile ? 2 : node.kind === 'file' ? 3 : 4;
   const labeledNodes = new Set(
     model.nodes
       .filter((node) =>
@@ -70,7 +110,7 @@ function Contents({
           node.kind,
         ),
       )
-      .sort((a, b) => Number(b.kind === 'file') - Number(a.kind === 'file'))
+      .sort((a, b) => labelPriority(a) - labelPriority(b))
       .slice(0, geometryTokens.labelBudget)
       .map((node) => node.id),
   );
@@ -107,11 +147,7 @@ function Contents({
               if (node.kind === 'external') return null;
               const item = layout.items[node.id];
               if (!item) return null;
-              const nodeColors =
-                search.active && !search.context.has(node.id) && selected !== node.id
-                  ? dimColors
-                  : colors;
-              const active = selected === node.id;
+              const nodeColors = search.active && !search.context.has(node.id) ? dimColors : colors;
               if (node.kind === 'loop' || node.kind === 'condition')
                 return (
                   <ControlFlowShape
@@ -144,7 +180,15 @@ function Contents({
                   />
                 );
               if (node.meta.role === 'parameter')
-                return <ParameterPort key={node.id} node={node} item={item} colors={nodeColors} />;
+                return (
+                  <ParameterPort
+                    key={node.id}
+                    node={node}
+                    item={item}
+                    colors={nodeColors}
+                    hideShape
+                  />
+                );
               if (node.kind === 'variable') return null;
               if (node.kind === 'collection')
                 return (
@@ -166,41 +210,7 @@ function Contents({
                     label={labeledNodes.has(node.id)}
                   />
                 );
-              return (
-                <mesh
-                  key={node.id}
-                  position={item.position}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    selectOverviewNode(node);
-                  }}
-                  onPointerOver={(event) => {
-                    event.stopPropagation();
-                    setOverviewHover(node.id);
-                  }}
-                  onPointerOut={() => setOverviewHover(null)}
-                >
-                  <boxGeometry args={item.size} />
-                  <meshBasicMaterial
-                    color={
-                      active
-                        ? nodeColors.active
-                        : hovered === node.id
-                          ? nodeColors.hover
-                          : nodeColors.fill
-                    }
-                    transparent
-                    opacity={
-                      active
-                        ? nodeColors.activeOpacity
-                        : node.children.length
-                          ? nodeColors.containerOpacity
-                          : nodeColors.nodeOpacity
-                    }
-                    depthWrite={false}
-                  />
-                </mesh>
-              );
+              return <SourceBox node={node} item={item} colors={nodeColors} />;
             })();
             const item = layout.items[node.id];
             if (!item) return null;
@@ -222,7 +232,7 @@ function Contents({
   );
 }
 
-export default function CodeScene({
+function CodeScene({
   model,
   layout,
   unavailable,
@@ -301,6 +311,7 @@ export default function CodeScene({
         <ContextLoss onLost={onLost} />
         <FrameCounter model={model} />
         <Contents model={model} layout={layout} colors={colors} />
+        <LabelCulling />
         <MinimapDrawing getCanvas={getMinimap} model={model} layout={layout} colors={colors} />
       </Canvas>
     </div>
@@ -314,6 +325,9 @@ function FrameCounter({ model }: { model: CodeModel }) {
     gl.domElement.dataset.ghostCount = String(
       scene.getObjectByName('removed-code-ghosts')?.children.length ?? 0,
     );
+    gl.domElement.dataset.drawCalls = String(gl.info.render.calls);
+    gl.domElement.dataset.triangles = String(gl.info.render.triangles);
+    gl.domElement.dataset.geometries = String(gl.info.memory.geometries);
     gl.domElement.dataset.renderFrames = String(++frames.current);
     const labels = gl.domElement.dataset.labelsReady ?? '0';
     if (measured.current?.model !== model || measured.current.labels !== labels) {
@@ -344,3 +358,5 @@ function ContextLoss({ onLost }: { onLost: () => void }) {
   }, [get, onLost]);
   return null;
 }
+
+export default memo(CodeScene);

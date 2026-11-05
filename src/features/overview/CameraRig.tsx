@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, type ComponentRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, type ComponentRef } from 'react';
 import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { PerspectiveCamera, Spherical, Vector3 } from 'three';
@@ -21,6 +21,7 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
   const motion = useRef<{ position: Vector3; target: Vector3 } | null>(null);
   const fittedSize = useRef('');
   const fitMode = useRef<'all' | 'selection' | null>('all');
+  useEffect(() => () => get().setEvents({ enabled: true }), [get]);
   const apply = useCallback(
     (position: Vector3, target: Vector3) => {
       const { camera } = get();
@@ -161,8 +162,14 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
       makeDefault
       enableDamping={!reduced}
       onStart={() => {
+        get().setEvents({ enabled: false });
+        useOverview.setState({ hoveredNodeId: null, hoveredDetail: null, hoveredEdgeId: null });
         fitMode.current = null;
         motion.current = null;
+      }}
+      onEnd={() => {
+        get().setEvents({ enabled: true });
+        get().events.update?.();
       }}
     />
   );

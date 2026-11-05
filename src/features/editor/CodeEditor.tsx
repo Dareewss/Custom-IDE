@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
 import './completion';
@@ -181,6 +181,27 @@ export default function CodeEditor() {
         model.dispose();
     }
   }, [projectId, tabs, tree]);
+  const options = useMemo<monaco.editor.IStandaloneEditorConstructionOptions>(
+    () => ({
+      fontFamily: "'Cascadia Code', 'Consolas', monospace",
+      fontSize: settings.fontSize,
+      lineHeight: Math.round(settings.fontSize * 1.65),
+      padding: { top: 19, bottom: 20 },
+      minimap: { enabled: settings.minimap },
+      wordWrap: settings.wordWrap ? 'on' : 'off',
+      scrollBeyondLastLine: false,
+      smoothScrolling: !reducedMotion,
+      cursorBlinking: reducedMotion ? 'solid' : 'smooth',
+      bracketPairColorization: { enabled: true },
+      automaticLayout: true,
+      tabSize: settings.tabSize,
+      renderLineHighlight: 'line',
+      overviewRulerBorder: false,
+      glyphMargin: true,
+      fixedOverflowWidgets: true,
+    }),
+    [settings.fontSize, settings.minimap, settings.wordWrap, settings.tabSize, reducedMotion],
+  );
   if (!active || node?.kind !== 'file') return null;
   return (
     <Editor
@@ -196,24 +217,7 @@ export default function CodeEditor() {
         if (value !== undefined && value !== node.content)
           useWorkspace.getState().edit(active, value);
       }}
-      options={{
-        fontFamily: "'Cascadia Code', 'Consolas', monospace",
-        fontSize: settings.fontSize,
-        lineHeight: Math.round(settings.fontSize * 1.65),
-        padding: { top: 19, bottom: 20 },
-        minimap: { enabled: settings.minimap },
-        wordWrap: settings.wordWrap ? 'on' : 'off',
-        scrollBeyondLastLine: false,
-        smoothScrolling: !reducedMotion,
-        cursorBlinking: reducedMotion ? 'solid' : 'smooth',
-        bracketPairColorization: { enabled: true },
-        automaticLayout: true,
-        tabSize: settings.tabSize,
-        renderLineHighlight: 'line',
-        overviewRulerBorder: false,
-        glyphMargin: true,
-        fixedOverflowWidgets: true,
-      }}
+      options={options}
     />
   );
 }

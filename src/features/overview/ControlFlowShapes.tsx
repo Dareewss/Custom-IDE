@@ -1,3 +1,5 @@
+import { useDetailLOD, useLoopLOD } from './lod';
+import { loopGeometry } from './resources';
 import { toggleOverviewNode } from './view-actions';
 import { Edges, Line } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -24,6 +26,8 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
   );
   const color = node.meta.hasError ? colors.error : active ? colors.active : colors.functionFill;
   const loop = node.kind === 'loop';
+  const detail = useDetailLOD(Math.min(item.size[0], item.size[1]));
+  const torus = useLoopLOD(Math.min(item.size[0], item.size[1]));
   const header = headerPosition(item);
   const events = {
     onDoubleClick: (event: ThreeEvent<MouseEvent>) => {
@@ -43,10 +47,8 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
   return (
     <group {...events}>
       {loop ? (
-        <mesh position={item.position} scale={[item.size[0] / 2, item.size[1] / 2, 1]}>
-          <torusGeometry
-            args={[1, tokens.loopTube, tokens.loopRadialSegments, tokens.loopTubularSegments]}
-          />
+        <mesh ref={torus} position={item.position} scale={[item.size[0] / 2, item.size[1] / 2, 1]}>
+          <primitive attach="geometry" object={loopGeometry} />
           <meshBasicMaterial
             color={color}
             transparent
@@ -60,8 +62,10 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
           <Edges color={color} />
         </mesh>
       )}
-      {label && (
+      {(label || active) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={4}
           name={
             loop
               ? `${node.meta.loopKind ?? 'loop'} · ${node.name}`
@@ -78,30 +82,34 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
           ]}
         />
       )}
-      {!loop &&
-        !item.collapsed &&
-        lanes.map((lane) => (
-          <group key={lane.name}>
-            <Line
-              points={[
-                [header[0], header[1] - tokens.conditionRadius, header[2]],
-                [lane.position[0], lane.position[1], lane.position[2]],
-              ]}
-              color={color}
-              lineWidth={tokens.branchLineWidth}
-              transparent
-              opacity={colors.rimOpacity}
-            />
-            {label && (
-              <SceneLabel
-                name={`${lane.name}${lane.children.length ? '' : ' · empty'}`}
-                width={tokens.branchMinWidth}
-                colors={colors}
-                position={lane.position}
+      {!loop && !item.collapsed && (
+        <group ref={detail}>
+          {lanes.map((lane) => (
+            <group key={lane.name}>
+              <Line
+                points={[
+                  [header[0], header[1] - tokens.conditionRadius, header[2]],
+                  [lane.position[0], lane.position[1], lane.position[2]],
+                ]}
+                color={color}
+                lineWidth={tokens.branchLineWidth}
+                transparent
+                opacity={colors.rimOpacity}
               />
-            )}
-          </group>
-        ))}
+              {(label || active) && (
+                <SceneLabel
+                  nodeId={node.id}
+                  priority={6}
+                  name={`${lane.name}${lane.children.length ? '' : ' · empty'}`}
+                  width={tokens.branchMinWidth}
+                  colors={colors}
+                  position={lane.position}
+                />
+              )}
+            </group>
+          ))}
+        </group>
+      )}
     </group>
   );
 }

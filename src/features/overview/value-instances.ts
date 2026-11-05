@@ -3,6 +3,7 @@ import type { GraphLayout } from '../../core/model/layout/types';
 import { collectionEntries } from '../../core/model/layout/collections';
 import { headerPosition } from '../../core/model/layout/metrics';
 import type { ValueInstance } from './ValueInstances';
+import { geometryTokens as tokens } from '../../core/model/layout/tokens';
 
 export function valueInstances(model: CodeModel, layout: GraphLayout) {
   const variables: ValueInstance[] = [];
@@ -10,11 +11,12 @@ export function valueInstances(model: CodeModel, layout: GraphLayout) {
   for (const node of model.nodes) {
     const item = layout.items[node.id];
     if (!item) continue;
-    if (node.kind === 'variable' && node.meta.role !== 'parameter')
+    if (node.kind === 'variable')
       variables.push({
         node,
         position: node.children.length ? headerPosition(item) : item.position,
         kind: node.meta.valueType,
+        radiusScale: node.meta.role === 'parameter' ? tokens.portRadius / tokens.variableRadius : 1,
       });
     if (node.kind !== 'collection') continue;
     const entries = collectionEntries(node);

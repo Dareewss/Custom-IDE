@@ -58,6 +58,7 @@ export function useProjectModel() {
     const timer = setTimeout(() => {
       void (async () => {
         const services = new Map<string, LanguageAdapter>();
+        const analysisStarted = performance.now();
         for (const [path, node] of Object.entries(tree)) {
           const adapter = node.kind === 'file' ? languageForPath(path) : undefined;
           if (adapter?.analyze) services.set(adapter.id, adapter);
@@ -66,6 +67,7 @@ export function useProjectModel() {
           [...services.values()].map((adapter) => adapter.analyze!(tree)),
         );
         if (cancelled) return;
+        const analysisMs = performance.now() - analysisStarted;
         const model: CodeModel = {
           schemaVersion: 1,
           languageId: models.length === 1 ? models[0].languageId : 'multiple',
@@ -73,7 +75,9 @@ export function useProjectModel() {
           edges: models.flatMap((m) => m.edges),
           issues: models.flatMap((m) => m.issues),
         };
+        const layoutStarted = performance.now();
         const result = await layout.call({ model, projectId, revision, view });
+        const layoutMs = performance.now() - layoutStarted;
         if (cancelled) return;
         if (view.isolate && !result.isolatedIds) setOverviewView({ isolate: null });
         useOverview.setState((state) => {
@@ -94,6 +98,8 @@ export function useProjectModel() {
               : null;
           return {
             model,
+            analysisMs,
+            layoutMs,
             diff,
             ghosts,
             modelRevision: state.modelRevision + 1,

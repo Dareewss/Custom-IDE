@@ -1,3 +1,4 @@
+import { boxGeometry } from './resources';
 import { toggleOverviewNode } from './view-actions';
 import { Edges } from '@react-three/drei';
 import type { CodeNode } from '../../core/model/types';
@@ -39,7 +40,7 @@ export function FileSlab({
       onPointerOut={() => setOverviewHover(null)}
     >
       <mesh>
-        <boxGeometry args={item.size} />
+        <primitive attach="geometry" object={boxGeometry(item.size)} />
         <meshBasicMaterial
           color={selected ? colors.active : colors.fill}
           transparent
@@ -52,8 +53,10 @@ export function FileSlab({
           opacity={selected ? colors.activeOpacity : colors.rimOpacity}
         />
       </mesh>
-      {label && (
+      {(label || selected || hovered) && (
         <SceneLabel
+          nodeId={node.id}
+          priority={3}
           name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={item.size[0]}
           colors={colors}
