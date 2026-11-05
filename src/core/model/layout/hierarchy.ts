@@ -7,7 +7,10 @@ import type { CodeModel } from '../types';
 import type { GraphLayout, Vec3 } from './types';
 
 /** Deterministic containment layout; all measurement uses model data in a worker. */
-export function hierarchicalLayout(model: CodeModel): GraphLayout {
+export function hierarchicalLayout(
+  model: CodeModel,
+  compact: ReadonlySet<string> = new Set(),
+): GraphLayout {
   const byId = new Map(model.nodes.map((node) => [node.id, node]));
   const sizes = new Map<string, Vec3>();
   const roots = model.nodes
@@ -24,6 +27,27 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
     }
     if (node.meta.role === 'parameter') {
       sizes.set(node.id, [tokens.portRadius * 2, tokens.portRadius * 2, tokens.portRadius * 2]);
+      continue;
+    }
+    if (compact.has(node.id)) {
+      const fn = node.kind === 'function' || node.kind === 'method';
+      sizes.set(node.id, [
+        node.kind === 'file'
+          ? tokens.fileWidth
+          : node.kind === 'class'
+            ? tokens.classWidth
+            : fn
+              ? functionWidth(node, node.meta.params?.length ?? 0)
+              : tokens.leafWidth,
+        node.kind === 'file'
+          ? tokens.fileHeight
+          : node.kind === 'class'
+            ? tokens.classHeight
+            : node.kind === 'loop'
+              ? tokens.loopMinHeight
+              : tokens.functionHeaderHeight,
+        fn ? tokens.functionRadius * 2 : tokens.leafDepth,
+      ]);
       continue;
     }
     const parameters = node.children.filter((id) => byId.get(id)?.meta.role === 'parameter');
@@ -118,7 +142,12 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
     const current = place.pop()!;
     const node = byId.get(current.id)!;
     const size = sizes.get(node.id)!;
-    items[node.id] = { id: node.id, position: current.position, size };
+    items[node.id] = {
+      id: node.id,
+      position: current.position,
+      size,
+      ...(compact.has(node.id) ? { collapsed: true } : {}),
+    };
     for (let axis = 0; axis < 3; axis++) {
       min[axis] = Math.min(min[axis], current.position[axis] - size[axis] / 2);
       max[axis] = Math.max(max[axis], current.position[axis] + size[axis] / 2);
@@ -138,7 +167,7 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
           current.position[2] + tokens.depthStep,
         ],
       });
-    if (node.kind === 'condition') {
+    if (node.kind === 'condition' && !compact.has(node.id)) {
       const groups = branchGroups(node, byId, sizes);
       const lanes = branchLanes(groups, items[node.id]);
       for (const lane of lanes) {
@@ -195,7 +224,7 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
     if (node.kind === 'collection') cells[node.id] = collectionCells(node, items[node.id]);
   const branches: GraphLayout['branches'] = {};
   for (const node of model.nodes)
-    if (node.kind === 'condition')
+    if (node.kind === 'condition' && !compact.has(node.id))
       branches[node.id] = branchLanes(branchGroups(node, byId, sizes), items[node.id]);
   const externalCluster: GraphLayout['externalCluster'] = external.length
     ? {

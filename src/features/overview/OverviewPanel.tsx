@@ -9,6 +9,7 @@ import { Outline } from './Outline';
 import { SceneBoundary } from './SceneBoundary';
 import { NodeInfo } from './NodeInfo';
 import { EdgeOptions } from './EdgeOptions';
+import { DepthControl } from './DepthControl';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -33,6 +34,7 @@ export function OverviewPanel() {
       aria-label="Code overview"
       aria-busy={state.loading}
       data-model-nodes={model?.nodes.length ?? 0}
+      data-visible-nodes={state.viewModel?.nodes.length ?? 0}
     >
       <header className="overview-toolbar">
         <span>
@@ -57,6 +59,7 @@ export function OverviewPanel() {
           </IconButton>
         </div>
       </header>
+      <DepthControl />
       {state.error && (
         <p className="overview-notice" role="alert">
           {state.error}
@@ -111,7 +114,11 @@ export function OverviewPanel() {
                 }
               >
                 {state.layout && (
-                  <CodeScene model={model} layout={state.layout} unavailable={fallback} />
+                  <CodeScene
+                    model={state.viewModel ?? model}
+                    layout={state.layout}
+                    unavailable={fallback}
+                  />
                 )}
               </Suspense>
             </SceneBoundary>

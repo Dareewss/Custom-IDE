@@ -1,3 +1,4 @@
+import { toggleOverviewNode } from './view-actions';
 import { valueColor } from './value-colors';
 import { Edges } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
@@ -23,6 +24,10 @@ function useNodeEvents(node: CodeNode) {
     selected,
     hovered,
     events: {
+      onDoubleClick: (event: ThreeEvent<MouseEvent>) => {
+        event.stopPropagation();
+        toggleOverviewNode(node.id);
+      },
       onClick: (event: ThreeEvent<MouseEvent>) => {
         event.stopPropagation();
         selectOverviewNode(node);
@@ -55,7 +60,7 @@ export function ClassBlock({ node, item, colors, label }: ShapeProps) {
       </mesh>
       {label && (
         <SceneLabel
-          name={node.name}
+          name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={item.size[0]}
           colors={colors}
           position={[0, item.size[1] / 2 - tokens.labelInset, item.size[2] / 2 + tokens.labelDepth]}
@@ -94,7 +99,7 @@ export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
       </mesh>
       {label && (
         <SceneLabel
-          name={node.name}
+          name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={width}
           colors={colors}
           position={[0, 0, tokens.functionRadius + tokens.labelDepth]}

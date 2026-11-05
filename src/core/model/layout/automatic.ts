@@ -19,8 +19,9 @@ export function automaticLayout(
   model: CodeModel,
   previous: GraphLayout | null = null,
   seed = 0,
+  compact: ReadonlySet<string> = new Set(),
 ): GraphLayout {
-  const layout = hierarchicalLayout(model);
+  const layout = hierarchicalLayout(model, compact);
   const files = model.nodes
     .filter((node) => node.kind === 'file')
     .sort((a, b) => a.id.localeCompare(b.id));

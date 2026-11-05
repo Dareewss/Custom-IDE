@@ -5,6 +5,7 @@ import { WorkerClient } from '../../core/workers/client';
 import type { CodeModel } from '../../core/model/types';
 import type { LayoutRequest, LayoutResponse } from '../../core/model/layout/types';
 import { useOverview } from './store';
+import { readView } from './view-state';
 
 const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
   () =>
@@ -15,9 +16,12 @@ export function useProjectModel() {
   const tree = useWorkspace((state) => state.tree);
   const projectId = useWorkspace((state) => state.projectId);
   const revision = useOverview((state) => state.layoutRevision);
+  const collapsedIds = useOverview((state) => state.collapsedIds);
+  const depth = useOverview((state) => state.depth);
   useEffect(() => {
     let cancelled = false;
     const changedProject = useOverview.getState().projectId !== projectId;
+    const view = changedProject ? readView(projectId) : { collapsedIds, depth };
     useOverview.setState({
       projectId,
       loading: true,
@@ -33,6 +37,10 @@ export function useProjectModel() {
             hoveredEdgeId: null,
             focusRequest: null,
             cameraRequest: null,
+            viewModel: null,
+            ownerByNode: {},
+            compactIds: [],
+            ...view,
           }
         : {}),
     });
@@ -54,22 +62,35 @@ export function useProjectModel() {
           edges: models.flatMap((m) => m.edges),
           issues: models.flatMap((m) => m.issues),
         };
-        const result = await layout.call({ model, projectId, revision });
+        const result = await layout.call({ model, projectId, revision, view });
         if (cancelled) return;
-        useOverview.setState((state) => ({
-          model,
-          layout: result.layout,
-          indexes: result.indexes,
-          loading: false,
-          error: null,
-          selectedNodeId:
+        useOverview.setState((state) => {
+          const selectedNodeId =
             state.selectedNodeId && result.indexes.nodeById.has(state.selectedNodeId)
-              ? state.selectedNodeId
-              : null,
-          hoveredNodeId: null,
-          hoveredDetail: null,
-          hoveredEdgeId: null,
-        }));
+              ? (result.ownerByNode[state.selectedNodeId] ?? null)
+              : null;
+          return {
+            model,
+            layout: result.layout,
+            indexes: result.indexes,
+            viewModel: result.viewModel,
+            ownerByNode: result.ownerByNode,
+            compactIds: result.compactIds,
+            loading: false,
+            error: null,
+            selectedNodeId,
+            ...(selectedNodeId !== state.selectedNodeId
+              ? {
+                  focusRequest: selectedNodeId
+                    ? { nodeId: selectedNodeId, sequence: (state.focusRequest?.sequence ?? 0) + 1 }
+                    : null,
+                }
+              : {}),
+            hoveredNodeId: null,
+            hoveredDetail: null,
+            hoveredEdgeId: null,
+          };
+        });
       })().catch((error: unknown) => {
         if (!cancelled) useOverview.setState({ loading: false, error: String(error) });
       });
@@ -78,5 +99,5 @@ export function useProjectModel() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [tree, projectId, revision]);
+  }, [tree, projectId, revision, collapsedIds, depth]);
 }

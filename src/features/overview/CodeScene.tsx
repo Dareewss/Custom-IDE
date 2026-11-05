@@ -1,3 +1,4 @@
+import { toggleOverviewNode } from './view-actions';
 import { CameraRig } from './CameraRig';
 import { CameraTools } from './CameraTools';
 import { cameraKey, requestCamera } from './camera-actions';
@@ -196,6 +197,14 @@ export default function CodeScene({
       onContextMenu={(event) => event.preventDefault()}
       onKeyDown={(event) => {
         if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key.toLowerCase() === 'c') {
+          const id = useOverview.getState().selectedNodeId;
+          if (id) {
+            event.preventDefault();
+            toggleOverviewNode(id);
+          }
+          return;
+        }
         const action = cameraKey(event.key, event.shiftKey);
         if (action) {
           event.preventDefault();
@@ -204,8 +213,9 @@ export default function CodeScene({
       }}
     >
       <span id="camera-help" className="sr-only">
-        Arrow keys orbit. Shift and arrows pan. Plus and minus zoom. F fits selection. Home fits
-        all. R resets. Drag to orbit, right drag to pan, scroll or pinch to zoom.
+        C collapses or expands selection. Arrow keys orbit. Shift and arrows pan. Plus and minus
+        zoom. F fits selection. Home fits all. R resets. Drag to orbit, right drag to pan, scroll or
+        pinch to zoom.
       </span>
       {ready && <CameraTools />}
       <Canvas

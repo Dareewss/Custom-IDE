@@ -2,12 +2,14 @@ import type { CollectionCell } from './collections';
 import type { BranchLane } from './control-flow';
 import type { CodeEdge, CodeModel } from '../types';
 import type { ModelIndexes } from '../indexes';
+import type { ModelView } from '../view';
 
 export type Vec3 = [number, number, number];
 export interface LayoutItem {
   id: string;
   position: Vec3;
   size: Vec3;
+  collapsed?: boolean;
 }
 export interface GraphLayout {
   items: Record<string, LayoutItem>;
@@ -25,9 +27,13 @@ export interface LayoutEdge {
 export interface LayoutResponse {
   layout: GraphLayout;
   indexes: ModelIndexes;
+  viewModel: CodeModel;
+  ownerByNode: Record<string, string | null>;
+  compactIds: string[];
 }
 export interface LayoutRequest {
   model: CodeModel;
   projectId: string;
   revision: number;
+  view: ModelView;
 }

@@ -1,3 +1,4 @@
+import { toggleOverviewNode } from './view-actions';
 import { Edges, Line } from '@react-three/drei';
 import type { ThreeEvent } from '@react-three/fiber';
 import type { CodeNode } from '../../core/model/types';
@@ -25,6 +26,10 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
   const loop = node.kind === 'loop';
   const header = headerPosition(item);
   const events = {
+    onDoubleClick: (event: ThreeEvent<MouseEvent>) => {
+      event.stopPropagation();
+      toggleOverviewNode(node.id);
+    },
     onClick: (event: ThreeEvent<MouseEvent>) => {
       event.stopPropagation();
       selectOverviewNode(node);
@@ -74,6 +79,7 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
         />
       )}
       {!loop &&
+        !item.collapsed &&
         lanes.map((lane) => (
           <group key={lane.name}>
             <Line

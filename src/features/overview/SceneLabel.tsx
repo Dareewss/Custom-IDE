@@ -80,7 +80,6 @@ export function SceneLabel({
         </mesh>
         <Text
           font={sceneFont}
-          characters={text}
           fontSize={tokens.labelSize}
           color={colors.labelText}
           anchorX="center"

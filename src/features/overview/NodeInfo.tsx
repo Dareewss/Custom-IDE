@@ -78,6 +78,9 @@ export function NodeInfo() {
         </>
       )}
       {detail && <small>{detail}</small>}
+      {node.children.length > 0 && (
+        <small>Double-click or press C in the scene to collapse or expand.</small>
+      )}
     </aside>
   );
 }

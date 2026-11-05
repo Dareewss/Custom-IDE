@@ -2,8 +2,10 @@ import type { CodeNode } from '../../core/model/types';
 import { navigateTo } from '../editor/navigation';
 import { useUI } from '../../shared/ui-store';
 import { useOverview } from './store';
+import { ensureOverviewVisible } from './view-actions';
 
 export function selectOverviewNode(node: CodeNode) {
+  ensureOverviewVisible(node.id);
   useOverview.setState((state) => ({
     selectedNodeId: node.id,
     hoveredNodeId: null,

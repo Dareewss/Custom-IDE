@@ -81,9 +81,9 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
   }, [layout, width, height, fit, get]);
   useLayoutEffect(() => {
     if (!focus || focused.current === focus.sequence) return;
-    focused.current = focus.sequence;
     const item = focus.nodeId ? layout.items[focus.nodeId] : undefined;
     if (item) {
+      focused.current = focus.sequence;
       fitMode.current = 'selection';
       fit(itemBounds(item));
     }

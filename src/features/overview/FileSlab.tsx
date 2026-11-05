@@ -1,3 +1,4 @@
+import { toggleOverviewNode } from './view-actions';
 import { Edges } from '@react-three/drei';
 import type { CodeNode } from '../../core/model/types';
 import type { LayoutItem } from '../../core/model/layout/types';
@@ -23,6 +24,10 @@ export function FileSlab({
   return (
     <group
       position={item.position}
+      onDoubleClick={(event) => {
+        event.stopPropagation();
+        toggleOverviewNode(node.id);
+      }}
       onClick={(event) => {
         event.stopPropagation();
         selectOverviewNode(node);
@@ -49,7 +54,7 @@ export function FileSlab({
       </mesh>
       {label && (
         <SceneLabel
-          name={node.name}
+          name={`${node.name}${item.collapsed ? ' …' : ''}`}
           width={item.size[0]}
           colors={colors}
           position={[0, item.size[1] / 2 - tokens.labelInset, item.size[2] / 2 + tokens.labelDepth]}

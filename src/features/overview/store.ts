@@ -3,6 +3,7 @@ import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
 import type { GraphLayout } from '../../core/model/layout/types';
 import type { CameraAction } from './camera-actions';
+import type { DepthPreset } from '../../core/model/view';
 
 interface OverviewState {
   projectId: string | null;
@@ -20,6 +21,11 @@ interface OverviewState {
   externalExpanded: boolean;
   layoutRevision: number;
   cameraRequest: { action: CameraAction; sequence: number } | null;
+  viewModel: CodeModel | null;
+  ownerByNode: Record<string, string | null>;
+  collapsedIds: string[];
+  compactIds: string[];
+  depth: DepthPreset;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -38,5 +44,10 @@ export const useOverview = create<OverviewState>(() => ({
   externalExpanded: false,
   layoutRevision: 0,
   cameraRequest: null,
+  viewModel: null,
+  ownerByNode: {},
+  collapsedIds: [],
+  compactIds: [],
+  depth: 'all',
   focusRequest: null,
 }));

@@ -5,12 +5,13 @@ import { nodeAtPosition } from '../../core/model/indexes';
 import type { CodeNode } from '../../core/model/types';
 import { useOverview } from './store';
 import { setOverviewHover } from './selection';
+import { ensureOverviewVisible } from './view-actions';
 
 /** Each editor owns an independent decoration collection; debugger markers stay untouched. */
 export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor): void {
   const decorations = editor.createDecorationsCollection();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let userMoved = false;
+  let awaitingAnalysis = false;
   const current = () => {
     const workspace = useWorkspace.getState(),
       state = useOverview.getState();
@@ -71,7 +72,8 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
       position.lineNumber,
       position.column,
     );
-    if (node && node.id !== value.state.selectedNodeId)
+    if (node && node.id !== value.state.selectedNodeId) {
+      ensureOverviewVisible(node.id);
       useOverview.setState((state) => ({
         selectedNodeId: node.id,
         hoveredNodeId: null,
@@ -79,6 +81,7 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
         hoveredEdgeId: null,
         focusRequest: { nodeId: node.id, sequence: (state.focusRequest?.sequence ?? 0) + 1 },
       }));
+    }
   };
   const schedule = () => {
     clearTimeout(timer);
@@ -87,13 +90,15 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
   const disposables = [
     editor.onDidChangeCursorSelection((event) => {
       if (event.source === 'api') return;
-      userMoved = true;
       schedule();
     }),
     editor.onDidChangeModel(() => {
-      userMoved = false;
+      awaitingAnalysis = false;
       clearTimeout(timer);
       decorate();
+    }),
+    editor.onDidChangeModelContent(() => {
+      awaitingAnalysis = true;
     }),
     editor.onMouseMove((event) => {
       const value = current(),
@@ -108,7 +113,10 @@ export function attachOverviewSync(editor: monaco.editor.IStandaloneCodeEditor):
   ];
   const unsubscribe = useOverview.subscribe((state, before) => {
     decorate();
-    if (userMoved && state.indexes !== before.indexes) schedule();
+    if (awaitingAnalysis && state.indexes !== before.indexes) {
+      awaitingAnalysis = false;
+      schedule();
+    }
   });
   decorate();
   editor.onDidDispose(() => {
