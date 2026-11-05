@@ -1,3 +1,4 @@
+import { layoutEdges } from './edges';
 import { branchDimensions, branchGroups, branchLanes, loopDimensions } from './control-flow';
 import { collectionCells, collectionDimensions } from './collections';
 import { functionWidth, headerPosition } from './metrics';
@@ -84,15 +85,32 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
                 : tokens.leafDepth;
     sizes.set(node.id, [width, height, depth]);
   }
-  const columns = Math.max(1, Math.ceil(Math.sqrt(roots.length)));
+  const external = roots.filter((node) => node.kind === 'external');
+  const files = roots.filter((node) => node.kind !== 'external');
+  const rootCount = files.length + Number(external.length > 0);
+  const columns = Math.max(1, Math.ceil(Math.sqrt(rootCount)));
   const cellWidth =
-    Math.max(tokens.fileWidth, ...roots.map((node) => sizes.get(node.id)![0])) + tokens.fileGap;
+    Math.max(tokens.fileWidth, ...files.map((node) => sizes.get(node.id)![0])) + tokens.fileGap;
   const cellHeight =
-    Math.max(tokens.fileHeight, ...roots.map((node) => sizes.get(node.id)![1])) + tokens.fileGap;
-  const place = roots.map((node, i) => ({
-    id: node.id,
-    position: [(i % columns) * cellWidth, -Math.floor(i / columns) * cellHeight, 0] as Vec3,
-  }));
+    Math.max(tokens.fileHeight, ...files.map((node) => sizes.get(node.id)![1])) + tokens.fileGap;
+  const place = files.map((node, index) => {
+    const i = index + Number(external.length > 0);
+    return {
+      id: node.id,
+      position: [(i % columns) * cellWidth, -Math.floor(i / columns) * cellHeight, 0] as Vec3,
+    };
+  });
+  // External symbols share one compact region instead of consuming a file-sized cell each.
+  const extColumns = Math.max(1, Math.ceil(Math.sqrt(external.length)));
+  for (let i = 0; i < external.length; i++)
+    place.push({
+      id: external[i].id,
+      position: [
+        (i % extColumns) * tokens.externalWidth,
+        -Math.floor(i / extColumns) * tokens.externalHeight,
+        0,
+      ],
+    });
   const items: GraphLayout['items'] = Object.create(null) as GraphLayout['items'];
   const min: Vec3 = [Infinity, Infinity, Infinity];
   const max: Vec3 = [-Infinity, -Infinity, -Infinity];
@@ -161,7 +179,14 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
     }
   }
   if (!roots.length)
-    return { items, cells: {}, branches: {}, bounds: { min: [-1, -1, -1], max: [1, 1, 1] } };
+    return {
+      items,
+      cells: {},
+      branches: {},
+      externalCluster: null,
+      edges: [],
+      bounds: { min: [-1, -1, -1], max: [1, 1, 1] },
+    };
   const center = min.map((value, axis) => (value + max[axis]) / 2);
   for (const item of Object.values(items))
     for (let axis = 0; axis < 3; axis++) item.position[axis] -= center[axis];
@@ -172,13 +197,24 @@ export function hierarchicalLayout(model: CodeModel): GraphLayout {
   for (const node of model.nodes)
     if (node.kind === 'condition')
       branches[node.id] = branchLanes(branchGroups(node, byId, sizes), items[node.id]);
-  return {
+  const externalCluster: GraphLayout['externalCluster'] = external.length
+    ? {
+        id: 'external-cluster',
+        position: items[external[0].id].position.slice() as Vec3,
+        size: [tokens.externalWidth, tokens.externalHeight, tokens.leafDepth],
+      }
+    : null;
+  const result: GraphLayout = {
     items,
     cells,
     branches,
+    externalCluster,
+    edges: [],
     bounds: {
       min: min.map((value, i) => value - center[i]) as Vec3,
       max: max.map((value, i) => value - center[i]) as Vec3,
     },
   };
+  result.edges = layoutEdges(model, result);
+  return result;
 }

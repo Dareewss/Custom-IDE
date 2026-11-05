@@ -2,11 +2,37 @@ import { collectionEntries } from '../../core/model/layout/collections';
 import { useOverview } from './store';
 
 export function NodeInfo() {
+  const edge = useOverview((state) =>
+    state.model?.edges.find((edge) => edge.id === state.hoveredEdgeId),
+  );
+  const model = useOverview((state) => state.model);
   const node = useOverview((state) =>
     state.indexes?.nodeById.get(state.hoveredNodeId ?? state.selectedNodeId ?? ''),
   );
   const detail = useOverview((state) => state.hoveredDetail);
-  if (!node || !['variable', 'collection', 'loop', 'condition'].includes(node.kind)) return null;
+  if (edge)
+    return (
+      <aside className="overview-node-info" role="tooltip">
+        <strong>
+          {edge.kind === 'inherits'
+            ? 'Inheritance'
+            : edge.kind === 'call'
+              ? 'Function call'
+              : 'Import'}
+        </strong>
+        <p>
+          {model?.nodes.find((node) => node.id === edge.from)?.name} →{' '}
+          {model?.nodes.find((node) => node.id === edge.to)?.name}
+        </p>
+        <span>
+          {edge.resolved
+            ? `Static match · ${Math.round(edge.confidence * 100)}% confidence`
+            : 'Unresolved · dashed connection'}
+        </span>
+        <small>Click to open the source</small>
+      </aside>
+    );
+  if (!node) return null;
   const entries = collectionEntries(node);
   return (
     <aside className="overview-node-info" role="tooltip" id="overview-node-info">
@@ -16,6 +42,11 @@ export function NodeInfo() {
           (node.kind === 'collection' ? node.meta.collectionKind : node.meta.valueType) ??
           node.kind}
       </span>
+      {node.fileId && (
+        <small>
+          {node.fileId}:{node.range.startLine}
+        </small>
+      )}
       {node.kind === 'loop' && (
         <p>
           {node.meta.loopKind ?? 'Loop'} · {node.children.length} body objects

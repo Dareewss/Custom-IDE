@@ -23,6 +23,8 @@ import { ValueInstances } from './ValueInstances';
 import { valueInstances } from './value-instances';
 import { selectOverviewNode, setOverviewHover } from './selection';
 import { ControlFlowShape } from './ControlFlowShapes';
+import { GraphEdges } from './GraphEdges';
+import { ExternalShapes } from './ExternalShapes';
 
 function Contents({
   model,
@@ -82,7 +84,10 @@ function Contents({
       />
       <ValueInstances instances={values.variables} shape="sphere" colors={colors} />
       <ValueInstances instances={values.cells} shape="cell" colors={colors} />
+      <GraphEdges model={model} layout={layout} colors={colors} />
+      <ExternalShapes model={model} layout={layout} colors={colors} />
       {model.nodes.map((node) => {
+        if (node.kind === 'external') return null;
         const item = layout.items[node.id];
         if (!item) return null;
         const active = selected === node.id;
@@ -197,7 +202,8 @@ export default function CodeScene({
       gl={{ alpha: true, premultipliedAlpha: true, antialias: true, powerPreference: 'low-power' }}
       camera={{ position: [0, 2, 20], fov: 45 }}
       fallback={unavailable}
-      onCreated={({ gl, scene }) => {
+      onCreated={({ gl, scene, raycaster }) => {
+        raycaster.params.Line.threshold = geometryTokens.edgePickThreshold;
         gl.setClearColor(0, 0);
         scene.background = null;
         gl.domElement.setAttribute('aria-hidden', 'true');

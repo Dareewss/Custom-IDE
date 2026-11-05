@@ -31,6 +31,39 @@
   padding: 0 12px;
   border-bottom: 1px solid var(--border);
 }
+.overview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.overview-options {
+  position: relative;
+  font-size: 11px;
+}
+.overview-options summary {
+  cursor: pointer;
+  padding: 8px;
+}
+.overview-options fieldset {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  width: 205px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.overview-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.overview-options legend {
+  font-size: 11px;
+  color: var(--muted);
+}
 .overview-toolbar > span {
   display: flex;
   align-items: center;

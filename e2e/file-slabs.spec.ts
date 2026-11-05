@@ -13,7 +13,7 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   const modes = page.getByRole('group', { name: 'Workspace layout', exact: true });
   await modes.getByRole('button', { name: '3D', exact: true }).click();
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '1');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller)
@@ -25,9 +25,9 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   });
   await context.setOffline(true);
   await page.reload();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '1');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
   await modes.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '1');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
   await expect
     .poll(() =>
       canvas.evaluate((element) => {
@@ -52,17 +52,17 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   const create = page.getByRole('dialog', { name: 'New file', exact: true });
   await create.getByLabel('Name', { exact: true }).fill('extra.py');
   await create.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '3');
   await page.getByRole('treeitem', { name: 'extra.py', exact: true }).click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Delete…', exact: true }).click();
   const remove = page.getByRole('dialog', { name: 'Delete from project', exact: true });
   await remove.getByRole('textbox').fill('extra.py');
   await remove.getByRole('button', { name: 'Delete', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '1');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   await page.getByLabel('Color theme').selectOption('light');
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '1');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
   await page.screenshot({ path: 'docs/screenshots/phase2/file-slabs-light.png' });
   expect(external).toEqual([]);
 });

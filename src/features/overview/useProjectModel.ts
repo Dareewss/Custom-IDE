@@ -29,6 +29,7 @@ export function useProjectModel() {
             selectedNodeId: null,
             hoveredNodeId: null,
             hoveredDetail: null,
+            hoveredEdgeId: null,
             focusRequest: null,
           }
         : {}),
@@ -65,6 +66,7 @@ export function useProjectModel() {
               : null,
           hoveredNodeId: null,
           hoveredDetail: null,
+          hoveredEdgeId: null,
         }));
       })().catch((error: unknown) => {
         if (!cancelled) useOverview.setState({ loading: false, error: String(error) });

@@ -8,6 +8,7 @@ import { IconButton } from '../../shared/IconButton';
 import { Outline } from './Outline';
 import { SceneBoundary } from './SceneBoundary';
 import { NodeInfo } from './NodeInfo';
+import { EdgeOptions } from './EdgeOptions';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -38,13 +39,16 @@ export function OverviewPanel() {
           <Box size={14} />
           3D overview
         </span>
-        <IconButton
-          label="Show code outline"
-          aria-pressed={outline}
-          onClick={() => setOutline((value) => !value)}
-        >
-          <ListTree size={16} />
-        </IconButton>
+        <div className="overview-actions">
+          <EdgeOptions />
+          <IconButton
+            label="Show code outline"
+            aria-pressed={outline}
+            onClick={() => setOutline((value) => !value)}
+          >
+            <ListTree size={16} />
+          </IconButton>
+        </div>
       </header>
       {state.error && (
         <p className="overview-notice" role="alert">

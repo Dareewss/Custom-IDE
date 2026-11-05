@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { CodeModel } from '../../core/model/types';
+import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
 import type { GraphLayout } from '../../core/model/layout/types';
 
@@ -13,6 +13,10 @@ interface OverviewState {
   selectedNodeId: string | null;
   hoveredNodeId: string | null;
   hoveredDetail: string | null;
+  hoveredEdgeId: string | null;
+  edgeKinds: Record<EdgeKind, boolean>;
+  showExternal: boolean;
+  externalExpanded: boolean;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -25,5 +29,9 @@ export const useOverview = create<OverviewState>(() => ({
   selectedNodeId: null,
   hoveredNodeId: null,
   hoveredDetail: null,
+  hoveredEdgeId: null,
+  edgeKinds: { import: true, call: true, inherits: true },
+  showExternal: true,
+  externalExpanded: false,
   focusRequest: null,
 }));
