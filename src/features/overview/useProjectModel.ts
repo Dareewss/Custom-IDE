@@ -32,6 +32,7 @@ export function useProjectModel() {
             hoveredDetail: null,
             hoveredEdgeId: null,
             focusRequest: null,
+            cameraRequest: null,
           }
         : {}),
     });

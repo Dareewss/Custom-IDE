@@ -40,8 +40,27 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
     )
     .toBe(true);
   await page.screenshot({ path: 'docs/screenshots/phase2/file-slabs-before-click.png' });
-  const box = await canvas.boundingBox();
-  await canvas.click({ position: { x: box!.width * 0.75, y: box!.height * 0.55 } });
+  const hit = await canvas.evaluate(async (element) => {
+    const box = element.getBoundingClientRect();
+    for (const y of [box.height * 0.4, box.height * 0.5, box.height * 0.55, box.height * 0.7])
+      for (let x = box.width * 0.3; x < box.width * 0.95; x += 10) {
+        element.dispatchEvent(
+          new PointerEvent('pointermove', {
+            bubbles: true,
+            pointerId: 1,
+            pointerType: 'mouse',
+            clientX: box.x + x,
+            clientY: box.y + y,
+          }),
+        );
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        if (document.querySelector('[role="tooltip"] strong')?.textContent === 'main.py')
+          return { x, y };
+      }
+    return null;
+  });
+  expect(hit).not.toBeNull();
+  await canvas.click({ position: hit! });
   await expect(modes.getByRole('button', { name: 'Split', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',

@@ -1,18 +1,11 @@
+import { CameraRig } from './CameraRig';
+import { CameraTools } from './CameraTools';
+import { cameraKey, requestCamera } from './camera-actions';
 import { FileMotion } from './FileMotion';
 import { ClassBlock, FunctionCapsule, ParameterPort } from './StructureShapes';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentRef,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import { InstancedMesh, Mesh, PerspectiveCamera } from 'three';
-import { useReducedMotion } from 'motion/react';
+import { InstancedMesh, Mesh } from 'three';
 import { useSceneColors, type SceneColors } from './scene-tokens';
 import { useOverview } from './store';
 import type { CodeModel } from '../../core/model/types';
@@ -36,13 +29,8 @@ function Contents({
   layout: GraphLayout;
   colors: SceneColors;
 }) {
-  const { get, invalidate } = useThree();
-  const width = useThree((state) => state.size.width);
-  const height = useThree((state) => state.size.height);
-  const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
-  const reducedMotion = useReducedMotion();
   const groups = useMemo(() => {
     const values = valueInstances(model, layout);
     const groups = new Map<
@@ -75,29 +63,9 @@ function Contents({
       .slice(0, geometryTokens.labelBudget)
       .map((node) => node.id),
   );
-  useLayoutEffect(() => {
-    const { camera, gl } = get();
-    if (!(camera instanceof PerspectiveCamera)) return;
-    const span = layout.bounds.max.map((value, axis) => value - layout.bounds.min[axis]);
-    const center = layout.bounds.max.map((value, axis) => (value + layout.bounds.min[axis]) / 2);
-    const distance =
-      (Math.max(span[1], span[0] / (width / Math.max(1, height)), 4) /
-        (2 * Math.tan((camera.fov * Math.PI) / 360))) *
-        1.3 +
-      span[2];
-    camera.near = Math.max(0.01, distance / 1000);
-    camera.far = Math.max(100, distance * 10);
-    camera.position.set(center[0], center[1] + distance * 0.1, center[2] + distance);
-    camera.lookAt(center[0], center[1], center[2]);
-    camera.updateProjectionMatrix();
-    controls.current?.target.set(center[0], center[1], center[2]);
-    controls.current?.update();
-    gl.domElement.dataset.cameraReady = `${Math.round(width)}x${Math.round(height)}`;
-    invalidate();
-  }, [get, layout, width, height, invalidate]);
   return (
     <>
-      <OrbitControls ref={controls} makeDefault enableDamping={!reducedMotion} />
+      <CameraRig layout={layout} />
       <ambientLight intensity={geometryTokens.ambientLight} />
       <directionalLight
         position={geometryTokens.lightPosition}
@@ -215,29 +183,58 @@ export default function CodeScene({
 }) {
   const colors = useSceneColors();
   const [lost, setLost] = useState(false);
+  const [ready, setReady] = useState(false);
   const onLost = useCallback(() => setLost(true), []);
   if (lost) return unavailable;
   return (
-    <Canvas
-      className="code-canvas"
-      aria-label="3D code scene"
-      frameloop="demand"
-      flat
-      dpr={[1, 1.5]}
-      gl={{ alpha: true, premultipliedAlpha: true, antialias: true, powerPreference: 'low-power' }}
-      camera={{ position: [0, 2, 20], fov: 45 }}
-      fallback={unavailable}
-      onCreated={({ gl, scene, raycaster }) => {
-        raycaster.params.Line.threshold = geometryTokens.edgePickThreshold;
-        gl.setClearColor(0, 0);
-        scene.background = null;
-        gl.domElement.setAttribute('aria-hidden', 'true');
+    <div
+      className="scene-navigation"
+      tabIndex={0}
+      role="group"
+      aria-label="3D navigation"
+      aria-describedby="camera-help"
+      onContextMenu={(event) => event.preventDefault()}
+      onKeyDown={(event) => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const action = cameraKey(event.key, event.shiftKey);
+        if (action) {
+          event.preventDefault();
+          requestCamera(action);
+        }
       }}
     >
-      <ContextLoss onLost={onLost} />
-      <FrameCounter model={model} />
-      <Contents model={model} layout={layout} colors={colors} />
-    </Canvas>
+      <span id="camera-help" className="sr-only">
+        Arrow keys orbit. Shift and arrows pan. Plus and minus zoom. F fits selection. Home fits
+        all. R resets. Drag to orbit, right drag to pan, scroll or pinch to zoom.
+      </span>
+      {ready && <CameraTools />}
+      <Canvas
+        className="code-canvas"
+        aria-label="3D code scene"
+        frameloop="demand"
+        flat
+        dpr={[1, 1.5]}
+        gl={{
+          alpha: true,
+          premultipliedAlpha: true,
+          antialias: true,
+          powerPreference: 'low-power',
+        }}
+        camera={{ position: [0, 2, 20], fov: 45 }}
+        fallback={unavailable}
+        onCreated={({ gl, scene, raycaster }) => {
+          setReady(true);
+          raycaster.params.Line.threshold = geometryTokens.edgePickThreshold;
+          gl.setClearColor(0, 0);
+          scene.background = null;
+          gl.domElement.setAttribute('aria-hidden', 'true');
+        }}
+      >
+        <ContextLoss onLost={onLost} />
+        <FrameCounter model={model} />
+        <Contents model={model} layout={layout} colors={colors} />
+      </Canvas>
+    </div>
   );
 }
 

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
 import type { GraphLayout } from '../../core/model/layout/types';
+import type { CameraAction } from './camera-actions';
 
 interface OverviewState {
   projectId: string | null;
@@ -18,6 +19,7 @@ interface OverviewState {
   showExternal: boolean;
   externalExpanded: boolean;
   layoutRevision: number;
+  cameraRequest: { action: CameraAction; sequence: number } | null;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -35,5 +37,6 @@ export const useOverview = create<OverviewState>(() => ({
   showExternal: true,
   externalExpanded: false,
   layoutRevision: 0,
+  cameraRequest: null,
   focusRequest: null,
 }));

@@ -1,0 +1,40 @@
+import { test, expect } from '@playwright/test';
+
+for (const reducedMotion of ['no-preference', 'reduce'] as const)
+  test(`navigates actual camera by keyboard and toolbar (${reducedMotion})`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    const canvas = page.locator('.code-canvas canvas');
+    await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
+    const position = await canvas.getAttribute('data-camera-position');
+    const target = await canvas.getAttribute('data-camera-target');
+    const navigation = page.getByRole('group', { name: '3D navigation', exact: true });
+    await navigation.focus();
+    await page.keyboard.press('ArrowLeft');
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await expect(canvas).not.toHaveAttribute('data-camera-position', position!);
+    await page.keyboard.press('Shift+ArrowRight');
+    await expect.poll(() => canvas.getAttribute('data-camera-target')).not.toBe(target);
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    const panned = await canvas.getAttribute('data-camera-position');
+    await page.keyboard.press('+');
+    await expect.poll(() => canvas.getAttribute('data-camera-position')).not.toBe(panned);
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await page.getByRole('button', { name: 'Reset camera (R)', exact: true }).click();
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await expect(canvas).toHaveAttribute('data-camera-target', target!);
+    await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
+    await page.getByRole('treeitem', { name: 'file main.py', exact: true }).click();
+    await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
+    await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
+    await page.getByRole('button', { name: 'Fit selected object (F)', exact: true }).click();
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    const focusedTarget = await canvas.getAttribute('data-camera-target');
+    expect(focusedTarget).not.toBe(target);
+    await page.getByRole('button', { name: 'Fit all objects (Home)', exact: true }).click();
+    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await expect(canvas).toHaveAttribute('data-camera-target', target!);
+    const frames = await canvas.getAttribute('data-render-frames');
+    await page.waitForTimeout(450);
+    expect(await canvas.getAttribute('data-render-frames')).toBe(frames);
+  });
