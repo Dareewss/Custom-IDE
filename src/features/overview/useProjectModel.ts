@@ -40,6 +40,8 @@ export function useProjectModel() {
             viewModel: null,
             ownerByNode: {},
             compactIds: [],
+            searchQuery: '',
+            searchKind: 'all',
             ...view,
           }
         : {}),

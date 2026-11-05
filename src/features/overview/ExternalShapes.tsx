@@ -1,3 +1,5 @@
+import { mutedColors } from './search';
+import type { searchModel } from '../../core/model/search';
 import { Edges } from '@react-three/drei';
 import type { CodeModel } from '../../core/model/types';
 import type { GraphLayout } from '../../core/model/layout/types';
@@ -11,10 +13,12 @@ export function ExternalShapes({
   model,
   layout,
   colors,
+  search,
 }: {
   model: CodeModel;
   layout: GraphLayout;
   colors: SceneColors;
+  search: ReturnType<typeof searchModel>;
 }) {
   const show = useOverview((s) => s.showExternal);
   const expanded = useOverview((s) => s.externalExpanded);
@@ -49,8 +53,30 @@ export function ExternalShapes({
         >
           <mesh>
             <icosahedronGeometry args={[tokens.externalRadius, 0]} />
-            <meshBasicMaterial color={colors.other} transparent opacity={colors.nodeOpacity} />
-            <Edges color={colors.hover} />
+            <meshBasicMaterial
+              color={colors.other}
+              transparent
+              opacity={
+                search.active &&
+                !(node
+                  ? search.context.has(node.id)
+                  : nodes.some((node) => search.context.has(node.id)))
+                  ? mutedColors(colors).nodeOpacity
+                  : colors.nodeOpacity
+              }
+            />
+            <Edges
+              color={colors.hover}
+              transparent
+              opacity={
+                search.active &&
+                !(node
+                  ? search.context.has(node.id)
+                  : nodes.some((node) => search.context.has(node.id)))
+                  ? mutedColors(colors).rimOpacity
+                  : colors.rimOpacity
+              }
+            />
           </mesh>
           {index < tokens.labelBudget && (
             <SceneLabel

@@ -22,7 +22,7 @@ test('shares persisted live controls between header, settings and commands', asy
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
   for (const name of ['Toggle orbs', 'Toggle orb animation']) {
     await page.getByRole('button', { name: /Search commands/ }).click();
-    await page.getByRole('combobox').fill(name);
+    await page.getByRole('dialog').getByRole('combobox').fill(name);
     await page.getByRole('option', { name, exact: true }).click();
   }
   await expect(animation).toHaveAttribute('aria-pressed', 'true');

@@ -4,6 +4,7 @@ import type { ModelIndexes } from '../../core/model/indexes';
 import type { GraphLayout } from '../../core/model/layout/types';
 import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
+import type { SearchKind } from '../../core/model/search';
 
 interface OverviewState {
   projectId: string | null;
@@ -26,6 +27,9 @@ interface OverviewState {
   collapsedIds: string[];
   compactIds: string[];
   depth: DepthPreset;
+  searchQuery: string;
+  searchKind: SearchKind;
+  searchFocusRequest: number;
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
@@ -49,5 +53,8 @@ export const useOverview = create<OverviewState>(() => ({
   collapsedIds: [],
   compactIds: [],
   depth: 'all',
+  searchQuery: '',
+  searchKind: 'all',
+  searchFocusRequest: 0,
   focusRequest: null,
 }));

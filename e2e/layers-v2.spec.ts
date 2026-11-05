@@ -90,7 +90,7 @@ test('keeps creation dialogs outside blurred surfaces with a stronger smoky mate
 }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /Search commands/ }).click();
-  await page.getByRole('combobox').fill('New file');
+  await page.getByRole('dialog').getByRole('combobox').fill('New file');
   await page.getByRole('option', { name: 'New file', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'New file', exact: true });
   await expect(dialog).toBeVisible();

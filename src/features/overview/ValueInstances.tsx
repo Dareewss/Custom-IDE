@@ -15,6 +15,7 @@ export interface ValueInstance {
   position: Vec3;
   kind?: ValueKind;
   detail?: string;
+  muted?: boolean;
 }
 
 export function ValueInstances({
@@ -51,11 +52,17 @@ export function ValueInstances({
     instances.forEach((instance, index) =>
       mesh.setColorAt(
         index,
-        color.set(
-          instance.node.id === selected || instance.node.id === hovered
-            ? colors.active
-            : valueColor(instance.kind, colors),
-        ),
+        color
+          .set(
+            instance.node.id === selected || instance.node.id === hovered
+              ? colors.active
+              : valueColor(instance.kind, colors),
+          )
+          .multiplyScalar(
+            instance.muted && instance.node.id !== selected && instance.node.id !== hovered
+              ? colors.searchDim
+              : 1,
+          ),
       ),
     );
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;

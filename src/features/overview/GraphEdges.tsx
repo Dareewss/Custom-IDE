@@ -1,3 +1,4 @@
+import type { searchModel } from '../../core/model/search';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useThree, type ThreeEvent } from '@react-three/fiber';
 import { BufferGeometry, BufferAttribute, Color, InstancedMesh, Object3D, Vector3 } from 'three';
@@ -14,10 +15,12 @@ export function GraphEdges({
   model,
   layout,
   colors,
+  search,
 }: {
   model: CodeModel;
   layout: GraphLayout;
   colors: SceneColors;
+  search: ReturnType<typeof searchModel>;
 }) {
   const kinds = useOverview((s) => s.edgeKinds),
     showExternal = useOverview((s) => s.showExternal);
@@ -60,7 +63,15 @@ export function GraphEdges({
     const color = new Color(),
       values = new Float32Array(data.owners.length * 6);
     data.owners.forEach((owner, i) => {
-      color.set(colorFor(owner.edge));
+      color
+        .set(colorFor(owner.edge))
+        .multiplyScalar(
+          search.active &&
+            !search.context.has(owner.edge.from) &&
+            !search.context.has(owner.edge.to)
+            ? colors.searchDim
+            : 1,
+        );
       color.toArray(values, i * 6);
       color.toArray(values, i * 6 + 3);
     });
@@ -77,7 +88,18 @@ export function GraphEdges({
       object.quaternion.setFromUnitVectors(up, direction);
       object.updateMatrix();
       arrows.current?.setMatrixAt(i, object.matrix);
-      arrows.current?.setColorAt(i, color.set(colorFor(edge.edge)));
+      arrows.current?.setColorAt(
+        i,
+        color
+          .set(colorFor(edge.edge))
+          .multiplyScalar(
+            search.active &&
+              !search.context.has(edge.edge.from) &&
+              !search.context.has(edge.edge.to)
+              ? colors.searchDim
+              : 1,
+          ),
+      );
     });
     if (arrows.current) {
       arrows.current.instanceMatrix.needsUpdate = true;
@@ -90,7 +112,7 @@ export function GraphEdges({
       data.arrows.filter(({ edge }) => !edge.edge.resolved).length,
     );
     invalidate();
-  }, [data, geometry, colorFor, get]);
+  }, [data, geometry, colorFor, get, search, colors.searchDim]);
   const hit = (event: ThreeEvent<PointerEvent>) => {
     const edge =
       event.index === undefined ? undefined : data.owners[Math.floor(event.index / 2)]?.edge;

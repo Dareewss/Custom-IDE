@@ -10,6 +10,7 @@ import { SceneBoundary } from './SceneBoundary';
 import { NodeInfo } from './NodeInfo';
 import { EdgeOptions } from './EdgeOptions';
 import { DepthControl } from './DepthControl';
+import { ObjectSearch } from './ObjectSearch';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -60,6 +61,7 @@ export function OverviewPanel() {
         </div>
       </header>
       <DepthControl />
+      <ObjectSearch />
       {state.error && (
         <p className="overview-notice" role="alert">
           {state.error}

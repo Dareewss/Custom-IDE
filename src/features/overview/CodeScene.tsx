@@ -1,3 +1,4 @@
+import { useGraphSearch, mutedColors } from './search';
 import { toggleOverviewNode } from './view-actions';
 import { CameraRig } from './CameraRig';
 import { CameraTools } from './CameraTools';
@@ -32,8 +33,12 @@ function Contents({
 }) {
   const selected = useOverview((state) => state.selectedNodeId);
   const hovered = useOverview((state) => state.hoveredNodeId);
+  const search = useGraphSearch(model);
+  const dimColors = useMemo(() => mutedColors(colors), [colors]);
   const groups = useMemo(() => {
     const values = valueInstances(model, layout);
+    for (const item of [...values.variables, ...values.cells])
+      item.muted = search.active && !search.context.has(item.node.id) && item.node.id !== selected;
     const groups = new Map<
       string,
       {
@@ -52,7 +57,7 @@ function Contents({
     for (const cell of values.cells)
       if (cell.node.fileId) groups.get(cell.node.fileId)?.cells.push(cell);
     return [...groups.values()];
-  }, [model, layout]);
+  }, [model, layout, search, selected]);
   const labeledNodes = new Set(
     model.nodes
       .filter((node) =>
@@ -72,8 +77,8 @@ function Contents({
         position={geometryTokens.lightPosition}
         intensity={geometryTokens.directionalLight}
       />
-      <GraphEdges model={model} layout={layout} colors={colors} />
-      <ExternalShapes model={model} layout={layout} colors={colors} />
+      <GraphEdges model={model} layout={layout} colors={colors} search={search} />
+      <ExternalShapes model={model} layout={layout} colors={colors} search={search} />
       {groups.map((group) => (
         <FileMotion key={group.id} position={layout.items[group.id].position}>
           <ValueInstances instances={group.variables} shape="sphere" colors={colors} />
@@ -82,6 +87,10 @@ function Contents({
             if (node.kind === 'external') return null;
             const item = layout.items[node.id];
             if (!item) return null;
+            const nodeColors =
+              search.active && !search.context.has(node.id) && selected !== node.id
+                ? dimColors
+                : colors;
             const active = selected === node.id;
             if (node.kind === 'loop' || node.kind === 'condition')
               return (
@@ -89,7 +98,7 @@ function Contents({
                   key={node.id}
                   node={node}
                   item={item}
-                  colors={colors}
+                  colors={nodeColors}
                   label={labeledNodes.has(node.id)}
                   lanes={layout.branches[node.id]}
                 />
@@ -100,7 +109,7 @@ function Contents({
                   key={node.id}
                   node={node}
                   item={item}
-                  colors={colors}
+                  colors={nodeColors}
                   label={labeledNodes.has(node.id)}
                 />
               );
@@ -110,12 +119,12 @@ function Contents({
                   key={node.id}
                   node={node}
                   item={item}
-                  colors={colors}
+                  colors={nodeColors}
                   label={labeledNodes.has(node.id)}
                 />
               );
             if (node.meta.role === 'parameter')
-              return <ParameterPort key={node.id} node={node} item={item} colors={colors} />;
+              return <ParameterPort key={node.id} node={node} item={item} colors={nodeColors} />;
             if (node.kind === 'variable') return null;
             if (node.kind === 'collection')
               return (
@@ -123,7 +132,7 @@ function Contents({
                   key={node.id}
                   node={node}
                   item={item}
-                  colors={colors}
+                  colors={nodeColors}
                   label={labeledNodes.has(node.id)}
                 />
               );
@@ -133,7 +142,7 @@ function Contents({
                   key={node.id}
                   node={node}
                   item={item}
-                  colors={colors}
+                  colors={nodeColors}
                   label={labeledNodes.has(node.id)}
                 />
               );
@@ -153,14 +162,20 @@ function Contents({
               >
                 <boxGeometry args={item.size} />
                 <meshBasicMaterial
-                  color={active ? colors.active : hovered === node.id ? colors.hover : colors.fill}
+                  color={
+                    active
+                      ? nodeColors.active
+                      : hovered === node.id
+                        ? nodeColors.hover
+                        : nodeColors.fill
+                  }
                   transparent
                   opacity={
                     active
-                      ? colors.activeOpacity
+                      ? nodeColors.activeOpacity
                       : node.children.length
-                        ? colors.containerOpacity
-                        : colors.nodeOpacity
+                        ? nodeColors.containerOpacity
+                        : nodeColors.nodeOpacity
                   }
                   depthWrite={false}
                 />

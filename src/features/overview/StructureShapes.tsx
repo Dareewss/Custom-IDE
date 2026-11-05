@@ -116,6 +116,8 @@ export function ParameterPort({ node, item, colors }: Omit<ShapeProps, 'label'>)
         <sphereGeometry args={[tokens.portRadius, tokens.portSegments, tokens.portSegments]} />
         <meshBasicMaterial
           color={selected || hovered ? colors.active : valueColor(node.meta.valueType, colors)}
+          transparent
+          opacity={colors.valueOpacity}
         />
       </mesh>
       {(selected || hovered) && (

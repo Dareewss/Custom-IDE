@@ -19,6 +19,7 @@ export interface SceneColors {
   other: string;
   light: string;
   valueOpacity: number;
+  searchDim: number;
 }
 const subscribe = (notify: () => void) => {
   const observer = new MutationObserver(notify);
@@ -49,6 +50,7 @@ const snapshot = () => {
     other: style.getPropertyValue('--palette-slate').trim(),
     light: style.getPropertyValue('--overview-light').trim(),
     valueOpacity: Number(style.getPropertyValue('--overview-value-opacity').trim()),
+    searchDim: Number(style.getPropertyValue('--overview-search-dim').trim()),
   });
 };
 /** Observe the applied CSS tokens, including preset overrides, without stale theme reads. */

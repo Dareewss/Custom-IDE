@@ -5,6 +5,72 @@
   --overview-rim-opacity: 0.5;
   --overview-value-opacity: 0.9;
   --overview-light: #fff;
+  --overview-search-dim: 0.15;
+}
+.object-search {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 45;
+  border-bottom: 1px solid var(--border);
+}
+.object-search-row {
+  display: flex;
+  gap: 5px;
+  padding: 5px 8px;
+}
+.object-search-row input {
+  min-width: 0;
+  width: 100%;
+}
+.object-search-row input,
+.object-search-row select {
+  padding: 5px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface);
+  font-size: 11px;
+}
+.object-search-row select {
+  max-width: 100px;
+}
+.object-search-results {
+  position: absolute;
+  width: 100%;
+  max-height: min(290px, 45vh);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+}
+.object-search-results p {
+  margin: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.object-search-results button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font-size: 11px;
+}
+.object-search-results button[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+.object-search-results button span,
+.object-search-results button small {
+  color: var(--muted);
+}
+.object-search-results button small {
+  margin-inline-start: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .monaco-editor .overview-source-selected {
   background: var(--accent-soft);
