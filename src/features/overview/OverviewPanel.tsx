@@ -86,7 +86,7 @@ export function OverviewPanel() {
         </p>
       )}
       <div className="overview-body" data-outline={String(outline)}>
-        <NodeInfo />
+        {!outline && <NodeInfo />}
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">
             Analyzing project…
@@ -117,7 +117,20 @@ export function OverviewPanel() {
         {model &&
           model.nodes.length > 0 &&
           (outline ? (
-            <Outline nodes={model.nodes} />
+            <>
+              <Outline nodes={model.nodes} />
+              <div
+                className="outline-inspector"
+                role="region"
+                aria-label="Object details"
+                tabIndex={0}
+              >
+                <NodeInfo />
+                {!state.selectedNodeId && !state.hoveredNodeId && (
+                  <p>Select an object to inspect its source.</p>
+                )}
+              </div>
+            </>
           ) : (
             <SceneBoundary key={projectId} fallback={fallback}>
               <Suspense

@@ -14,7 +14,9 @@ async function done(page: Page) {
 test('moves smoothly at a capped rate, eases to exact home, and resumes the preserved phase', async ({
   page,
 }) => {
-  await page.clock.install();
+  const epoch = Date.UTC(2026, 10, 3, 12);
+  await page.clock.install({ time: epoch });
+  await page.clock.pauseAt(epoch + 1000);
   await page.goto('/');
   await expect(scene(page)).toHaveAttribute('data-motion', 'running');
   const first = await page.locator('.scene-shape-2').getAttribute('style');
@@ -48,7 +50,9 @@ test('moves smoothly at a capped rate, eases to exact home, and resumes the pres
 test('stops while hidden or with orbs off and applies persisted animation speed', async ({
   page,
 }) => {
-  await page.clock.install();
+  const epoch = Date.UTC(2026, 10, 3, 12);
+  await page.clock.install({ time: epoch });
+  await page.clock.pauseAt(epoch + 1000);
   await page.goto('/');
   await expect(scene(page)).toHaveAttribute('data-motion', 'running');
   await page.clock.runFor(1000);
@@ -89,7 +93,9 @@ for (const preset of ['neon', 'ocean', 'nebula']) {
   test(`keeps three ${preset} orbs on screen and stops its loop for reduced motion`, async ({
     page,
   }) => {
-    await page.clock.install();
+    const epoch = Date.UTC(2026, 10, 3, 12);
+    await page.clock.install({ time: epoch });
+    await page.clock.pauseAt(epoch + 1000);
     await page.goto('/');
     await expect(scene(page)).toHaveAttribute('data-motion', 'running');
     await settings(page);

@@ -46,7 +46,14 @@ test('synchronizes real Monaco selection, camera and hover while preserving brea
     'aria-selected',
     'true',
   );
-  await page.getByRole('treeitem', { name: 'variable total', exact: true }).click();
+  const row = page.getByRole('treeitem', { name: 'variable total', exact: true });
+  const beforeHover = await row.boundingBox();
+  await row.hover();
+  await expect(page.getByRole('region', { name: 'Object details', exact: true })).toContainText(
+    'total',
+  );
+  expect((await row.boundingBox())?.y).toBe(beforeHover?.y);
+  await row.click();
   await expect(page.locator('.statusbar')).toContainText('Ln 5, Col 9');
   try {
     await expect(editor).toBeFocused();
