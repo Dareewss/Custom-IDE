@@ -1,3 +1,4 @@
+import { useHighContrast } from './preferences';
 import { useMemo, useSyncExternalStore } from 'react';
 
 export interface SceneColors {
@@ -55,6 +56,23 @@ const snapshot = () => {
 };
 /** Observe the applied CSS tokens, including preset overrides, without stale theme reads. */
 export function useSceneColors(): SceneColors {
+  const contrast = useHighContrast();
   const value = useSyncExternalStore(subscribe, snapshot, () => '{}');
-  return useMemo(() => JSON.parse(value) as SceneColors, [value]);
+  return useMemo(() => {
+    const colors = JSON.parse(value) as SceneColors;
+    return contrast
+      ? {
+          ...colors,
+          labelText: '#ffffff',
+          labelBacking: '#000000',
+          fill: '#ffffff',
+          classFill: '#ffffff',
+          functionFill: '#ffffff',
+          hover: '#CBFF4D',
+          active: '#CBFF4D',
+          rimOpacity: 1,
+          nodeOpacity: 0.75,
+        }
+      : colors;
+  }, [value, contrast]);
 }

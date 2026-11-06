@@ -1,3 +1,5 @@
+import { useSettings } from '../settings/store';
+import type { ComponentProps } from 'react';
 import { labelRegistry } from './LabelCulling';
 import { visibleMeshRaycast } from './resources';
 import { use, useCallback, useEffect, useRef, useId } from 'react';
@@ -9,7 +11,7 @@ import { sceneLabel } from './label-text';
 import type { SceneColors } from './scene-tokens';
 import { sceneFont, sceneFontReady, assertSceneFont } from './scene-font';
 
-export function SceneLabel({
+function VisibleSceneLabel({
   name,
   width,
   colors,
@@ -137,4 +139,9 @@ export function SceneLabel({
       </Billboard>
     </group>
   );
+}
+
+export function SceneLabel(props: ComponentProps<typeof VisibleSceneLabel>) {
+  const labels = useSettings((state) => state.overviewLabels);
+  return labels ? <VisibleSceneLabel {...props} /> : null;
 }

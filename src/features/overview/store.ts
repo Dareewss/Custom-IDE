@@ -40,6 +40,7 @@ interface OverviewState {
   diff: ModelDiff;
   ghosts: { node: CodeNode; item: LayoutItem; cells: CollectionCell[] }[];
   modelRevision: number;
+  handledFocusSequence: number;
   analysisMs: number;
   layoutMs: number;
   focusRequest: { nodeId: string | null; sequence: number } | null;
@@ -74,6 +75,7 @@ export const useOverview = create<OverviewState>(() => ({
   diff: emptyDiff(),
   ghosts: [],
   modelRevision: 0,
+  handledFocusSequence: 0,
   analysisMs: 0,
   layoutMs: 0,
   focusRequest: null,

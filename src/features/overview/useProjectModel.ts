@@ -40,6 +40,7 @@ export function useProjectModel() {
             hoveredDetail: null,
             hoveredEdgeId: null,
             focusRequest: null,
+            handledFocusSequence: 0,
             cameraRequest: null,
             viewModel: null,
             ownerByNode: {},

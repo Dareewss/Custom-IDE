@@ -1,3 +1,5 @@
+import { useSettings } from '../settings/store';
+import { useOverviewBudget } from './preferences';
 import {
   sphereGeometry,
   mediumSphereGeometry,
@@ -43,6 +45,8 @@ export function ValueInstances({
   root: Vec3;
   added: ReadonlySet<string>;
 }) {
+  const budget = useOverviewBudget();
+  const size = useSettings((state) => state.overviewNodeSize / 100);
   const ref = useRef<InstancedMesh>(null);
   const transform = useRef(new Object3D());
   const invalidate = useThree((state) => state.invalidate);
@@ -91,7 +95,7 @@ export function ValueInstances({
         to: instance.position,
         enter:
           !old && (added.has(instance.node.id) || (shape === 'cell' && !!before?.positions.size)),
-        size: instance.radiusScale ?? 1,
+        size: (instance.radiusScale ?? 1) * size,
       };
     });
     previous.current = { root, positions };
@@ -134,7 +138,7 @@ export function ValueInstances({
     return () => {
       api.stop();
     };
-  }, [instances, root, added, shape, reduced, api, apply, invalidate]);
+  }, [instances, root, added, shape, reduced, api, apply, invalidate, size]);
   useFrame((state) => {
     if (animating.current) apply(spring.progress.get());
     const mesh = ref.current;
@@ -149,9 +153,9 @@ export function ValueInstances({
         (tokens.variableRadius / (2 * Math.tan((state.camera.fov * Math.PI) / 360) * distance)) *
         state.size.height;
       const geometry =
-        pixels < tokens.lodLowPixels
+        pixels < budget.spherePixels / 3
           ? lowSphereGeometry
-          : pixels < tokens.lodMediumPixels
+          : pixels < budget.spherePixels
             ? mediumSphereGeometry
             : sphereGeometry;
       if (mesh.geometry !== geometry) {

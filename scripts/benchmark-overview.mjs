@@ -41,6 +41,14 @@ try {
       serviceWorkers: 'block',
     });
     const page = await context.newPage();
+    if (process.env.OVERVIEW_BENCH_QUALITY)
+      await page.addInitScript((quality) => {
+        localStorage.setItem(
+          'atlas-settings',
+          JSON.stringify({ state: { overviewQuality: quality }, version: 11 }),
+        );
+      }, process.env.OVERVIEW_BENCH_QUALITY);
+
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.emulateMedia({ reducedMotion: 'reduce' });

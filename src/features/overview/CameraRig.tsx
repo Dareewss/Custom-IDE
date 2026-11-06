@@ -1,3 +1,5 @@
+import { readCamera, writeCamera, type CameraState } from './camera-state';
+import { useUI } from '../../shared/ui-store';
 import { useCallback, useEffect, useLayoutEffect, useRef, type ComponentRef } from 'react';
 import { OrbitControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -13,11 +15,31 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
     width = useThree((s) => s.size.width),
     height = useThree((s) => s.size.height);
   const reduced = useReducedMotion();
+  const projectId = useOverview((state) => state.projectId);
+  const pendingCamera = useRef<CameraState | null>(null);
+  const savedKey = useRef('');
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const save = useCallback(() => {
+    if (!projectId || !pendingCamera.current) return;
+    try {
+      writeCamera(projectId, pendingCamera.current);
+    } catch (error) {
+      useUI.getState().reportError(error);
+    }
+  }, [projectId]);
+  useEffect(() => {
+    window.addEventListener('pagehide', save);
+    return () => {
+      window.removeEventListener('pagehide', save);
+      clearTimeout(saveTimer.current);
+      save();
+    };
+  }, [save]);
   const request = useOverview((s) => s.cameraRequest),
     focus = useOverview((s) => s.focusRequest);
   const initialized = useRef(false),
     processed = useRef(request?.sequence ?? 0),
-    focused = useRef(0);
+    focused = useRef(useOverview.getState().handledFocusSequence);
   const motion = useRef<{ position: Vector3; target: Vector3 } | null>(null);
   const fittedSize = useRef('');
   const fitMode = useRef<'all' | 'selection' | null>('all');
@@ -73,18 +95,29 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
     if (!initialized.current || (fittedSize.current !== size && fitMode.current !== null)) {
       const selected = useOverview.getState().selectedNodeId;
       const item = fitMode.current === 'selection' && selected ? layout.items[selected] : undefined;
-      fit(item ? itemBounds(item) : layout.bounds, !initialized.current, true);
+      const restored = !initialized.current && projectId ? readCamera(projectId) : null;
+      if (restored) {
+        const camera = get().camera;
+        if (camera instanceof PerspectiveCamera) {
+          camera.near = restored.near;
+          camera.far = restored.far;
+          camera.updateProjectionMatrix();
+        }
+        apply(new Vector3(...restored.position), new Vector3(...restored.target));
+        fitMode.current = null;
+      } else fit(item ? itemBounds(item) : layout.bounds, !initialized.current, true);
       initialized.current = true;
     }
     fittedSize.current = size;
     get().gl.domElement.dataset.cameraReady = size;
     get().invalidate();
-  }, [layout, width, height, fit, get]);
+  }, [layout, width, height, fit, get, projectId, apply]);
   useLayoutEffect(() => {
     if (!focus || focused.current === focus.sequence) return;
     const item = focus.nodeId ? layout.items[focus.nodeId] : undefined;
     if (item) {
       focused.current = focus.sequence;
+      useOverview.setState({ handledFocusSequence: focus.sequence });
       fitMode.current = 'selection';
       fit(itemBounds(item));
     }
@@ -140,13 +173,28 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
     const control = controls.current;
     if (motion.current && control) {
       const to = motion.current,
-        amount = 1 - Math.exp(-Math.min(delta, 0.1) * 12);
+        amount = reduced ? 1 : 1 - Math.exp(-Math.min(delta, 0.1) * 12);
       const position = state.camera.position.clone().lerp(to.position, amount),
         target = control.target.clone().lerp(to.target, amount);
       const done = position.distanceTo(to.position) + target.distanceTo(to.target) < 0.001;
       apply(done ? to.position : position, done ? to.target : target);
       if (done) motion.current = null;
       else state.invalidate();
+    }
+    if (control && initialized.current && state.camera instanceof PerspectiveCamera) {
+      const snapshot: CameraState = {
+        position: state.camera.position.toArray() as Vec3,
+        target: control.target.toArray() as Vec3,
+        near: state.camera.near,
+        far: state.camera.far,
+      };
+      const key = JSON.stringify(snapshot);
+      if (key !== savedKey.current) {
+        savedKey.current = key;
+        pendingCamera.current = snapshot;
+        clearTimeout(saveTimer.current);
+        saveTimer.current = setTimeout(save, 250);
+      }
     }
     state.gl.domElement.dataset.cameraMoving = String(motion.current !== null);
     state.gl.domElement.dataset.cameraPosition = JSON.stringify(

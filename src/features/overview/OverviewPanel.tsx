@@ -86,7 +86,7 @@ export function OverviewPanel() {
         </p>
       )}
       <div className="overview-body">
-        <NodeInfo />
+        {!outline && <NodeInfo />}
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">
             Analyzing project…

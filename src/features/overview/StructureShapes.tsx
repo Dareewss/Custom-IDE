@@ -1,3 +1,4 @@
+import { useSettings } from '../settings/store';
 import type { ComponentRef } from 'react';
 import { useDetailLOD } from './lod';
 import { boxGeometry, capsuleGeometry } from './resources';
@@ -78,11 +79,12 @@ export function ClassBlock({ node, item, colors, label }: ShapeProps) {
 }
 export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
   const { selected, hovered, events } = useNodeEvents(node);
+  const size = useSettings((state) => state.overviewNodeSize / 100);
   const width = functionWidth(node, node.meta.params?.length ?? 0);
   const detail = useDetailLOD<ComponentRef<typeof Edges>>(width);
   return (
     <group position={headerPosition(item)} {...events}>
-      <mesh rotation={[0, 0, Math.PI / 2]}>
+      <mesh rotation={[0, 0, Math.PI / 2]} scale={[size, 1, size]}>
         <primitive attach="geometry" object={capsuleGeometry(width)} />
         <meshBasicMaterial
           color={

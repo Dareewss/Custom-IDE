@@ -29,6 +29,15 @@ export function GraphEdges({
     selected = useOverview((s) => s.selectedNodeId);
   const get = useThree((s) => s.get);
   const arrows = useRef<InstancedMesh>(null);
+  useEffect(
+    () => () => {
+      get().gl.domElement.dataset.edgeCount = '0';
+      get().gl.domElement.dataset.dashedEdgeCount = '0';
+      useOverview.setState({ hoveredEdgeId: null });
+      get().invalidate();
+    },
+    [get],
+  );
   const byId = useMemo(() => new Map(model.nodes.map((node) => [node.id, node])), [model]);
   const data = useMemo(
     () =>

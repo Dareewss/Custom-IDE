@@ -1,3 +1,4 @@
+import { useSettings } from '../settings/store';
 import { useDetailLOD, useLoopLOD } from './lod';
 import { loopGeometry } from './resources';
 import { toggleOverviewNode } from './view-actions';
@@ -21,6 +22,7 @@ interface Props {
   lanes?: BranchLane[];
 }
 export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Props) {
+  const size = useSettings((state) => state.overviewNodeSize / 100);
   const active = useOverview(
     (state) => state.selectedNodeId === node.id || state.hoveredNodeId === node.id,
   );
@@ -56,7 +58,7 @@ export function ControlFlowShape({ node, item, colors, label, lanes = [] }: Prop
           />
         </mesh>
       ) : (
-        <mesh position={header}>
+        <mesh position={header} scale={size}>
           <octahedronGeometry args={[tokens.conditionRadius, 0]} />
           <meshBasicMaterial color={color} transparent opacity={colors.nodeOpacity} />
           <Edges color={color} />

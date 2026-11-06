@@ -1,3 +1,5 @@
+import { useSettings } from '../settings/store';
+import { useOverviewBudget } from './preferences';
 import { LabelCulling } from './LabelCulling';
 import { boxGeometry } from './resources';
 import { NodeMotion } from './NodeMotion';
@@ -71,6 +73,9 @@ function Contents({
   layout: GraphLayout;
   colors: SceneColors;
 }) {
+  const labels = useSettings((state) => state.overviewLabels);
+  const edges = useSettings((state) => state.overviewEdges);
+  const budget = useOverviewBudget();
   const addedIds = useOverview((state) => state.diff.added);
   const added = useMemo(() => new Set(addedIds), [addedIds]);
   const focusFile = useOverview(
@@ -111,7 +116,7 @@ function Contents({
         ),
       )
       .sort((a, b) => labelPriority(a) - labelPriority(b))
-      .slice(0, geometryTokens.labelBudget)
+      .slice(0, labels ? budget.labels : 0)
       .map((node) => node.id),
   );
   return (
@@ -123,7 +128,7 @@ function Contents({
         intensity={geometryTokens.directionalLight}
       />
       <GhostNodes colors={colors} />
-      <GraphEdges model={model} layout={layout} colors={colors} search={search} />
+      {edges && <GraphEdges model={model} layout={layout} colors={colors} search={search} />}
       <ExternalShapes model={model} layout={layout} colors={colors} search={search} />
       {groups.map((group) => (
         <FileMotion key={group.id} position={layout.items[group.id].position}>
@@ -242,6 +247,7 @@ function CodeScene({
   unavailable: React.ReactNode;
 }) {
   const colors = useSceneColors();
+  const budget = useOverviewBudget();
   const [lost, setLost] = useState(false);
   const [ready, setReady] = useState(false);
   const minimap = useRef<HTMLCanvasElement>(null);
@@ -291,7 +297,7 @@ function CodeScene({
         aria-label="3D code scene"
         frameloop="demand"
         flat
-        dpr={[1, 1.5]}
+        dpr={[1, budget.dpr]}
         gl={{
           alpha: true,
           premultipliedAlpha: true,

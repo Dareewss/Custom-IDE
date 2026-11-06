@@ -1,3 +1,5 @@
+import { useSettings } from '../settings/store';
+import { useOverviewBudget } from './preferences';
 import { mutedColors } from './search';
 import type { searchModel } from '../../core/model/search';
 import { Edges } from '@react-three/drei';
@@ -20,6 +22,8 @@ export function ExternalShapes({
   colors: SceneColors;
   search: ReturnType<typeof searchModel>;
 }) {
+  const size = useSettings((state) => state.overviewNodeSize / 100);
+  const budget = useOverviewBudget();
   const show = useOverview((s) => s.showExternal);
   const expanded = useOverview((s) => s.externalExpanded);
   const nodes = model.nodes.filter((node) => node.kind === 'external');
@@ -51,7 +55,7 @@ export function ExternalShapes({
           }}
           onPointerOut={() => setOverviewHover(null)}
         >
-          <mesh>
+          <mesh scale={size}>
             <icosahedronGeometry args={[tokens.externalRadius, 0]} />
             <meshBasicMaterial
               color={colors.other}
@@ -78,7 +82,7 @@ export function ExternalShapes({
               }
             />
           </mesh>
-          {index < tokens.labelBudget && (
+          {index < budget.labels && (
             <SceneLabel
               nodeId={node?.id}
               priority={5}

@@ -1,3 +1,4 @@
+import { useOverviewBudget } from './preferences';
 import { Group, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
 import { geometryTokens as tokens } from '../../core/model/layout/tokens';
@@ -23,6 +24,7 @@ export function labelRegistry(canvas: HTMLCanvasElement) {
 const point = new Vector3(),
   projected = new Vector3();
 export function LabelCulling() {
+  const budget = useOverviewBudget();
   useFrame((state) => {
     const registry = labelRegistry(state.gl.domElement),
       boxes: LabelBox[] = [];
@@ -71,7 +73,7 @@ export function LabelCulling() {
               : entry.priority,
       });
     }
-    const visible = visibleLabels(boxes, state.size.width, state.size.height, tokens.labelBudget);
+    const visible = visibleLabels(boxes, state.size.width, state.size.height, budget.labels);
     for (const [id, entry] of registry) {
       const group = entry.get();
       if (group) group.visible = visible.has(id);
