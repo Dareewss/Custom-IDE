@@ -412,3 +412,37 @@
     outline-offset: -2px;
   }
 }
+
+.overview-body {
+  container-type: inline-size;
+  container-name: overview-body;
+}
+@container overview-body (max-width: 520px) {
+  .overview-node-info {
+    bottom: 150px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    max-height: min(45%, calc(100% - 202px));
+  }
+}
+
+.overview-body[data-outline='true'] {
+  display: flex;
+  flex-direction: column;
+}
+.overview-body[data-outline='true'] > .code-outline {
+  flex: 1;
+  min-height: 0;
+}
+.overview-body[data-outline='true'] > .overview-node-info {
+  position: relative;
+  order: 2;
+  right: auto;
+  bottom: auto;
+  flex-shrink: 0;
+  margin: 8px;
+  max-width: none;
+  max-height: 35%;
+  overflow: auto;
+  pointer-events: auto;
+}

@@ -203,7 +203,7 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
     state.gl.domElement.dataset.cameraTarget = JSON.stringify(
       control?.target.toArray().map((v) => +v.toFixed(4)) ?? [],
     );
-  });
+  }, -1);
   return (
     <OrbitControls
       ref={controls}

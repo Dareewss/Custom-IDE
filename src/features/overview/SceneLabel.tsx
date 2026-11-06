@@ -1,3 +1,4 @@
+import { labelPixels } from './label-pixels';
 import { useSettings } from '../settings/store';
 import type { ComponentProps } from 'react';
 import { labelRegistry } from './LabelCulling';
@@ -55,14 +56,14 @@ function VisibleSceneLabel({
   useFrame((state) => {
     if (!group.current) return;
     group.current.getWorldPosition(point.current);
-    const viewport = state.viewport.getCurrentViewport(state.camera, point.current);
+    const depth = point.current.applyMatrix4(state.camera.matrixWorldInverse).z;
     group.current.parent?.getWorldScale(parentScale.current);
-    const fontPixels =
-      (tokens.labelSize / Math.max(1e-6, viewport.height)) *
-      state.size.height *
-      Math.max(1e-6, Math.abs(parentScale.current.x));
-    const scale =
-      Math.max(tokens.labelMinPixels, Math.min(tokens.labelMaxPixels, fontPixels)) / fontPixels;
+    const { scale } = labelPixels(
+      depth,
+      state.camera.projectionMatrix.elements[5],
+      state.size.height,
+      parentScale.current.x,
+    );
     group.current.scale.setScalar(scale);
   });
   useEffect(() => {
@@ -130,11 +131,18 @@ function VisibleSceneLabel({
           renderOrder={10001}
           position={[0, 0, tokens.labelDepth]}
           onSync={onSync}
-          material-depthTest={false}
-          material-depthWrite={false}
-          material-opacity={1}
+          name="code-label-text"
         >
           {text}
+          <meshBasicMaterial
+            attach="material"
+            color={colors.labelText}
+            transparent
+            opacity={1}
+            depthTest={false}
+            depthWrite={false}
+            toneMapped={false}
+          />
         </Text>
       </Billboard>
     </group>

@@ -338,13 +338,23 @@ function FrameCounter({ model }: { model: CodeModel }) {
     const labels = gl.domElement.dataset.labelsReady ?? '0';
     if (measured.current?.model !== model || measured.current.labels !== labels) {
       const counts: Record<string, number> = {};
+      let labelCount = 0,
+        opaqueLabels = true;
       scene.traverse((object) => {
+        if (object instanceof Mesh && object.name === 'code-label-text') {
+          labelCount++;
+          const materials = Array.isArray(object.material) ? object.material : [object.material];
+          opaqueLabels &&= materials.every(
+            (material) => !material.depthTest && !material.depthWrite && material.opacity === 1,
+          );
+        }
         if (object instanceof Mesh)
           counts[object.geometry.type] =
             (counts[object.geometry.type] ?? 0) +
             (object instanceof InstancedMesh ? object.count : 1);
       });
       gl.domElement.dataset.geometryCounts = JSON.stringify(counts);
+      gl.domElement.dataset.labelMaterialsOpaque = String(labelCount > 0 && opaqueLabels);
       measured.current = { model, labels };
     }
   });

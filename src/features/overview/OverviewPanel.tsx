@@ -85,8 +85,8 @@ export function OverviewPanel() {
           Some code is incomplete. Showing recovered structure.
         </p>
       )}
-      <div className="overview-body">
-        {!outline && <NodeInfo />}
+      <div className="overview-body" data-outline={String(outline)}>
+        <NodeInfo />
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">
             Analyzing project…

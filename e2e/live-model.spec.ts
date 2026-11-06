@@ -28,19 +28,46 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
     await editor.press('Control+Home');
     await expect(page.getByRole('tooltip').locator('strong')).toHaveText('stable');
     const id = await panel.getAttribute('data-selected-node');
+    await expect(panel).toHaveAttribute('aria-busy', 'false');
+    await panel.evaluate((element) => {
+      let began: number | null = null;
+      const observer = new MutationObserver(() => {
+        if (element.getAttribute('aria-busy') === 'true' && began === null)
+          began = performance.now();
+        if (element.getAttribute('data-model-nodes') === '5' && began !== null) {
+          element.setAttribute('data-observed-debounce-ms', String(performance.now() - began));
+          observer.disconnect();
+        }
+      });
+      observer.observe(element, {
+        attributes: true,
+        attributeFilter: ['aria-busy', 'data-model-nodes'],
+      });
+    });
     await editor.press('Control+A');
     await page.keyboard.insertText(original + '\nextra = 2\n');
-    await page.waitForTimeout(150);
-    await expect(panel).toHaveAttribute('data-model-nodes', '4');
     await expect(panel).toHaveAttribute('data-model-nodes', '5');
+    expect(Number(await panel.getAttribute('data-observed-debounce-ms'))).toBeGreaterThanOrEqual(
+      290,
+    );
     await expect(panel).toHaveAttribute('data-added-nodes', '1');
     await expect(panel).toHaveAttribute('data-selected-node', id!);
+    if (reducedMotion === 'no-preference')
+      await canvas.evaluate((element) => {
+        const observer = new MutationObserver(() => {
+          if (element.getAttribute('data-ghost-count') === '1') {
+            element.setAttribute('data-observed-removal-ghost', 'true');
+            observer.disconnect();
+          }
+        });
+        observer.observe(element, { attributes: true, attributeFilter: ['data-ghost-count'] });
+      });
     await editor.press('Control+A');
     await page.keyboard.insertText(original);
     await expect(panel).toHaveAttribute('data-model-nodes', '4');
     await expect(panel).toHaveAttribute('data-removed-nodes', '1');
     if (reducedMotion === 'no-preference')
-      await expect(canvas).toHaveAttribute('data-ghost-count', '1');
+      await expect(canvas).toHaveAttribute('data-observed-removal-ghost', 'true');
     await expect(canvas).toHaveAttribute('data-ghost-count', '0');
     await editor.press('Control+A');
     await page.keyboard.insertText('def stable(:\n    value =\n');

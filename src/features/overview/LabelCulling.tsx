@@ -1,3 +1,4 @@
+import { labelPixels } from './label-pixels';
 import { useOverviewBudget } from './preferences';
 import { Group, Vector3 } from 'three';
 import { useFrame } from '@react-three/fiber';
@@ -22,10 +23,12 @@ export function labelRegistry(canvas: HTMLCanvasElement) {
   return registry;
 }
 const point = new Vector3(),
-  projected = new Vector3();
+  projected = new Vector3(),
+  parentScale = new Vector3();
 export function LabelCulling() {
   const budget = useOverviewBudget();
   useFrame((state) => {
+    state.camera.updateMatrixWorld();
     const registry = labelRegistry(state.gl.domElement),
       boxes: LabelBox[] = [];
     const selection = useOverview.getState();
@@ -55,16 +58,20 @@ export function LabelCulling() {
         group.visible = false;
         continue;
       }
-      const viewport = state.viewport.getCurrentViewport(state.camera, point);
-      const fontPixels = (tokens.labelSize / Math.max(1e-6, viewport.height)) * state.size.height;
-      const scale =
-        Math.max(tokens.labelMinPixels, Math.min(tokens.labelMaxPixels, fontPixels)) / fontPixels;
+      const depth = point.applyMatrix4(state.camera.matrixWorldInverse).z;
+      group.parent?.getWorldScale(parentScale);
+      const { pixels } = labelPixels(
+        depth,
+        state.camera.projectionMatrix.elements[5],
+        state.size.height,
+        parentScale.x,
+      );
       boxes.push({
         id,
         x: ((projected.x + 1) / 2) * state.size.width,
         y: ((1 - projected.y) / 2) * state.size.height,
-        width: ((entry.width * scale) / viewport.height) * state.size.height,
-        height: ((entry.height * scale) / viewport.height) * state.size.height,
+        width: (entry.width / tokens.labelSize) * pixels,
+        height: (entry.height / tokens.labelSize) * pixels,
         priority:
           entry.nodeId === selection.selectedNodeId
             ? entry.priority / 100

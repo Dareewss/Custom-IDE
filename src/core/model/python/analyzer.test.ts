@@ -7,6 +7,7 @@ import { IncrementalPythonAnalyzer } from './incremental';
 import { sourceEdit } from './source-edit';
 import { buildModelIndexes, nodeAtPosition } from '../indexes';
 import type { CodeModel } from '../types';
+import { overviewTour } from '../../../features/projects/overview-tour';
 
 let language: Language;
 let constructs: string;
@@ -35,6 +36,31 @@ function create() {
 const analyze = (analyzer: IncrementalPythonAnalyzer, content: string) =>
   analyzer.analyze({ 'main.py': { kind: 'file', content } });
 const named = (model: CodeModel, name: string) => model.nodes.find((n) => n.name === name)!;
+
+it('analyzes the runnable multi-file 3D Tour with every supported shape and honest edges', () => {
+  const model = create().analyze(overviewTour.tree);
+  expect(model.issues).toEqual([]);
+  expect(new Set(model.nodes.map((node) => node.kind))).toEqual(
+    new Set([
+      'file',
+      'class',
+      'function',
+      'method',
+      'variable',
+      'collection',
+      'loop',
+      'condition',
+      'import',
+      'external',
+    ]),
+  );
+  expect(model.edges.some((edge) => edge.kind === 'inherits' && edge.resolved)).toBe(true);
+  expect(model.edges.some((edge) => edge.kind === 'import' && edge.resolved)).toBe(true);
+  expect(model.edges.some((edge) => edge.kind === 'call' && !edge.resolved)).toBe(true);
+  expect(named(model, 'Counter').fileId).toBe('tour/models.py');
+  expect(named(model, 'summarize').fileId).toBe('tour/analysis.py');
+  expect(named(model, 'values').meta.elementCount).toBe(6);
+});
 
 it('extracts real Python classes, methods, nested functions, params and literal values', () => {
   const model = analyze(create(), constructs);

@@ -96,6 +96,7 @@ export function Outline({ nodes }: { nodes: CodeNode[] }) {
             aria-posinset={position}
             aria-setsize={siblings}
             aria-expanded={node.children.length ? !collapsed : undefined}
+            aria-describedby={selected === node.id ? 'overview-node-info' : undefined}
             aria-selected={selected === node.id}
             tabIndex={tabId === node.id ? 0 : -1}
             style={{ paddingInlineStart: `${12 + (depth - 1) * 12}px`, height: rowHeight }}

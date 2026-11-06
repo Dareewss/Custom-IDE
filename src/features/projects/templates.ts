@@ -1,4 +1,5 @@
 import { python, type ProjectTemplate } from '../../core/language/adapter';
+import { overviewTour } from './overview-tour';
 
 export const templates: ProjectTemplate[] = [
   {
@@ -76,5 +77,6 @@ export const templates: ProjectTemplate[] = [
       },
     },
   },
+  overviewTour,
 ];
 python.templates = templates;
