@@ -19,6 +19,7 @@ test('applies real 3D preferences and restores the project camera across modes a
   const canvas = page.locator('.code-canvas canvas');
   await expect(panel).toHaveAttribute('data-visible-nodes', '9');
   await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
   await page.getByRole('group', { name: '3D navigation', exact: true }).focus();
   const initialPosition = await canvas.getAttribute('data-camera-position');
   await page.keyboard.press('Shift+ArrowRight');

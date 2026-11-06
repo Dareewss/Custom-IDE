@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
 import './completion';
@@ -77,6 +77,8 @@ export default function CodeEditor() {
     const location = useLocation.getState().target;
     if (location?.path === useWorkspace.getState().active) {
       editor.setPosition({ lineNumber: location.line, column: location.column });
+      const position = editor.getPosition();
+      if (position) useCursor.setState({ line: position.lineNumber, column: position.column });
       editor.revealLineInCenter(location.line);
       editor.focus();
     }
@@ -119,6 +121,34 @@ export default function CodeEditor() {
   }, [active, breakpoints, pauseLocation]);
   useEffect(() => {
     if (ref.current && target?.path === active) reveal(ref.current);
+  }, [target, active]);
+  useLayoutEffect(() => {
+    const editor = ref.current;
+    if (!editor || !target || target.path !== active) return;
+    const previousFocus = document.activeElement;
+    // A click's default focus and panel resize can follow the source reveal.
+    let handoff = 0;
+    const frame = requestAnimationFrame(() => {
+      handoff = requestAnimationFrame(() => {
+        if (
+          ref.current !== editor ||
+          useLocation.getState().target !== target ||
+          editor.hasTextFocus()
+        )
+          return;
+        const current = document.activeElement;
+        if (
+          current === previousFocus ||
+          current === document.body ||
+          (current && editor.getDomNode()?.contains(current))
+        )
+          editor.focus();
+      });
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(handoff);
+    };
   }, [target, active]);
   useEffect(() => {
     if (!active || node?.kind !== 'file') return;

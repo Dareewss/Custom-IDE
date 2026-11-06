@@ -47,8 +47,20 @@ test('synchronizes real Monaco selection, camera and hover while preserving brea
     'true',
   );
   await page.getByRole('treeitem', { name: 'variable total', exact: true }).click();
-  await expect(editor).toBeFocused();
   await expect(page.locator('.statusbar')).toContainText('Ln 5, Col 9');
+  try {
+    await expect(editor).toBeFocused();
+  } catch (error) {
+    console.log(
+      'Source focus diagnostic:',
+      await page.evaluate(() => ({
+        tag: document.activeElement?.tagName,
+        className: document.activeElement?.className,
+        label: document.activeElement?.getAttribute('aria-label'),
+      })),
+    );
+    throw error;
+  }
   await expect(page.locator('.overview-source-selected')).not.toHaveCount(0);
   await expect(page.locator('.breakpoint-glyph')).toHaveCount(1);
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();

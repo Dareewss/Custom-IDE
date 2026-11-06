@@ -923,3 +923,18 @@ button:hover:not(:disabled) {
     padding-inline: 8px;
   }
 }
+
+@container source-pane (max-width: 260px) {
+  .editor-toolbar {
+    height: auto;
+  }
+  .toolbar-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .toolbar-actions > * {
+    flex-shrink: 0;
+  }
+}

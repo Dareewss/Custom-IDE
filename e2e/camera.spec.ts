@@ -34,6 +34,13 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
     await page.getByRole('button', { name: 'Fit all objects (Home)', exact: true }).click();
     await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
     await expect(canvas).toHaveAttribute('data-camera-target', target!);
+    await expect
+      .poll(async () => {
+        const before = await canvas.getAttribute('data-render-frames');
+        await page.waitForTimeout(250);
+        return before === (await canvas.getAttribute('data-render-frames'));
+      })
+      .toBe(true);
     const frames = await canvas.getAttribute('data-render-frames');
     await page.waitForTimeout(450);
     expect(await canvas.getAttribute('data-render-frames')).toBe(frames);

@@ -36,6 +36,17 @@ test('runs the multi-file 3D Tour and explores its real source structure', async
   await expect(page.locator('.breadcrumbs')).toContainText('analysis.py');
   await expect(page.locator('.statusbar')).toContainText('Ln 1, Col 1');
   await expect(page.getByRole('tooltip').locator('strong')).toHaveText('summarize');
+  await page.getByLabel('Object kind filter', { exact: true }).selectOption('method');
+  await search.fill('add');
+  await search.press('Enter');
+  await expect(page.locator('.breadcrumbs')).toContainText('models.py');
+  await expect(page.locator('.statusbar')).toContainText('Ln 12, Col 5');
+  await page.getByLabel('Object kind filter', { exact: true }).selectOption('function');
+  await search.fill('summarize');
+  await search.press('Enter');
+  await expect(page.locator('.breadcrumbs')).toContainText('analysis.py');
+  await expect(page.locator('.statusbar')).toContainText('Ln 1, Col 1');
+
   const info = await page.getByRole('tooltip').boundingBox();
   const map = await page
     .getByRole('button', {
@@ -68,11 +79,18 @@ test('runs the multi-file 3D Tour and explores its real source structure', async
   await page.waitForTimeout(350);
   await page.screenshot({ path: 'docs/screenshots/phase2/tour-overview.png' });
   await layouts.getByRole('button', { name: 'Split', exact: true }).click();
-  const editor = await page.locator('.editor-card').boundingBox();
-  const run = await page.getByRole('button', { name: 'Run file', exact: true }).boundingBox();
-  if (editor && run) {
-    expect(run.x).toBeGreaterThanOrEqual(editor.x);
-    expect(run.x + run.width).toBeLessThanOrEqual(editor.x + editor.width);
-  }
+  await expect
+    .poll(async () => {
+      const editor = await page.locator('.editor-card').boundingBox();
+      const run = await page.getByRole('button', { name: 'Run file', exact: true }).boundingBox();
+      return (
+        !!editor &&
+        !!run &&
+        editor.width >= 180 &&
+        run.x >= editor.x &&
+        run.x + run.width <= editor.x + editor.width
+      );
+    })
+    .toBe(true);
   expect(errors).toEqual([]);
 });
