@@ -35,6 +35,14 @@ try {
     env,
   });
   const page = await application.firstWindow();
+  // Emulate renderer viewport only; keep every native window hidden and its bounds unchanged.
+  const nativeBounds = await application.evaluate(({ BrowserWindow }) =>
+    BrowserWindow.getAllWindows()[0].getBounds(),
+  );
+  await page.setViewportSize({ width: 1440, height: 960 });
+  expect(
+    await application.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds()),
+  ).toEqual(nativeBounds);
   page.setDefaultTimeout(30000);
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => {
@@ -80,6 +88,7 @@ try {
     await page.getByRole('button', { name: 'Pop out 3D view', exact: true }).click();
     const popup = await created;
     popup.setDefaultTimeout(30000);
+    await popup.setViewportSize({ width: 1000, height: 760 });
     popup.on('pageerror', (error) => errors.push(error.message));
     await expect(popup.getByRole('button', { name: 'Dock 3D view', exact: true })).toBeVisible();
     await assertHidden(2);
@@ -150,6 +159,7 @@ try {
       'Native overview state:',
       await page
         .evaluate(() => ({
+          viewport: [innerWidth, innerHeight],
           visibility: document.visibilityState,
           body: document.querySelector('.overview-body')?.textContent?.slice(0, 200),
           busy: document.querySelector('.overview-panel')?.getAttribute('aria-busy'),

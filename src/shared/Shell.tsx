@@ -42,10 +42,12 @@ const subscribe = (notify: () => void) => {
   return () => window.removeEventListener('resize', notify);
 };
 const getWide = () => window.innerWidth >= 1100;
+const getSourceHorizontal = () => window.innerWidth >= 760;
 
 export function Shell(props: ShellProps) {
   const ui = useUI();
   const wide = useSyncExternalStore(subscribe, getWide, () => true);
+  const sourceHorizontal = useSyncExternalStore(subscribe, getSourceHorizontal, () => true);
   const docked = ui.layout === 'split' && wide;
   const content = {
     Console: props.console,
@@ -169,10 +171,10 @@ export function Shell(props: ShellProps) {
               <Panel minSize={docked ? '250px' : '120px'} defaultSize={docked ? '68%' : '72%'}>
                 <Group
                   className="source-overview-layout"
-                  orientation={wide ? 'horizontal' : 'vertical'}
+                  orientation={sourceHorizontal ? 'horizontal' : 'vertical'}
                 >
                   {(ui.layout !== '3d' || props.overviewDetached) && (
-                    <Panel minSize={wide ? '180px' : '80px'}>
+                    <Panel minSize={sourceHorizontal ? '180px' : '80px'}>
                       <GlassPanel className="editor-card" variant="editor">
                         <div className="editor-toolbar">
                           <span className="editor-section-label">
@@ -194,11 +196,11 @@ export function Shell(props: ShellProps) {
                     <>
                       {ui.layout === 'split' && (
                         <Separator
-                          className={`separator ${wide ? 'vertical' : 'horizontal'}`}
+                          className={`separator ${sourceHorizontal ? 'vertical' : 'horizontal'}`}
                           aria-label="Resize code overview"
                         />
                       )}
-                      <Panel minSize={wide ? '180px' : '80px'}>
+                      <Panel minSize={sourceHorizontal ? '180px' : '80px'}>
                         <GlassPanel className="overview-card" variant="editor">
                           {props.overview}
                         </GlassPanel>

@@ -130,3 +130,15 @@ test('keeps the camera through both moves and accepts navigation in the separate
   await expect(mainCanvas).toHaveAttribute('data-camera-position', rotated!);
   await expect(mainCanvas).toHaveAttribute('data-camera-target', target!);
 });
+
+test('keeps real 3D render space at the minimum desktop viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 560 });
+  await openFixture(page);
+  const canvas = page.locator('.code-canvas canvas');
+  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  const body = await page.locator('.overview-body').boundingBox();
+  expect(body?.height).toBeGreaterThan(60);
+  expect(body?.width).toBeGreaterThan(170);
+  await expect(page.locator('.monaco-editor')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pop out 3D view', exact: true })).toBeVisible();
+});
