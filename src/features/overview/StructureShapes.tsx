@@ -85,7 +85,7 @@ export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
   const dragEvents = useFunctionDrag(node, events.onClick);
   const group = useRef<Group>(null);
   const point = useRef(new Vector3());
-  useFrame(({ camera, gl }) => {
+  useFrame(({ camera, gl, size: viewport }) => {
     if (!selected || !group.current) return;
     group.current.getWorldPosition(point.current);
     const world = point.current.toArray();
@@ -94,6 +94,7 @@ export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
       id: node.id,
       name: node.name,
       world,
+      viewport: [viewport.width, viewport.height],
       ndc: point.current.toArray(),
     });
   });

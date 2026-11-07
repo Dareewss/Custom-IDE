@@ -54,6 +54,8 @@ export function OverviewPanel({
       data-added-nodes={state.diff.added.length}
       data-removed-nodes={state.diff.removed.length}
       data-model-revision={state.modelRevision}
+      data-hovered-node={state.hoveredNodeId ?? ''}
+      data-moving-node={state.movingNodeId ?? ''}
       data-selected-node={state.selectedNodeId ?? ''}
       data-analysis-ms={state.analysisMs.toFixed(1)}
       data-layout-ms={state.layoutMs.toFixed(1)}

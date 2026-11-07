@@ -70,6 +70,7 @@ export default function CodeEditor() {
   const pauseLocation = useRunner((s) => s.pauseLocation);
   const collection = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const ref = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const focusInterrupted = useRef(false);
   const node = active ? tree[active] : undefined;
   const diagnostics = useDiagnostics();
   const target = useLocation((s) => s.target);
@@ -80,7 +81,7 @@ export default function CodeEditor() {
       const position = editor.getPosition();
       if (position) useCursor.setState({ line: position.lineNumber, column: position.column });
       editor.revealLineInCenter(location.line);
-      editor.focus();
+      if (!focusInterrupted.current) editor.focus();
     }
   };
   const onMount: OnMount = (editor) => {
@@ -113,7 +114,7 @@ export default function CodeEditor() {
     editor.onDidChangeCursorPosition((event) =>
       useCursor.setState({ line: event.position.lineNumber, column: event.position.column }),
     );
-    editor.focus();
+    if (!focusInterrupted.current) editor.focus();
     reveal(editor);
   };
   useEffect(() => {
@@ -124,13 +125,27 @@ export default function CodeEditor() {
   }, [target, active]);
   useLayoutEffect(() => {
     const editor = ref.current;
-    if (!editor || !target || target.path !== active) return;
+    if (!target || target.path !== active) return;
+    focusInterrupted.current = false;
     const previousFocus = document.activeElement;
+    let userInteracted = false;
+    const interrupt = () => {
+      userInteracted = true;
+      focusInterrupted.current = true;
+    };
+    const events = ['pointerdown', 'keydown', 'input'] as const;
+    for (const event of events) document.addEventListener(event, interrupt, true);
+    const detach = () => {
+      for (const event of events) document.removeEventListener(event, interrupt, true);
+    };
+    if (!editor) return detach;
     // A click's default focus and panel resize can follow the source reveal.
     let handoff = 0;
     const frame = requestAnimationFrame(() => {
       handoff = requestAnimationFrame(() => {
+        detach();
         if (
+          userInteracted ||
           ref.current !== editor ||
           useLocation.getState().target !== target ||
           editor.hasTextFocus()
@@ -148,6 +163,7 @@ export default function CodeEditor() {
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(handoff);
+      detach();
     };
   }, [target, active]);
   useEffect(() => {

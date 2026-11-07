@@ -27,18 +27,22 @@ async function layers(page: Page): Promise<Layer[]> {
 }
 async function hitPoint(page: Page, name: string) {
   const canvas = page.locator('.code-canvas canvas');
-  const box = (await canvas.boundingBox())!;
   await expect
     .poll(async () => {
       const layer = (await layers(page)).find((layer) => layer.name === name)!;
       const hit = JSON.parse((await canvas.getAttribute('data-selected-function-hit')) ?? 'null');
+      const box = await canvas.boundingBox();
       return (
+        !!box &&
+        Math.abs(box.width - hit?.viewport?.[0]) < 1 &&
+        Math.abs(box.height - hit?.viewport?.[1]) < 1 &&
         hit?.name === name &&
         layer.header.every((axis, index) => Math.abs(axis - hit.world[index]) < 1e-4)
       );
     })
     .toBe(true);
   const hit = JSON.parse((await canvas.getAttribute('data-selected-function-hit'))!);
+  const box = (await canvas.boundingBox())!;
   const point = { x: hit.ndc[0], y: hit.ndc[1] };
   return {
     x: box.x + ((point.x + 1) * box.width) / 2,
@@ -78,11 +82,19 @@ test('separates function layers on Z, drags their actual geometry, persists offs
   await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
   await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
   const cameraBefore = await canvas.getAttribute('data-camera-position');
+  await page.getByRole('button', { name: '3D', exact: true }).hover();
   let point = await hitPoint(page, 'beta');
   await page.mouse.move(point.x, point.y);
-  await expect(page.getByRole('tooltip').locator('strong')).toHaveText('beta');
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'data-hovered-node',
+    beta.id,
+  );
   await page.mouse.down();
   await page.mouse.move(point.x + 55, point.y + 18, { steps: 8 });
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'data-moving-node',
+    beta.id,
+  );
   await page.mouse.up();
   const x = page.getByRole('spinbutton', { name: 'Function X offset', exact: true });
   await expect.poll(async () => Math.abs(Number(await x.inputValue()))).toBeGreaterThan(0.1);
@@ -96,9 +108,13 @@ test('separates function layers on Z, drags their actual geometry, persists offs
   const z = page.getByRole('spinbutton', { name: 'Function Z offset', exact: true });
   const zBefore = Number(await z.inputValue()),
     xBefore = Number(await x.inputValue());
+  await page.getByRole('button', { name: '3D', exact: true }).hover();
   point = await hitPoint(page, 'beta');
   await page.mouse.move(point.x, point.y);
-  await expect(page.getByRole('tooltip').locator('strong')).toHaveText('beta');
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'data-hovered-node',
+    beta.id,
+  );
   await page.keyboard.down('Shift');
   await page.mouse.down();
   await page.mouse.move(point.x, point.y - 35, { steps: 8 });

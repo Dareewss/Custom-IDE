@@ -39,6 +39,9 @@ test('searches real hidden objects, filters types, dims the scene and opens from
   await expect(page.getByText('No objects match this search.', { exact: true })).toBeVisible();
   await input.press('Escape');
   await expect(input).toHaveValue('');
+  await input.fill('not_found');
+  await expect(page.getByText('No objects match this search.', { exact: true })).toBeVisible();
+  await input.press('Escape');
   await page.getByLabel('Object kind filter', { exact: true }).selectOption('variable');
   await input.fill('main.py');
   await expect(results.getByRole('option')).toHaveCount(5);

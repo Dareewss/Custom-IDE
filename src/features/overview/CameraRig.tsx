@@ -55,6 +55,15 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
         controls.current.target.copy(target);
         controls.current.update();
       }
+      // A layout change can unmount this scene before its first frame. Retain the
+      // pose now so a consumed focus request cannot restore the previous camera.
+      if (camera instanceof PerspectiveCamera)
+        pendingCamera.current = {
+          position: camera.position.toArray() as Vec3,
+          target: (controls.current?.target ?? target).toArray() as Vec3,
+          near: camera.near,
+          far: camera.far,
+        };
     },
     [get],
   );

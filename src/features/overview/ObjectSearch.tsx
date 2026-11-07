@@ -55,6 +55,7 @@ export function ObjectSearch() {
           aria-activedescendant={open && index >= 0 ? `object-result-${index}` : undefined}
           onFocus={() => setOpen(true)}
           onChange={(event) => {
+            setOpen(true);
             setActive(0);
             useOverview.setState({ searchQuery: event.target.value.slice(0, 500) });
           }}
