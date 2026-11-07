@@ -76,7 +76,19 @@ export function ObjectSearch() {
             }
             if (event.key === 'Enter') {
               event.preventDefault();
-              choose(index);
+              // Input/filter updates can precede a concurrent scene commit. Search the
+              // latest text and store snapshot, rather than activating stale results.
+              const latest = useOverview.getState();
+              const text = event.currentTarget.value;
+              const current = latest.model
+                ? searchModel(latest.model, text, latest.searchKind).matches.slice(0, 100)
+                : [];
+              const target = text === query && latest.searchKind === kind ? active : 0;
+              const node = current[Math.max(0, Math.min(target, current.length - 1))];
+              if (node) {
+                setOpen(false);
+                selectOverviewNode(node);
+              }
             }
           }}
         />

@@ -29,8 +29,11 @@ test('renders local 3D text under the actual packaged desktop content policy', a
     expect(errors).toEqual([]);
   } finally {
     await page.goto('about:blank');
-    await new Promise<void>((accept, reject) =>
-      server.close((error) => (error ? reject(error) : accept())),
-    );
+    await new Promise<void>((accept, reject) => {
+      server.close((error) => (error ? reject(error) : accept()));
+      // The fixture owns these requests; abandoned font/worker connections must not
+      // keep teardown alive after its page has navigated away.
+      server.closeAllConnections();
+    });
   }
 });

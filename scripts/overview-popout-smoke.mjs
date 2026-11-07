@@ -21,17 +21,26 @@ if (!executablePath) {
   await cp('dist', env.CODE_ATLAS_ASSETS_DIR, { recursive: true });
 }
 let application;
+const rendererArguments =
+  process.env.CI || process.env.CODE_ATLAS_SOFTWARE_RENDERER === '1'
+    ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader']
+    : [];
+const errors = [];
+const rendererErrors = [];
 try {
   application = await _electron.launch({
     ...(executablePath
-      ? { executablePath, args: [] }
-      : { args: [resolve('desktop-out/main.cjs')] }),
+      ? { executablePath, args: rendererArguments }
+      : { args: [...rendererArguments, resolve('desktop-out/main.cjs')] }),
     env,
   });
   const page = await application.firstWindow();
   page.setDefaultTimeout(30000);
-  const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error' && rendererErrors.length < 12)
+      rendererErrors.push(message.text().slice(0, 1000));
+  });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   const zip = new JSZip();
@@ -44,6 +53,15 @@ try {
   await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4', {
     timeout: 30000,
   });
+  if (rendererArguments.length) {
+    const renderer = await page.locator('.code-canvas canvas').evaluate((element) => {
+      const gl = element.getContext('webgl2');
+      const info = gl?.getExtension('WEBGL_debug_renderer_info');
+      return info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '';
+    });
+    expect(renderer).toMatch(/SwiftShader/i);
+    console.log('Native CI uses an isolated SwiftShader renderer.');
+  }
   const assertHidden = async (count) => {
     const states = await application.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows().map((window) => ({
@@ -125,6 +143,27 @@ try {
   console.log(
     'Hidden native pop-out: real 3D labels, shared selection, own controls/IPC, dock/reopen, parent close and window security passed.',
   );
+} catch (error) {
+  console.error('Native overview errors:', errors, rendererErrors);
+  for (const page of application?.windows() ?? []) {
+    console.error(
+      'Native overview state:',
+      await page
+        .evaluate(() => ({
+          visibility: document.visibilityState,
+          body: document.querySelector('.overview-body')?.textContent?.slice(0, 200),
+          busy: document.querySelector('.overview-panel')?.getAttribute('aria-busy'),
+          canvas: [...document.querySelectorAll('canvas')].map((element) => ({
+            width: element.clientWidth,
+            height: element.clientHeight,
+            frames: element.getAttribute('data-render-frames'),
+            labels: element.getAttribute('data-labels-ready'),
+          })),
+        }))
+        .catch(() => 'Renderer unavailable'),
+    );
+  }
+  throw error;
 } finally {
   if (application) {
     await application.evaluate(({ app }) => app.exit(0)).catch(() => {});
