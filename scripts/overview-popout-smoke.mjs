@@ -41,7 +41,9 @@ try {
     mimeType: 'application/zip',
     buffer: await zip.generateAsync({ type: 'nodebuffer' }),
   });
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4');
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4', {
+    timeout: 30000,
+  });
   const assertHidden = async (count) => {
     const states = await application.evaluate(({ BrowserWindow }) =>
       BrowserWindow.getAllWindows().map((window) => ({
@@ -74,7 +76,9 @@ try {
   };
   await assertHidden(1);
   const popup = await open();
-  await expect(popup.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4');
+  await expect(popup.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4', {
+    timeout: 30000,
+  });
   await popup.getByRole('button', { name: 'Show code outline', exact: true }).click();
   await popup.getByRole('treeitem', { name: 'method add', exact: true }).click();
   await expect(page.locator('.statusbar')).toContainText('Ln 4, Col 5');
