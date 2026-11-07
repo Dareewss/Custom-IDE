@@ -79,7 +79,9 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
       const { camera } = get();
       if (!(camera instanceof PerspectiveCamera)) return;
       const direction = reset
-        ? ([0, 0.1, 1] as Vec3)
+        ? ((layout.bounds.max[2] - layout.bounds.min[2] > 2
+            ? [0.55, 0.32, 1]
+            : [0, 0.1, 1]) as Vec3)
         : (camera.position
             .clone()
             .sub(controls.current?.target ?? new Vector3())
@@ -90,7 +92,7 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
       camera.updateProjectionMatrix();
       move(result.position, result.target, instant);
     },
-    [get, width, height, move],
+    [get, width, height, move, layout.bounds],
   );
   useLayoutEffect(() => {
     const size = `${Math.round(width)}x${Math.round(height)}`;

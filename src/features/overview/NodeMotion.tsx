@@ -1,3 +1,4 @@
+import { useOverview } from './store';
 import { useLayoutEffect, useMemo, useRef, type ReactNode } from 'react';
 import { animated, useSpring } from '@react-spring/three';
 import { useThree } from '@react-three/fiber';
@@ -20,6 +21,7 @@ export function NodeMotion({
   added: boolean;
   children: ReactNode;
 }) {
+  const moving = useOverview((state) => state.movingNodeId !== null);
   const anchor = useMemo(
     () =>
       ['function', 'method', 'condition'].includes(node.kind)
@@ -46,14 +48,14 @@ export function NodeMotion({
       },
       to: { x: 0, y: 0, z: 0, scale: 1 },
       reset: true,
-      immediate: !!reduced,
+      immediate: !!reduced || moving,
       config: { duration: tokens.updateDuration },
       onChange: () => get().invalidate(),
     });
     return () => {
       api.stop();
     };
-  }, [anchor, root, added, api, get, reduced]);
+  }, [anchor, root, added, api, get, reduced, moving]);
   return (
     <animated.group
       position-x={spring.x.to((x) => anchor[0] + x)}

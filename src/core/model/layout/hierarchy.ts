@@ -3,7 +3,7 @@ import { branchDimensions, branchGroups, branchLanes, loopDimensions } from './c
 import { collectionCells, collectionDimensions } from './collections';
 import { functionWidth, headerPosition } from './metrics';
 import { geometryTokens as tokens } from './tokens';
-import type { CodeModel } from '../types';
+import type { CodeModel, CodeNode } from '../types';
 import type { GraphLayout, Vec3 } from './types';
 
 /** Deterministic containment layout; all measurement uses model data in a worker. */
@@ -13,6 +13,8 @@ export function hierarchicalLayout(
 ): GraphLayout {
   const byId = new Map(model.nodes.map((node) => [node.id, node]));
   const sizes = new Map<string, Vec3>();
+  const order: CodeNode[] = [];
+  const callable = (id: string) => ['function', 'method'].includes(byId.get(id)?.kind ?? '');
   const roots = model.nodes
     .filter((node) => node.parentId === null)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -25,6 +27,7 @@ export function hierarchicalLayout(
       for (const child of node.children) pending.push({ id: child, visited: false });
       continue;
     }
+    order.push(node);
     if (node.meta.role === 'parameter') {
       sizes.set(node.id, [tokens.portRadius * 2, tokens.portRadius * 2, tokens.portRadius * 2]);
       continue;
@@ -89,11 +92,16 @@ export function hierarchicalLayout(
               ? tokens.functionHeaderHeight
               : tokens.leafHeight);
     const width = Math.max(baseWidth, ...children.map((size) => size[0] + tokens.inset));
+    const inline = node.children.filter(
+      (id) => !callable(id) && byId.get(id)?.meta.role !== 'parameter',
+    );
+    const layers = node.children.filter(callable);
     const height = Math.max(
       baseHeight,
-      children.length
-        ? children.reduce<number>((sum, size) => sum + size[1] + tokens.siblingGap, contentInset)
+      inline.length
+        ? inline.reduce((sum, id) => sum + sizes.get(id)![1] + tokens.siblingGap, contentInset)
         : 0,
+      ...layers.map((id) => sizes.get(id)![1] + contentInset),
     );
     const depth =
       node.kind === 'class'
@@ -107,7 +115,23 @@ export function hierarchicalLayout(
               : node.kind === 'file' || children.length
                 ? tokens.containerDepth
                 : tokens.leafDepth;
-    sizes.set(node.id, [width, height, depth]);
+    const padding = node.kind === 'file' ? tokens.filePadding : 0;
+    sizes.set(node.id, [width + padding, height + padding, depth]);
+  }
+  // Functions occupy separate forward-facing Z layers; body objects stay with their function.
+  // Account for each entire subtree so neighboring layers cannot intersect.
+  const forward = new Map<string, number>();
+  const childDepth = new Map<string, number>();
+  for (const node of order) {
+    let next = tokens.functionLayerGap;
+    let extent = sizes.get(node.id)![2] / 2;
+    for (const id of node.children) {
+      const depth = callable(id) ? next : tokens.depthStep;
+      childDepth.set(id, depth);
+      extent = Math.max(extent, depth + forward.get(id)!);
+      if (callable(id)) next += forward.get(id)! + tokens.functionLayerGap;
+    }
+    forward.set(node.id, extent);
   }
   const external = roots.filter((node) => node.kind === 'external');
   const files = roots.filter((node) => node.kind !== 'external');
@@ -179,10 +203,10 @@ export function hierarchicalLayout(
             position: [
               lane.position[0],
               branchTop - childSize[1] / 2,
-              current.position[2] + tokens.depthStep,
+              current.position[2] + childDepth.get(child)!,
             ],
           });
-          branchTop -= childSize[1] + tokens.siblingGap;
+          if (!callable(child)) branchTop -= childSize[1] + tokens.siblingGap;
         }
       }
       continue;
@@ -194,17 +218,18 @@ export function hierarchicalLayout(
       );
       top = current.position[1] + bodyHeight / 2;
     }
+    const layerTop = top;
     for (const child of node.children.filter((id) => byId.get(id)?.meta.role !== 'parameter')) {
       const childSize = sizes.get(child)!;
       place.push({
         id: child,
         position: [
           current.position[0],
-          top - childSize[1] / 2,
-          current.position[2] + tokens.depthStep,
+          (callable(child) ? layerTop : top) - childSize[1] / 2,
+          current.position[2] + childDepth.get(child)!,
         ],
       });
-      top -= childSize[1] + tokens.siblingGap;
+      if (!callable(child)) top -= childSize[1] + tokens.siblingGap;
     }
   }
   if (!roots.length)

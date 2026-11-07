@@ -1,3 +1,5 @@
+import { offsetLayout } from '../../core/model/layout/offsets';
+import { FunctionTethers } from './FunctionTethers';
 import { useSettings } from '../settings/store';
 import { useOverviewBudget } from './preferences';
 import { LabelCulling } from './LabelCulling';
@@ -128,7 +130,12 @@ function Contents({
         intensity={geometryTokens.directionalLight}
       />
       <GhostNodes colors={colors} />
-      {edges && <GraphEdges model={model} layout={layout} colors={colors} search={search} />}
+      {edges && (
+        <>
+          <GraphEdges model={model} layout={layout} colors={colors} search={search} />
+          <FunctionTethers model={model} layout={layout} colors={colors} />
+        </>
+      )}
       <ExternalShapes model={model} layout={layout} colors={colors} search={search} />
       {groups.map((group) => (
         <FileMotion key={group.id} position={layout.items[group.id].position}>
@@ -239,13 +246,18 @@ function Contents({
 
 function CodeScene({
   model,
-  layout,
+  layout: baseLayout,
   unavailable,
 }: {
   model: CodeModel;
   layout: GraphLayout;
   unavailable: React.ReactNode;
 }) {
+  const offsets = useOverview((state) => state.functionOffsets);
+  const layout = useMemo(
+    () => offsetLayout(model, baseLayout, offsets),
+    [model, baseLayout, offsets],
+  );
   const colors = useSceneColors();
   const budget = useOverviewBudget();
   const [lost, setLost] = useState(false);

@@ -2,8 +2,10 @@
 export const geometryTokens = {
   leafWidth: 2.4,
   leafHeight: 0.9,
-  fileWidth: 5,
-  fileHeight: 3,
+  fileWidth: 5.5,
+  fileHeight: 3.5,
+  filePadding: 0.7,
+  functionLayerGap: 2.4,
   inset: 1.2,
   siblingGap: 0.6,
   containerDepth: 0.12,

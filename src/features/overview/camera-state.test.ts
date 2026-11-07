@@ -20,6 +20,6 @@ it('keeps camera state isolated by project and recovers corrupt storage', () => 
   writeCamera('camera-a', camera);
   expect(readCamera('camera-a')).toEqual(camera);
   expect(readCamera('camera-b')).toBeNull();
-  localStorage.setItem('atlas-overview-camera-camera-a', '{broken');
+  localStorage.setItem('atlas-overview-camera-v2-camera-a', '{broken');
   expect(readCamera('camera-a')).toBeNull();
 });

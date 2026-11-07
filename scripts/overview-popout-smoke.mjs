@@ -78,6 +78,10 @@ try {
   await popup.getByRole('button', { name: 'Show code outline', exact: true }).click();
   await popup.getByRole('treeitem', { name: 'method add', exact: true }).click();
   await expect(page.locator('.statusbar')).toContainText('Ln 4, Col 5');
+  await popup.getByRole('spinbutton', { name: 'Function Z offset', exact: true }).fill('1.5');
+  await expect(
+    popup.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
+  ).toHaveValue('1.5');
   if (await page.evaluate(() => window.codeAtlasDesktop.supportsDesktopBlur)) {
     expect(await popup.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(true))).toBe(true);
     expect(await page.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(false))).toBe(false);
@@ -99,7 +103,13 @@ try {
   await assertHidden(1);
   // Closing a child must not unregister the parent's appearance IPC handler.
   expect(await page.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(false))).toBe(false);
+  await expect(
+    page.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
+  ).toHaveValue('1.5');
   const reopened = await open();
+  await expect(
+    reopened.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
+  ).toHaveValue('1.5');
   await reopened.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
   await expect.poll(() => reopened.isClosed()).toBe(true);
   await assertHidden(1);

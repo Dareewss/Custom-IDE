@@ -44,13 +44,13 @@ export function FileSlab({
         <meshBasicMaterial
           color={selected ? colors.active : colors.fill}
           transparent
-          opacity={colors.containerOpacity}
+          opacity={colors.containerOpacity * 0.4}
           depthWrite={false}
         />
         <Edges
           color={selected || hovered ? colors.active : colors.hover}
           transparent
-          opacity={selected ? colors.activeOpacity : colors.rimOpacity}
+          opacity={(selected ? colors.activeOpacity : colors.rimOpacity) * 0.45}
         />
       </mesh>
       {(label || selected || hovered) && (

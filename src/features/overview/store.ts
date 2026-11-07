@@ -9,8 +9,11 @@ import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
 import type { SearchKind } from '../../core/model/search';
 import type { IsolateView } from '../../core/model/isolate';
+import type { FunctionOffsets } from '../../core/model/layout/offsets';
 
 interface OverviewState {
+  functionOffsets: FunctionOffsets;
+  movingNodeId: string | null;
   outlineVisible: boolean;
   projectId: string | null;
   model: CodeModel | null;
@@ -47,6 +50,8 @@ interface OverviewState {
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
+  functionOffsets: {},
+  movingNodeId: null,
   outlineVisible: false,
   projectId: null,
   model: null,

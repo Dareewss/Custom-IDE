@@ -1,5 +1,8 @@
+import { useFunctionDrag } from './useFunctionDrag';
 import { useSettings } from '../settings/store';
-import type { ComponentRef } from 'react';
+import { useRef, type ComponentRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { Group, Vector3 } from 'three';
 import { useDetailLOD } from './lod';
 import { boxGeometry, capsuleGeometry } from './resources';
 import { toggleOverviewNode } from './view-actions';
@@ -79,11 +82,32 @@ export function ClassBlock({ node, item, colors, label }: ShapeProps) {
 }
 export function FunctionCapsule({ node, item, colors, label }: ShapeProps) {
   const { selected, hovered, events } = useNodeEvents(node);
+  const dragEvents = useFunctionDrag(node, events.onClick);
+  const group = useRef<Group>(null);
+  const point = useRef(new Vector3());
+  useFrame(({ camera, gl }) => {
+    if (!selected || !group.current) return;
+    group.current.getWorldPosition(point.current);
+    const world = point.current.toArray();
+    point.current.add(new Vector3(0.8, -0.1, 0.32)).project(camera);
+    gl.domElement.dataset.selectedFunctionHit = JSON.stringify({
+      id: node.id,
+      name: node.name,
+      world,
+      ndc: point.current.toArray(),
+    });
+  });
   const size = useSettings((state) => state.overviewNodeSize / 100);
   const width = functionWidth(node, node.meta.params?.length ?? 0);
   const detail = useDetailLOD<ComponentRef<typeof Edges>>(width);
   return (
-    <group position={headerPosition(item)} {...events}>
+    <group
+      ref={group}
+      position={headerPosition(item)}
+      userData={{ draggableFunction: node.id }}
+      {...events}
+      {...dragEvents}
+    >
       <mesh rotation={[0, 0, Math.PI / 2]} scale={[size, 1, size]}>
         <primitive attach="geometry" object={capsuleGeometry(width)} />
         <meshBasicMaterial

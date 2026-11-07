@@ -30,7 +30,7 @@ export function parseCamera(value: unknown): CameraState | null {
 export function readCamera(projectId: string): CameraState | null {
   try {
     return parseCamera(
-      JSON.parse(localStorage.getItem(`atlas-overview-camera-${projectId}`) ?? 'null'),
+      JSON.parse(localStorage.getItem(`atlas-overview-camera-v2-${projectId}`) ?? 'null'),
     );
   } catch {
     return null;
@@ -38,5 +38,5 @@ export function readCamera(projectId: string): CameraState | null {
 }
 export function writeCamera(projectId: string, state: CameraState): void {
   const parsed = parseCamera(state);
-  if (parsed) localStorage.setItem(`atlas-overview-camera-${projectId}`, JSON.stringify(parsed));
+  if (parsed) localStorage.setItem(`atlas-overview-camera-v2-${projectId}`, JSON.stringify(parsed));
 }

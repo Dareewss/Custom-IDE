@@ -45,6 +45,7 @@ export function ValueInstances({
   root: Vec3;
   added: ReadonlySet<string>;
 }) {
+  const moving = useOverview((state) => state.movingNodeId !== null);
   const budget = useOverviewBudget();
   const size = useSettings((state) => state.overviewNodeSize / 100);
   const ref = useRef<InstancedMesh>(null);
@@ -101,6 +102,7 @@ export function ValueInstances({
     previous.current = { root, positions };
     animating.current =
       !reduced &&
+      !moving &&
       moves.current.some(
         (move) => move.enter || move.from.some((v, i) => Math.abs(v - move.to[i]) > 1e-6),
       );
@@ -138,7 +140,7 @@ export function ValueInstances({
     return () => {
       api.stop();
     };
-  }, [instances, root, added, shape, reduced, api, apply, invalidate, size]);
+  }, [instances, root, added, shape, reduced, moving, api, apply, invalidate, size]);
   useFrame((state) => {
     if (animating.current) apply(spring.progress.get());
     const mesh = ref.current;

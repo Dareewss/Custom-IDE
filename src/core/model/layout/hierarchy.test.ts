@@ -55,7 +55,7 @@ it('lays out real containment deterministically with finite centered bounds', ()
       );
     }
 });
-it('contains children in their parent rectangles without sibling overlap', () => {
+it('keeps function footprints inside their source plate and separates siblings on Z', () => {
   const data: CodeModel = {
     ...model,
     nodes: [
@@ -73,8 +73,9 @@ it('contains children in their parent rectangles without sibling overlap', () =>
       Math.abs(items[child].position[1] - items.file.position[1]) + items[child].size[1] / 2,
     ).toBeLessThanOrEqual(items.file.size[1] / 2);
   }
-  expect(Math.abs(items.a.position[1] - items.b.position[1])).toBeGreaterThan(
-    (items.a.size[1] + items.b.size[1]) / 2,
+  expect(items.a.position[1]).toBe(items.b.position[1]);
+  expect(Math.abs(items.a.position[2] - items.b.position[2])).toBeGreaterThan(
+    (items.a.size[2] + items.b.size[2]) / 2,
   );
 });
 it('has a usable empty extent and handles external nodes without invented source positions', () => {

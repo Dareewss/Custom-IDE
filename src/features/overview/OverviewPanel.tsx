@@ -12,6 +12,8 @@ import { EdgeOptions } from './EdgeOptions';
 import { DepthControl } from './DepthControl';
 import { ObjectSearch } from './ObjectSearch';
 import { IsolationBar } from './IsolationBar';
+import { saveFunctionOffsets } from './function-positions';
+import { FunctionPositions } from './FunctionPositions';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
@@ -65,7 +67,13 @@ export function OverviewPanel({
           <IconButton
             label="Re-layout graph"
             disabled={state.loading}
-            onClick={() => useOverview.setState({ layoutRevision: state.layoutRevision + 1 })}
+            onClick={() => {
+              useOverview.setState({
+                layoutRevision: state.layoutRevision + 1,
+                functionOffsets: {},
+              });
+              saveFunctionOffsets();
+            }}
           >
             <Shuffle size={14} />
           </IconButton>
@@ -93,6 +101,7 @@ export function OverviewPanel({
       </header>
       <DepthControl />
       <ObjectSearch />
+      <FunctionPositions />
       <IsolationBar />
       {state.error && (
         <p className="overview-notice" role="alert">

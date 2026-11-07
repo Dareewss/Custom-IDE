@@ -9,6 +9,7 @@ import { readView } from './view-state';
 import { setOverviewView } from './view-actions';
 import { emptyDiff } from '../../core/model/diff';
 import { geometryTokens } from '../../core/model/layout/tokens';
+import { readFunctionOffsets } from './function-positions';
 
 const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
   () =>
@@ -32,6 +33,8 @@ export function useProjectModel() {
       error: null,
       ...(changedProject
         ? {
+            functionOffsets: readFunctionOffsets(projectId),
+            movingNodeId: null,
             model: null,
             indexes: null,
             layout: null,

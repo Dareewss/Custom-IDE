@@ -482,3 +482,38 @@
   gap: 6px;
   padding: 0 8px;
 }
+
+.function-position-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 4px;
+  align-items: center;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.function-position-bar label {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+}
+.function-position-bar input {
+  width: 100%;
+  min-width: 0;
+  padding: 3px;
+  font-size: 11px;
+}
+.function-position-bar small {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.function-position-bar .icon-button {
+  width: 26px;
+  height: 26px;
+}
