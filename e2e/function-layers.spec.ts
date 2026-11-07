@@ -81,7 +81,6 @@ test('separates function layers on Z, drags their actual geometry, persists offs
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
   await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
-  const cameraBefore = await canvas.getAttribute('data-camera-position');
   await page.getByRole('button', { name: '3D', exact: true }).hover();
   let point = await hitPoint(page, 'beta');
   await page.mouse.move(point.x, point.y);
@@ -89,6 +88,7 @@ test('separates function layers on Z, drags their actual geometry, persists offs
     'data-hovered-node',
     beta.id,
   );
+  const cameraBefore = await canvas.getAttribute('data-camera-position');
   await page.mouse.down();
   await page.mouse.move(point.x + 55, point.y + 18, { steps: 8 });
   await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
