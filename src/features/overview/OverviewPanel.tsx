@@ -1,5 +1,5 @@
-import { lazy, Suspense, useState, useMemo } from 'react';
-import { Box, ListTree, Shuffle } from 'lucide-react';
+import { lazy, Suspense, useMemo, type ReactNode } from 'react';
+import { Box, ListTree, Shuffle, ExternalLink, PanelLeftClose } from 'lucide-react';
 import { useProjectModel } from './useProjectModel';
 import { useOverview } from './store';
 import { useWorkspace } from '../explorer/store';
@@ -16,12 +16,20 @@ import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
 
-export function OverviewPanel() {
+export function OverviewPanel({
+  onPopOut,
+  onDock,
+  windowControls,
+}: {
+  onPopOut?: () => void;
+  onDock?: () => void;
+  windowControls?: ReactNode;
+}) {
   useProjectModel();
   const state = useOverview();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
-  const [outline, setOutline] = useState(false);
+  const outline = state.outlineVisible;
   const current = state.projectId === projectId;
   const model = current ? state.model : null;
   const fallback = useMemo(
@@ -65,10 +73,22 @@ export function OverviewPanel() {
           <IconButton
             label="Show code outline"
             aria-pressed={outline}
-            onClick={() => setOutline((value) => !value)}
+            onClick={() => useOverview.setState({ outlineVisible: !outline })}
           >
             <ListTree size={16} />
           </IconButton>
+          {onPopOut && (
+            <IconButton label="Pop out 3D view" onClick={onPopOut}>
+              <ExternalLink size={16} />
+            </IconButton>
+          )}
+          {onDock && (
+            <IconButton label="Dock 3D view" onClick={onDock}>
+              <PanelLeftClose size={16} />
+              <span>Dock back</span>
+            </IconButton>
+          )}
+          {windowControls}
         </div>
       </header>
       <DepthControl />

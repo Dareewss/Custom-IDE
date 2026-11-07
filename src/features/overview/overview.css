@@ -131,8 +131,10 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  height: 44px;
-  padding: 0 12px;
+  min-height: 44px;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 5px 12px;
   border-bottom: 1px solid var(--border);
 }
 .overview-actions {
@@ -454,4 +456,29 @@
   border: 0;
   box-shadow: none;
   pointer-events: auto;
+}
+
+.overview-popout {
+  padding: 8px;
+  overflow: hidden;
+}
+.overview-popout-card {
+  height: 100%;
+}
+:root[data-desktop='true'] .overview-popout .overview-toolbar {
+  app-region: drag;
+}
+.overview-popout .overview-actions {
+  app-region: no-drag;
+}
+.overview-popout .overview-toolbar {
+  flex-wrap: wrap;
+}
+.overview-popout .overview-actions {
+  margin-left: auto;
+}
+.overview-popout [aria-label='Dock 3D view'] {
+  width: auto;
+  gap: 6px;
+  padding: 0 8px;
 }

@@ -25,6 +25,8 @@ interface ShellProps {
   explorer?: ReactNode;
   editor?: ReactNode;
   overview?: ReactNode;
+  overviewDetached?: boolean;
+  onFocusOverview?: () => void;
   console?: ReactNode;
   variables?: ReactNode;
   callStack?: ReactNode;
@@ -89,10 +91,16 @@ export function Shell(props: ShellProps) {
             {layouts.map((layout) => (
               <button
                 key={layout.id}
-                aria-label={layout.label}
+                aria-label={
+                  layout.id === '3d' && props.overviewDetached ? 'Focus 3D window' : layout.label
+                }
                 title={`${layout.label} layout`}
                 aria-pressed={ui.layout === layout.id}
-                onClick={() => ui.setLayout(layout.id)}
+                onClick={() =>
+                  layout.id === '3d' && props.overviewDetached
+                    ? props.onFocusOverview?.()
+                    : ui.setLayout(layout.id)
+                }
               >
                 {layout.icon}
                 <span>{layout.label}</span>
@@ -163,7 +171,7 @@ export function Shell(props: ShellProps) {
                   className="source-overview-layout"
                   orientation={wide ? 'horizontal' : 'vertical'}
                 >
-                  {ui.layout !== '3d' && (
+                  {(ui.layout !== '3d' || props.overviewDetached) && (
                     <Panel minSize={wide ? '180px' : '80px'}>
                       <GlassPanel className="editor-card" variant="editor">
                         <div className="editor-toolbar">

@@ -4,6 +4,7 @@ import { IconButton } from '../../shared/IconButton';
 import { persistCurrent } from '../projects/persistence';
 import { useUI } from '../../shared/ui-store';
 import './desktop.css';
+import { useHostWindow } from '../../shared/HostWindow';
 
 export function useDesktopLifecycle() {
   useEffect(() => {
@@ -18,8 +19,8 @@ export function useDesktopLifecycle() {
   }, []);
 }
 
-export function DesktopWindowControls() {
-  const desktop = window.codeAtlasDesktop;
+export function DesktopWindowControls({ persistOnClose = true }: { persistOnClose?: boolean }) {
+  const desktop = useHostWindow().codeAtlasDesktop;
   if (!desktop) return null;
   return (
     <div className="desktop-window-controls" aria-label="Window controls">
@@ -32,7 +33,9 @@ export function DesktopWindowControls() {
       <IconButton
         label="Close window"
         onClick={() =>
-          void persistCurrent().then(desktop.close).catch(useUI.getState().reportError)
+          persistOnClose
+            ? void persistCurrent().then(desktop.close).catch(useUI.getState().reportError)
+            : desktop.close()
         }
       >
         <X size={17} />
@@ -42,7 +45,8 @@ export function DesktopWindowControls() {
 }
 
 export function DesktopResizeHandles() {
-  if (!window.codeAtlasDesktop) return null;
+  const host = useHostWindow();
+  if (!host.codeAtlasDesktop) return null;
   const resize = (
     event: PointerEvent<HTMLDivElement>,
     phase: 'start' | 'move' | 'end',
@@ -50,7 +54,7 @@ export function DesktopResizeHandles() {
   ) => {
     if (phase === 'move' && !event.currentTarget.hasPointerCapture(event.pointerId)) return;
     if (phase === 'start') event.currentTarget.setPointerCapture(event.pointerId);
-    window.codeAtlasDesktop?.resize(phase, edge, event.screenX, event.screenY);
+    host.codeAtlasDesktop?.resize(phase, edge, event.screenX, event.screenY);
     if (phase === 'end' && event.currentTarget.hasPointerCapture(event.pointerId))
       event.currentTarget.releasePointerCapture(event.pointerId);
   };

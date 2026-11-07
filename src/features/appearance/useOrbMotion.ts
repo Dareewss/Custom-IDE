@@ -1,3 +1,4 @@
+import { useHostWindow } from '../../shared/HostWindow';
 import { useEffect, useRef, type RefObject } from 'react';
 import { useSettings } from '../settings/store';
 import { blendPose, orbPose, restingPose, type OrbPose } from './orb-motion';
@@ -6,6 +7,7 @@ import { FrameBudget } from './frame-budget';
 import { useMotionBudget } from './motion-budget';
 
 export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boolean) {
+  const host = useHostWindow();
   const animation = useSettings((s) => s.backgroundAnimation);
   const orbs = useSettings((s) => s.backgroundBlobs);
   const speed = useSettings((s) => s.animationSpeed);
@@ -91,7 +93,7 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
       return;
     }
     const from = poses.current.map((pose) => ({ ...pose }));
-    const start = performance.now();
+    const start = host.performance.now();
     let lastPaint = start;
     let lastPhase = start;
     let frameId = 0;
@@ -102,7 +104,7 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
     const resize = () => {
       homes = readHomes();
     };
-    window.addEventListener('resize', resize);
+    host.addEventListener('resize', resize);
     if (
       !animation &&
       from.every(
@@ -116,7 +118,7 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
     ) {
       paint(rest());
       publish('idle', 0);
-      window.removeEventListener('resize', resize);
+      host.removeEventListener('resize', resize);
       return;
     }
     const cap = animation && fps === 15 ? 15 : 30;
@@ -132,14 +134,14 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
       }
       lastRaw = now;
       if (now - lastPaint < 1000 / cap - 0.01) {
-        frameId = requestAnimationFrame(tick);
+        frameId = host.requestAnimationFrame(tick);
         return;
       }
       if (animation) phase.current += Math.min(0.1, Math.max(0, (now - lastPhase) / 1000)) * speed;
       lastPhase = now;
       lastPaint = now;
       const progress = Math.min(1, Math.max(0, (now - start) / 450));
-      const renderStart = performance.now();
+      const renderStart = host.performance.now();
       const ease = 1 - (1 - progress) ** 3;
       const target = animation
         ? homes.map((home, index) =>
@@ -148,8 +150,8 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
               index,
               home,
               {
-                width: window.innerWidth,
-                height: window.innerHeight,
+                width: host.innerWidth,
+                height: host.innerHeight,
               },
               motionSeed,
             ),
@@ -160,21 +162,22 @@ export function useOrbMotion(ref: RefObject<HTMLDivElement | null>, visible: boo
           blendPose(from[index] ?? restingPose(pose.opacity), pose, ease),
         ),
       );
-      renderCost = performance.now() - renderStart;
+      renderCost = host.performance.now() - renderStart;
       if (!animation && progress >= 1) {
         publish('idle', 0);
         return;
       }
-      frameId = requestAnimationFrame(tick);
+      frameId = host.requestAnimationFrame(tick);
     };
-    frameId = requestAnimationFrame(tick);
+    frameId = host.requestAnimationFrame(tick);
     return () => {
       alive = false;
-      cancelAnimationFrame(frameId);
-      window.removeEventListener('resize', resize);
+      host.cancelAnimationFrame(frameId);
+      host.removeEventListener('resize', resize);
     };
   }, [
     ref,
+    host,
     visible,
     animation,
     orbs,

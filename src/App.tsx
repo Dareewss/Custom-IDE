@@ -26,9 +26,12 @@ import { AppControls, InstallDialog } from './features/app/AppControls';
 import { useDesktopLifecycle } from './features/desktop/DesktopChrome';
 import { LayerStack } from './features/appearance/LayerStack';
 import { OverviewPanel } from './features/overview/OverviewPanel';
+import { useOverviewWindow } from './features/overview/useOverviewWindow';
+import { OverviewPopout } from './features/overview/OverviewPopout';
 
 export function App() {
   useDesktopLifecycle();
+  const overviewWindow = useOverviewWindow();
   const name = useWorkspace((s) => s.projectName);
   const saved = usePersistence((s) => s.state);
   const hydrated = usePersistence((s) => s.hydrated);
@@ -68,7 +71,11 @@ export function App() {
         palette={<CommandPalette />}
         explorer={<Explorer />}
         editor={<EditorArea />}
-        overview={<OverviewPanel />}
+        overview={
+          overviewWindow.target ? undefined : <OverviewPanel onPopOut={overviewWindow.popOut} />
+        }
+        overviewDetached={!!overviewWindow.target}
+        onFocusOverview={overviewWindow.focus}
         projectName={name}
         status={
           <>
@@ -99,6 +106,9 @@ export function App() {
         variables={<Variables />}
         callStack={<CallStack />}
       />
+      {overviewWindow.target && (
+        <OverviewPopout target={overviewWindow.target} onDock={overviewWindow.dock} />
+      )}
     </LayerStack>
   );
 }

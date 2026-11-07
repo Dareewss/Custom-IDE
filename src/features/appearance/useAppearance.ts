@@ -4,7 +4,7 @@ import { useUI } from '../../shared/ui-store';
 import { useReducedTransparency } from './preferences';
 import { materialAlphas } from './material';
 
-export function useAppearance() {
+export function useAppearance(host: Window = window) {
   const theme = useSettings((s) => s.theme);
   const transparency = useSettings((s) => s.backgroundTransparency);
   const preset = useSettings((s) => s.backgroundPreset);
@@ -15,16 +15,16 @@ export function useAppearance() {
   const desktopBlur = useSettings((s) => s.desktopBlur);
   const reducedTransparency = useReducedTransparency();
   useLayoutEffect(
-    () => window.codeAtlasDesktop?.onDesktopBlurError?.(useUI.getState().reportError),
-    [],
+    () => host.codeAtlasDesktop?.onDesktopBlurError?.(useUI.getState().reportError),
+    [host],
   );
   useLayoutEffect(() => {
-    const root = document.documentElement;
-    root.dataset.theme = theme;
-    root.dataset.preset = preset;
-    root.dataset.blobs = String(blobs);
-    root.dataset.animation = String(animation);
-    root.dataset.performance = String(performanceMode);
+    const root = host.document.documentElement;
+    root.setAttribute('data-theme', theme);
+    root.setAttribute('data-preset', preset);
+    root.setAttribute('data-blobs', String(blobs));
+    root.setAttribute('data-animation', String(animation));
+    root.setAttribute('data-performance', String(performanceMode));
     root.style.setProperty('--workspace-opacity', String((100 - transparency) / 100));
     root.style.setProperty('--glass-blur', `${blur}px`);
     const alphas = materialAlphas(transparency, theme);
@@ -32,12 +32,12 @@ export function useAppearance() {
     root.style.setProperty('--glass-fg-tint', String(alphas.panel));
     root.style.setProperty('--glass-editor-tint', String(alphas.editor));
     root.style.setProperty('--glass-elevated-tint', String(alphas.elevated));
-  }, [theme, transparency, preset, blur, blobs, animation, performanceMode]);
+  }, [host, theme, transparency, preset, blur, blobs, animation, performanceMode]);
   useLayoutEffect(() => {
-    window.codeAtlasDesktop?.setTheme(theme);
-    if (window.codeAtlasDesktop?.supportsDesktopBlur)
-      void window.codeAtlasDesktop
+    host.codeAtlasDesktop?.setTheme(theme);
+    if (host.codeAtlasDesktop?.supportsDesktopBlur)
+      void host.codeAtlasDesktop
         .setDesktopBlur(desktopBlur && !performanceMode && !reducedTransparency)
         .catch(useUI.getState().reportError);
-  }, [theme, performanceMode, desktopBlur, reducedTransparency]);
+  }, [host, theme, performanceMode, desktopBlur, reducedTransparency]);
 }

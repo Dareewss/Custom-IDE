@@ -1,3 +1,4 @@
+import { useHostWindow } from '../../shared/HostWindow';
 import { readCamera, writeCamera, type CameraState } from './camera-state';
 import { useUI } from '../../shared/ui-store';
 import { useCallback, useEffect, useLayoutEffect, useRef, type ComponentRef } from 'react';
@@ -10,6 +11,7 @@ import { fitCamera, itemBounds, type Bounds } from './camera-math';
 import { useOverview } from './store';
 
 export function CameraRig({ layout }: { layout: GraphLayout }) {
+  const host = useHostWindow();
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null);
   const get = useThree((s) => s.get),
     width = useThree((s) => s.size.width),
@@ -28,13 +30,13 @@ export function CameraRig({ layout }: { layout: GraphLayout }) {
     }
   }, [projectId]);
   useEffect(() => {
-    window.addEventListener('pagehide', save);
+    host.addEventListener('pagehide', save);
     return () => {
-      window.removeEventListener('pagehide', save);
+      host.removeEventListener('pagehide', save);
       clearTimeout(saveTimer.current);
       save();
     };
-  }, [save]);
+  }, [save, host]);
   const request = useOverview((s) => s.cameraRequest),
     focus = useOverview((s) => s.focusRequest);
   const initialized = useRef(false),

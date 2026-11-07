@@ -11,6 +11,7 @@ import type { SearchKind } from '../../core/model/search';
 import type { IsolateView } from '../../core/model/isolate';
 
 interface OverviewState {
+  outlineVisible: boolean;
   projectId: string | null;
   model: CodeModel | null;
   indexes: ModelIndexes | null;
@@ -46,6 +47,7 @@ interface OverviewState {
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
+  outlineVisible: false,
   projectId: null,
   model: null,
   indexes: null,

@@ -19,6 +19,7 @@ export function appWorkerPlugin(): Plugin {
       const resources = [
         '/',
         '/index.html',
+        '/overview-window.html',
         '/manifest.webmanifest',
         '/icons/atlas.svg',
         '/icons/atlas-192.png',
