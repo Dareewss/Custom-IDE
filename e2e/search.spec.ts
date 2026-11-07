@@ -26,8 +26,8 @@ test('floats search above the unchanged workspace and supports click, filtering 
   await trigger.click();
   await floating(page);
   expect(await page.locator('.workspace').boundingBox()).toEqual(before);
-  await expect(page.getByRole('combobox')).toBeFocused();
-  await page.getByRole('combobox').fill('New file');
+  await expect(page.getByRole('dialog').getByRole('combobox')).toBeFocused();
+  await page.getByRole('dialog').getByRole('combobox').fill('New file');
   await expect(page.getByRole('option')).toHaveCount(1);
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'New file', exact: true })).toBeVisible();
@@ -49,7 +49,7 @@ test('Ctrl+Space opens search from the editor without inserting text or stealing
   const before = await page.locator('.view-lines').innerText();
   await page.keyboard.press('Control+Space');
   await floating(page);
-  await expect(page.getByRole('combobox')).toBeFocused();
+  await expect(page.getByRole('dialog').getByRole('combobox')).toBeFocused();
   expect(await page.locator('.view-lines').innerText()).toBe(before);
   await expect(page.locator('.suggest-widget')).not.toBeVisible();
   await page.keyboard.press('Escape');
@@ -79,7 +79,7 @@ test('keeps search and file search fully visible on short and compact screens', 
     expect(await list.evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
     await page.keyboard.press('End');
     await expect(page.locator('[cmdk-item][data-selected="true"]')).toBeInViewport();
-    await expect(page.getByRole('combobox')).toBeInViewport();
+    await expect(page.getByRole('dialog').getByRole('combobox')).toBeInViewport();
     expect(await page.locator('.command-dialog').evaluate((el) => el.scrollTop)).toBe(0);
     await page.keyboard.press('Escape');
     await page.keyboard.press('Control+p');

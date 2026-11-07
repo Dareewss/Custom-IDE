@@ -1,0 +1,519 @@
+:root {
+  --overview-node-opacity: 0.4;
+  --overview-container-opacity: 0.12;
+  --overview-active-opacity: 0.7;
+  --overview-rim-opacity: 0.5;
+  --overview-value-opacity: 0.9;
+  --overview-light: #fff;
+  --overview-search-dim: 0.15;
+}
+.object-search {
+  position: relative;
+  flex-shrink: 0;
+  z-index: 45;
+  border-bottom: 1px solid var(--border);
+}
+.isolation-bar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.isolation-bar > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-inline-end: auto;
+}
+.isolation-bar label {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--muted);
+}
+.isolation-bar button,
+.isolation-bar select {
+  padding: 4px 6px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.object-search-row {
+  display: flex;
+  gap: 5px;
+  padding: 5px 8px;
+}
+.object-search-row input {
+  min-width: 0;
+  width: 100%;
+}
+.object-search-row input,
+.object-search-row select {
+  padding: 5px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface);
+  font-size: 11px;
+}
+.object-search-row select {
+  max-width: 100px;
+}
+.object-search-results {
+  position: absolute;
+  width: 100%;
+  max-height: min(290px, 45vh);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+}
+.object-search-results p {
+  margin: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.object-search-results button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  font-size: 11px;
+}
+.object-search-results button[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+.object-search-results button span,
+.object-search-results button small {
+  color: var(--muted);
+}
+.object-search-results button small {
+  margin-inline-start: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.monaco-editor .overview-source-selected {
+  background: var(--accent-soft);
+}
+.monaco-editor .overview-source-hover {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.source-overview-layout {
+  height: 100%;
+  min-height: 0;
+}
+.overview-card {
+  height: 100%;
+  min-width: 0;
+  overflow: auto;
+}
+.overview-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
+  color: var(--text);
+}
+.overview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 44px;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.overview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.overview-depth {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+.overview-depth select {
+  max-width: 150px;
+  padding: 3px 6px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.overview-options {
+  position: relative;
+  font-size: 11px;
+}
+.overview-options summary {
+  cursor: pointer;
+  padding: 8px;
+}
+.overview-options fieldset {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 50;
+  width: 205px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.overview-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.overview-options legend {
+  font-size: 11px;
+  color: var(--muted);
+}
+.overview-toolbar > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.overview-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.code-canvas {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+.scene-navigation {
+  height: 100%;
+  min-height: 0;
+}
+.camera-tools {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 30;
+  display: flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.overview-minimap {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 25;
+  display: block;
+  max-width: 38%;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  touch-action: none;
+}
+.overview-minimap canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.overview-minimap > span {
+  display: block;
+  padding: 2px 6px;
+  font-size: 9px;
+  text-align: left;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.code-outline {
+  height: 100%;
+  overflow: auto;
+  padding: 6px 0;
+}
+.code-outline > button,
+.code-outline .outline-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+}
+.code-outline .outline-row:hover,
+.code-outline .outline-row[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+.code-outline .outline-row > span:not(.outline-kind) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.code-outline .outline-toggle {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  flex-shrink: 0;
+}
+.outline-kind {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+.outline-error,
+.overview-notice {
+  color: var(--danger);
+}
+.overview-notice {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.overview-message {
+  margin: 0;
+  padding: 24px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.overview-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  color: var(--muted);
+}
+.overview-fallback {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.overview-fallback > p {
+  margin: 0;
+  padding: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.overview-node-info {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 40;
+  max-width: 270px;
+  max-height: 55%;
+  overflow: hidden;
+  padding: 12px;
+  pointer-events: none;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--glass-shadow);
+  font-size: 12px;
+}
+.overview-node-info > strong,
+.overview-node-info > span,
+.overview-node-info > small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.overview-node-info > span,
+.overview-node-info small {
+  color: var(--muted);
+}
+.overview-node-info p {
+  margin: 8px 0;
+}
+.overview-node-info ol {
+  margin: 8px 0;
+  padding-inline-start: 20px;
+}
+.overview-node-info li {
+  overflow-wrap: anywhere;
+}
+
+.overview-settings {
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+}
+.overview-settings legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+.overview-settings p {
+  margin: 0;
+  font-size: 12px;
+}
+.code-outline .outline-row {
+  flex-shrink: 0;
+}
+@media (forced-colors: active) {
+  .overview-panel,
+  .overview-settings,
+  .overview-node-info,
+  .camera-tools,
+  .overview-minimap {
+    border: 1px solid CanvasText;
+  }
+  .code-outline .outline-row[aria-selected='true'],
+  .object-search-results button[aria-selected='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  .outline-kind,
+  .overview-footer,
+  .overview-message {
+    color: CanvasText;
+  }
+  .scene-navigation:focus-visible,
+  .code-outline .outline-row:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+
+.overview-body {
+  container-type: inline-size;
+  container-name: overview-body;
+}
+@container overview-body (max-width: 520px) {
+  .overview-node-info {
+    bottom: 150px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    max-height: min(45%, calc(100% - 202px));
+  }
+}
+
+.overview-body[data-outline='true'] {
+  display: flex;
+  flex-direction: column;
+}
+.overview-body[data-outline='true'] > .code-outline {
+  flex: 1;
+  min-height: 0;
+}
+.outline-inspector {
+  flex: 0 0 min(160px, 35%);
+  min-height: 0;
+  margin: 8px;
+  border: 1px solid var(--border);
+  overflow: auto;
+  background: var(--surface);
+}
+.outline-inspector > p {
+  margin: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.outline-inspector .overview-node-info {
+  position: static;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  box-shadow: none;
+  pointer-events: auto;
+}
+
+.overview-popout {
+  padding: 8px;
+  overflow: hidden;
+}
+.overview-popout-card {
+  height: 100%;
+}
+:root[data-desktop='true'] .overview-popout .overview-toolbar {
+  app-region: drag;
+}
+.overview-popout .overview-actions {
+  app-region: no-drag;
+}
+.overview-popout .overview-toolbar {
+  flex-wrap: wrap;
+}
+.overview-popout .overview-actions {
+  margin-left: auto;
+}
+.overview-popout [aria-label='Dock 3D view'] {
+  width: auto;
+  gap: 6px;
+  padding: 0 8px;
+}
+
+.function-position-bar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 4px;
+  align-items: center;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.function-position-bar label {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+}
+.function-position-bar input {
+  width: 100%;
+  min-width: 0;
+  padding: 3px;
+  font-size: 11px;
+}
+.function-position-bar small {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.function-position-bar .icon-button {
+  width: 26px;
+  height: 26px;
+}

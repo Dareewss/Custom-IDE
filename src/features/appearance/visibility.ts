@@ -1,16 +1,21 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { useHostWindow } from '../../shared/HostWindow';
 
-const subscribe = (notify: () => void) => {
-  document.addEventListener('visibilitychange', notify);
-  return () => document.removeEventListener('visibilitychange', notify);
-};
 export function usePageVisible() {
+  const host = useHostWindow();
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      host.document.addEventListener('visibilitychange', notify);
+      return () => host.document.removeEventListener('visibilitychange', notify);
+    },
+    [host],
+  );
   const visible = useSyncExternalStore(
     subscribe,
-    () => document.visibilityState !== 'hidden',
+    () => host.document.visibilityState !== 'hidden',
     () => true,
   );
   const [nativeVisible, setNativeVisible] = useState(true);
-  useEffect(() => window.codeAtlasDesktop?.onVisibilityChanged?.(setNativeVisible), []);
+  useEffect(() => host.codeAtlasDesktop?.onVisibilityChanged?.(setNativeVisible), [host]);
   return visible && nativeVisible;
 }

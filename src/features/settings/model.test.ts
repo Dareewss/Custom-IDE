@@ -1,5 +1,27 @@
 import { expect, it } from 'vitest';
 import { defaultSettings, parseSettings, migrateSettings } from './model';
+it('validates overview quality, switches and bounded symbol size without resetting older settings', () => {
+  expect(
+    parseSettings({
+      overviewQuality: 'low',
+      overviewLabels: false,
+      overviewEdges: false,
+      overviewNodeSize: 125,
+      fontSize: 18,
+    }),
+  ).toMatchObject({
+    overviewQuality: 'low',
+    overviewLabels: false,
+    overviewEdges: false,
+    overviewNodeSize: 125,
+    fontSize: 18,
+  });
+  expect(
+    parseSettings({ overviewQuality: 'ultra', overviewLabels: 'false', overviewNodeSize: NaN }),
+  ).toEqual(defaultSettings);
+  expect(parseSettings({ overviewNodeSize: 74 }).overviewNodeSize).toBe(100);
+  expect(parseSettings({ overviewNodeSize: 126 }).overviewNodeSize).toBe(100);
+});
 it('preserves transparency endpoints and rejects invalid persisted values', () => {
   expect(parseSettings({ backgroundTransparency: 0 }).backgroundTransparency).toBe(0);
   expect(parseSettings({ backgroundTransparency: 100 }).backgroundTransparency).toBe(100);

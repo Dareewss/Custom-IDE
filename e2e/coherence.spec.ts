@@ -59,7 +59,7 @@ test('provides one primary entry per action and preserves workbench selection on
   await expect(page.getByRole('dialog', { name: 'Project manager' })).toBeVisible();
   await page.getByRole('button', { name: 'Close projects', exact: true }).click();
   await page.keyboard.press('Control+Space');
-  await page.getByRole('combobox').fill('import zip');
+  await page.getByRole('dialog').getByRole('combobox').fill('import zip');
   await expect(page.getByRole('option')).toHaveCount(1);
   await page.getByRole('option', { name: 'Manage projects', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Project manager' })).toBeVisible();

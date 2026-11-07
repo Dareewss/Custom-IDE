@@ -10,6 +10,7 @@ import { FormDialog } from '../../shared/FormDialog';
 import { exportProject } from '../projects/ZipActions';
 import { useCursor } from '../editor/navigation';
 import { useSettings } from '../settings/store';
+import { requestObjectSearch } from '../overview/search';
 
 const setMode = (paletteMode: 'commands' | 'files' | null) => useUI.setState({ paletteMode });
 const setQuery = (paletteQuery: string) => useUI.setState({ paletteQuery });
@@ -129,6 +130,7 @@ export function CommandPalette() {
     return () => document.removeEventListener('keydown', handler, true);
   }, []);
   const commands = [
+    { name: 'Search 3D objects', shortcut: '', run: requestObjectSearch },
     {
       name: 'Toggle orb animation',
       shortcut: '',
@@ -241,6 +243,7 @@ export function CommandPalette() {
                     value={item.name}
                     keywords={item.name === 'Manage projects' ? ['import', 'zip', 'projects'] : []}
                     onSelect={() => {
+                      if (item.name === 'Search 3D objects') returnFocus.current = null;
                       setMode(null);
                       Promise.resolve(item.run()).catch((error: unknown) =>
                         useUI.getState().reportError(error),

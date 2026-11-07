@@ -1,3 +1,4 @@
+import { OverviewSettings } from '../overview/OverviewSettings';
 import { useEffect, useRef } from 'react';
 import { X, SlidersHorizontal } from 'lucide-react';
 import { useSettings } from './store';
@@ -208,6 +209,7 @@ export function SettingsDialog() {
             behind the Windows app; turn it off for a completely clear view.
           </p>
         </div>
+        <OverviewSettings />
         {(['wordWrap', 'minimap', 'formatOnSave'] as const).map((key) => (
           <label className="setting-toggle" key={key}>
             <span>

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export type PanelTab = 'Console' | 'Problems' | 'Variables' | 'Call Stack';
-export type WorkspaceLayout = 'code' | 'split' | 'focus';
+export type WorkspaceLayout = 'code' | 'split' | 'focus' | '3d';
 interface UIState {
   layout: WorkspaceLayout;
   setLayout: (layout: WorkspaceLayout) => void;
