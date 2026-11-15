@@ -10,9 +10,14 @@ function readMode(): PlaneMode {
     return 'flat';
   }
 }
-export const usePlaneView = create<{ mode: PlaneMode; pixelsPerUnit: number }>(() => ({
+export const usePlaneView = create<{
+  mode: PlaneMode;
+  pixelsPerUnit: number;
+  rootId: string | null;
+}>(() => ({
   mode: readMode(),
   pixelsPerUnit: 24,
+  rootId: null,
 }));
 export function setPlaneMode(mode: PlaneMode) {
   usePlaneView.setState({ mode });

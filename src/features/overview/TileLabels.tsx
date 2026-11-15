@@ -1,3 +1,4 @@
+import { useTileContext } from './tile-context';
 import { use, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -27,12 +28,14 @@ export function TileLabels({
   fileId,
   xScale,
   yScale,
+  xOffset,
   colors,
 }: {
   layout: StructureLayout;
   fileId: string;
   xScale: number;
   yScale: number;
+  xOffset: number;
   colors: SceneColors;
 }) {
   use(sceneFontReady);
@@ -42,10 +45,11 @@ export function TileLabels({
     selected = useOverview((s) => s.selectedNodeId),
     hovered = useOverview((s) => s.hoveredNodeId);
   const enabled = useSettings((s) => s.overviewLabels);
+  const { visible, related } = useTileContext(layout, fileId);
   const candidates = useMemo(
     () =>
-      layout.tiles
-        .filter((tile) => tile.fileId === fileId)
+      visible
+        .map((entry) => entry.tile)
         .sort(
           (a, b) =>
             Number(b.nodeIds.includes(selected ?? '')) -
@@ -53,7 +57,7 @@ export function TileLabels({
             a.level - b.level ||
             a.x - b.x,
         ),
-    [layout, fileId, selected],
+    [visible, selected],
   );
   const [labels, setLabels] = useState<Label[]>([]);
   const pose = useRef(''),
@@ -61,7 +65,7 @@ export function TileLabels({
   useEffect(() => {
     pose.current = '';
     get().invalidate();
-  }, [candidates, colors, hovered, enabled, get]);
+  }, [candidates, colors, hovered, enabled, xOffset, related, get]);
   useFrame(({ camera, size, gl }) => {
     if (!(camera instanceof OrthographicCamera)) return;
     const scale = Math.max(0.05, 2 ** (Math.floor(Math.log2(camera.zoom * xScale) * 2) / 2));
@@ -78,16 +82,30 @@ export function TileLabels({
         height = tile.height * yScale * camera.zoom;
       const text = tileLabel(tile, indexes?.nodeById.get(tile.nodeIds[0]), width);
       if (!text || height < 16) continue;
-      const point = new Vector3(tile.x * xScale, (tile.y + tile.height / 2) * yScale, 0.02).project(
-        camera,
-      );
+      const point = new Vector3(
+        tile.x * xScale + xOffset,
+        (tile.y + tile.height / 2) * yScale,
+        0.02,
+      ).project(camera);
       const x = ((point.x + 1) * size.width) / 2,
         y = ((1 - point.y) * size.height) / 2;
       // Only fully visible labels. Geometry remains pickable outside the text LOD.
       if (x < 0 || x + width > size.width || y - height / 2 < 0 || y + height / 2 > size.height)
         continue;
       const active = tile.nodeIds.includes(selected ?? '') || tile.nodeIds.includes(hovered ?? '');
-      next.push({ tile, text, pixel, color: tileTextColor(tileColor(tile.level, colors, active)) });
+      next.push({
+        tile,
+        text,
+        pixel,
+        color: tileTextColor(
+          tileColor(
+            tile.level,
+            colors,
+            active,
+            !!related && !tile.nodeIds.some((id) => related.has(id)),
+          ),
+        ),
+      });
       bounds.push({
         id: tile.id,
         text,
@@ -121,7 +139,7 @@ export function TileLabels({
       anchorY="middle"
       whiteSpace="nowrap"
       depthOffset={-1}
-      position={[tile.x * xScale + 4 * pixel, (tile.y + tile.height / 2) * yScale, 0.02]}
+      position={[tile.x * xScale + xOffset + 4 * pixel, (tile.y + tile.height / 2) * yScale, 0.02]}
       clipRect={[
         0,
         (-tile.height * yScale) / 2 + pixel,

@@ -1,3 +1,6 @@
+import { useTileContext } from './tile-context';
+import { usePlaneView } from './plane-view';
+import { requestCamera } from './camera-actions';
 import { tileColor } from './tile-labels';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
@@ -25,22 +28,23 @@ export function TileBatch({
   fileId,
   xScale,
   yScale,
+  xOffset,
   colors,
 }: {
   layout: StructureLayout;
   fileId: string;
   xScale: number;
   yScale: number;
+  xOffset: number;
   colors: SceneColors;
 }) {
   const mesh = useRef<InstancedMesh>(null);
   const get = useThree((s) => s.get);
   const selected = useOverview((s) => s.selectedNodeId);
   const hovered = useOverview((s) => s.hoveredNodeId);
-  const visible = useMemo(
-    () => layout.tiles.flatMap((tile, index) => (tile.fileId === fileId ? [{ tile, index }] : [])),
-    [layout, fileId],
-  );
+  const { visible, related } = useTileContext(layout, fileId);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(clickTimer.current), []);
   const toInstance = useMemo(
     () => new Map(visible.map((entry, index) => [entry.index, index])),
     [visible],
@@ -90,19 +94,29 @@ export function TileBatch({
     visible.forEach(({ tile }, index) => {
       matrix.makeScale(tile.width * xScale, tile.height * yScale, 1);
       matrix.setPosition(
-        (tile.x + tile.width / 2) * xScale,
+        (tile.x + tile.width / 2) * xScale + xOffset,
         (tile.y + tile.height / 2) * yScale,
         0,
       );
       mesh.current!.setMatrixAt(index, matrix);
       const active = tile.nodeIds.includes(selected ?? '') || tile.nodeIds.includes(hovered ?? '');
-      mesh.current!.setColorAt(index, new Color(tileColor(tile.level, colors, active)));
+      mesh.current!.setColorAt(
+        index,
+        new Color(
+          tileColor(
+            tile.level,
+            colors,
+            active,
+            !!related && !tile.nodeIds.some((id) => related.has(id)),
+          ),
+        ),
+      );
     });
     mesh.current.instanceMatrix.needsUpdate = true;
     if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
     mesh.current.computeBoundingSphere();
     get().invalidate();
-  }, [visible, colors, selected, hovered, xScale, yScale, get]);
+  }, [visible, colors, selected, hovered, xScale, yScale, xOffset, related, get]);
   useFrame(({ camera }) => {
     if (camera instanceof OrthographicCamera) pixel.value = 1 / camera.zoom;
   });
@@ -114,7 +128,7 @@ export function TileBatch({
       const index = pickTile(
         layout.picking[fileId],
         layout.tiles,
-        point.x / xScale,
+        (point.x - xOffset) / xScale,
         point.y / yScale,
         pixel.value / xScale,
         pixel.value / yScale,
@@ -124,7 +138,7 @@ export function TileBatch({
       if (instanceId !== undefined && distance >= raycaster.near && distance <= raycaster.far)
         hits.push({ object: this, point: point.clone(), distance, instanceId });
     };
-  }, [layout, fileId, xScale, yScale, pixel, toInstance]);
+  }, [layout, fileId, xScale, yScale, xOffset, pixel, toInstance]);
   const tileFor = (event: ThreeEvent<MouseEvent | PointerEvent>): StructureTile | undefined =>
     typeof event.instanceId === 'number' ? visible[event.instanceId]?.tile : undefined;
   return (
@@ -133,16 +147,39 @@ export function TileBatch({
       args={[geometry, material, visible.length]}
       raycast={raycast}
       onClick={(event) => {
+        if (event.delta > 3) return;
         const tile = tileFor(event),
           node = useOverview.getState().indexes?.nodeById.get(tile?.nodeIds[0] ?? '');
         if (node) {
           event.stopPropagation();
-          selectOverviewNode(node);
+          clearTimeout(clickTimer.current);
+          clickTimer.current = setTimeout(() => selectOverviewNode(node), 280);
+        }
+      }}
+      onDoubleClick={(event) => {
+        const tile = tileFor(event);
+        if (!tile) return;
+        event.stopPropagation();
+        clearTimeout(clickTimer.current);
+        if (tile.nodeIds.length === 1) {
+          useOverview.setState({ selectedNodeId: tile.nodeIds[0] });
+          usePlaneView.setState({ rootId: tile.nodeIds[0] });
+        } else {
+          useOverview.setState({ selectedNodeId: tile.nodeIds[0] });
+          requestCamera('fit-selection');
         }
       }}
       onPointerMove={(event) => {
         event.stopPropagation();
-        setOverviewHover(tileFor(event)?.nodeIds[0] ?? null);
+        const tile = tileFor(event);
+        const detail =
+          tile && tile.nodeIds.length > 1
+            ? `${tile.nodeIds.length} objects: ${tile.nodeIds
+                .slice(0, 8)
+                .map((id) => useOverview.getState().indexes?.nodeById.get(id)?.name ?? id)
+                .join(', ')}${tile.nodeIds.length > 8 ? ', ...' : ''}`
+            : null;
+        setOverviewHover(tile?.nodeIds[0] ?? null, detail);
       }}
       onPointerOut={() => setOverviewHover(null)}
       onAfterRender={() => {
@@ -150,6 +187,13 @@ export function TileBatch({
           data = gl.domElement.dataset;
         data.tileInstances = String(visible.length);
         data.tileMeshes = '1';
+        data.structureScale = String(layout.pixelsPerUnit);
+        data.requestedScale = String(usePlaneView.getState().pixelsPerUnit);
+        data.dimmedTiles = String(
+          related
+            ? visible.filter(({ tile }) => !tile.nodeIds.some((id) => related.has(id))).length
+            : 0,
+        );
         data.tilePicking = 'bvh';
         data.tileEdges = '0';
         data.cameraMoving = 'false';
@@ -161,7 +205,7 @@ export function TileBatch({
         data.tileHits = JSON.stringify(
           visible.slice(0, 32).map(({ tile }) => {
             const position = new Vector3(
-              (tile.x + tile.width / 2) * xScale,
+              (tile.x + tile.width / 2) * xScale + xOffset,
               (tile.y + tile.height / 2) * yScale,
               0,
             ).project(camera);

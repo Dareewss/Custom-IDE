@@ -1,3 +1,5 @@
+import { nodeDetails } from './node-details';
+import { usePlaneView } from './plane-view';
 import { collectionEntries } from '../../core/model/layout/collections';
 import { useOverview } from './store';
 
@@ -9,10 +11,12 @@ export function NodeInfo() {
   const node = useOverview((state) =>
     state.indexes?.nodeById.get(state.hoveredNodeId ?? state.selectedNodeId ?? ''),
   );
+  const indexes = useOverview((s) => s.indexes);
+  const classic = usePlaneView((s) => s.mode === 'classic');
   const detail = useOverview((state) => state.hoveredDetail);
   if (edge)
     return (
-      <aside className="overview-node-info" role="tooltip">
+      <aside className="overview-node-info glass" role="tooltip">
         <strong>
           {edge.kind === 'inherits'
             ? 'Inheritance'
@@ -34,8 +38,9 @@ export function NodeInfo() {
     );
   if (!node) return null;
   const entries = collectionEntries(node);
+  const metrics = model && indexes ? nodeDetails(node, model, indexes) : null;
   return (
-    <aside className="overview-node-info" role="tooltip" id="overview-node-info">
+    <aside className="overview-node-info glass" role="tooltip" id="overview-node-info">
       <strong>{node.name}</strong>
       <span>
         {node.meta.typeHint ??
@@ -44,8 +49,26 @@ export function NodeInfo() {
       </span>
       {node.fileId && (
         <small>
-          {node.fileId}:{node.range.startLine}
+          {node.fileId}:{node.range.startLine}:{node.range.startCol}
         </small>
+      )}
+      {!classic && <small>{node.kind}</small>}
+      {metrics && !classic && (
+        <>
+          <p>
+            {metrics.lines} lines{metrics.share !== null ? ` - ${metrics.share}% of parent` : ''}
+          </p>
+          <p>
+            {metrics.children} children - {metrics.callers.length} callers -{' '}
+            {metrics.callees.length} callees
+          </p>
+          <small>
+            {metrics.diagnostics.length
+              ? metrics.diagnostics.map((issue) => issue.message).join('; ')
+              : 'No syntax diagnostics'}
+          </small>
+          {node.meta.hasError && <small>Contains recovered syntax</small>}
+        </>
       )}
       {node.kind === 'loop' && (
         <p>
@@ -79,7 +102,11 @@ export function NodeInfo() {
       )}
       {detail && <small>{detail}</small>}
       {node.children.length > 0 && (
-        <small>Double-click or press C in the scene to collapse or expand.</small>
+        <small>
+          {classic
+            ? 'Double-click or press C in the scene to collapse or expand.'
+            : 'Double-click to explore this structure. Esc goes up.'}
+        </small>
       )}
     </aside>
   );

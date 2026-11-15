@@ -6,10 +6,11 @@ import { sceneLabel } from './label-text';
 
 export const tileLabelPixels = 12;
 export const tileLabelBudget = 300;
-export function tileColor(level: number, colors: SceneColors, active = false): string {
-  return active
+export function tileColor(level: number, colors: SceneColors, active = false, dim = false): string {
+  const color = active
     ? colors.active
     : [colors.other, colors.classFill, colors.functionFill, colors.active, colors.fill][level];
+  return dim && !active ? `#${new Color(color).multiplyScalar(0.2).getHexString()}` : color;
 }
 /** Colors are linear inside Three; choose the higher WCAG contrast against the actual tile. */
 export function tileTextColor(background: string): string {

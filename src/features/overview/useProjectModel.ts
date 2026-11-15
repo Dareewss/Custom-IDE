@@ -29,6 +29,7 @@ export function useProjectModel() {
     let cancelled = false;
     const changedProject = useOverview.getState().projectId !== projectId;
     const view = changedProject ? readView(projectId) : { collapsedIds, depth, isolate };
+    if (changedProject) usePlaneView.setState({ rootId: null });
     useOverview.setState({
       projectId,
       loading: true,

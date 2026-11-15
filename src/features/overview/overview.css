@@ -565,3 +565,29 @@
   overflow: hidden;
   pointer-events: none;
 }
+
+.overview-body > .glass.overview-node-info {
+  position: absolute;
+}
+.plane-track-header nav {
+  display: flex;
+  min-width: 0;
+  overflow: auto;
+  align-items: center;
+}
+.plane-track-header nav button {
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  padding: 3px 5px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.plane-track-header nav button + button::before {
+  content: '/';
+  margin-right: 8px;
+  color: var(--muted);
+}
+.plane-track-header nav [aria-current] {
+  color: var(--accent);
+}
