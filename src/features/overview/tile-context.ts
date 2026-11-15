@@ -1,3 +1,4 @@
+import { searchModel } from '../../core/model/search';
 import { useMemo } from 'react';
 import type { ModelIndexes } from '../../core/model/indexes';
 import type { StructureLayout } from '../../core/model/layout/structure-types';
@@ -36,7 +37,13 @@ export function useTileContext(layout: StructureLayout, fileId: string) {
   const rootId = usePlaneView((s) => s.rootId);
   const layers = usePlaneView((s) => s.mode === 'layers');
   const scope = useMemo(() => descendants(indexes, rootId), [indexes, rootId]);
-  const related = useMemo(() => relatedNodes(indexes, selected), [indexes, selected]);
+  const model = useOverview((s) => s.model),
+    query = useOverview((s) => s.searchQuery),
+    kind = useOverview((s) => s.searchKind);
+  const related = useMemo(() => {
+    const search = model ? searchModel(model, query, kind) : null;
+    return search?.active ? search.context : relatedNodes(indexes, selected);
+  }, [indexes, selected, model, query, kind]);
   const visible = useMemo(
     () =>
       layout.tiles.flatMap((tile, index) =>

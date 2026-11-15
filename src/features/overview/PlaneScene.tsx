@@ -1,3 +1,7 @@
+import { PlaneMinimap, PlaneMapDrawing } from './PlaneMinimap';
+import { CameraTools } from './CameraTools';
+import { cameraKey, requestCamera } from './camera-actions';
+import { toggleOverviewNode, isolateSelected, exitIsolation } from './view-actions';
 import { PlaneEdges } from './PlaneEdges';
 import { useSpring } from '@react-spring/three';
 import { useReducedMotion } from 'motion/react';
@@ -27,6 +31,7 @@ export default function PlaneScene({
   layout: StructureLayout;
   unavailable: React.ReactNode;
 }) {
+  const map = useRef<HTMLCanvasElement>(null);
   const axes = useRef<SVGSVGElement>(null);
   const active = useWorkspace((s) => s.active);
   const colors = useSceneColors(),
@@ -80,6 +85,34 @@ export default function PlaneScene({
       aria-label="3D navigation"
       data-scope={rootId ?? ''}
       onKeyDown={(event) => {
+        if (
+          (event.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]') ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey
+        )
+          return;
+        const action =
+          event.key.toLowerCase() === 'f'
+            ? event.shiftKey
+              ? 'fit-selection'
+              : 'fit-all'
+            : cameraKey(event.key, event.shiftKey);
+        if (action) {
+          event.preventDefault();
+          event.stopPropagation();
+          requestCamera(action);
+          return;
+        }
+        if (event.key.toLowerCase() === 'c' && selected) {
+          event.preventDefault();
+          toggleOverviewNode(selected);
+        }
+        if (event.key.toLowerCase() === 'i') {
+          event.preventDefault();
+          if (useOverview.getState().isolate) exitIsolation();
+          else isolateSelected();
+        }
         if (
           event.key === 'Escape' &&
           !(event.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]')
@@ -187,8 +220,11 @@ export default function PlaneScene({
           xOffset={xOffset}
           colors={colors}
           axes={axes}
+          map={map}
         />
       </Canvas>
+      <CameraTools />
+      <PlaneMinimap canvas={map} layout={layout} />
       <svg ref={axes} className="plane-chrome" aria-label="Source line ruler and levels">
         {layout.planes.map((plane) => (
           <text
@@ -244,6 +280,7 @@ function FlatContents({
   xOffset,
   colors,
   axes,
+  map,
 }: {
   layout: StructureLayout;
   fileId: string;
@@ -251,6 +288,7 @@ function FlatContents({
   xOffset: number;
   colors: ReturnType<typeof useSceneColors>;
   axes: React.RefObject<SVGSVGElement | null>;
+  map: React.RefObject<HTMLCanvasElement | null>;
 }) {
   const width = useThree((s) => s.size.width),
     get = useThree((s) => s.get);
@@ -316,6 +354,14 @@ function FlatContents({
         transform={transform}
         progress={spring.t}
         colors={colors}
+      />
+      <PlaneMapDrawing
+        getCanvas={() => map.current}
+        layout={layout}
+        transform={transform}
+        progress={spring.t}
+        colors={colors}
+        fileId={fileId}
       />
       <AxisPositions element={axes} transform={transform} layout={layout} progress={spring.t} />
     </>

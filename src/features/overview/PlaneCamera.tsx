@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, type ComponentRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { SpringValue } from '@react-spring/three';
-import { MOUSE, OrthographicCamera, PerspectiveCamera, Vector3 } from 'three';
+import { MOUSE, OrthographicCamera, PerspectiveCamera, Spherical, Vector3 } from 'three';
 import type { StructureLayout } from '../../core/model/layout/structure-types';
 import { useOverview } from './store';
 import { usePlaneView } from './plane-view';
@@ -200,6 +200,90 @@ export function PlaneCamera({
     controls.current?.update();
     invalidate();
   }, [focus, request, layout, visible, transform, progress, get, width, height]);
+  useLayoutEffect(() => {
+    if (
+      !request ||
+      processed.current === request.sequence ||
+      request.action === 'fit-selection' ||
+      !controls.current
+    )
+      return;
+    processed.current = request.sequence;
+    const { camera, invalidate } = get(),
+      target = controls.current.target.clone(),
+      action = request.action;
+    if (action === 'fit-all' || action === 'reset') {
+      const min: Vec3 = [Infinity, Infinity, Infinity],
+        max: Vec3 = [-Infinity, -Infinity, -Infinity];
+      for (const { tile } of visible) {
+        const p = tilePose(tile, layout, transform, progress.get());
+        const extent = [
+          p.width / 2,
+          (Math.abs(Math.cos(p.angle)) * p.height) / 2,
+          (Math.abs(Math.sin(p.angle)) * p.height) / 2,
+        ];
+        for (let i = 0; i < 3; i++) {
+          min[i] = Math.min(min[i], p.position[i] - extent[i]);
+          max[i] = Math.max(max[i], p.position[i] + extent[i]);
+        }
+      }
+      if (!visible.length) return;
+      target.set(...(min.map((v, i) => (v + max[i]) / 2) as Vec3));
+      if (camera instanceof OrthographicCamera) {
+        camera.zoom = Math.max(
+          0.5,
+          Math.min(
+            500,
+            (width - 100) / Math.max(1, max[0] - min[0]),
+            (height - 50) / Math.max(1, max[1] - min[1]),
+          ),
+        );
+        camera.position.set(target.x, target.y, 100);
+      } else
+        camera.position.set(
+          ...fitCamera({ min, max }, width / height, 45, [0.25, 1, 0.55]).position,
+        );
+    } else if (action === 'pan-to' && request.point) {
+      camera.position.add(new Vector3(...request.point).sub(target));
+      target.set(...request.point);
+    } else if (action.startsWith('zoom-')) {
+      const factor = action === 'zoom-in' ? 1.25 : 0.8;
+      if (camera instanceof OrthographicCamera)
+        camera.zoom = Math.max(0.5, Math.min(500, camera.zoom * factor));
+      else camera.position.sub(target).divideScalar(factor).add(target);
+    } else if (action.startsWith('orbit-') && mode === 'layers') {
+      const offset = new Spherical().setFromVector3(camera.position.clone().sub(target));
+      offset.theta += action === 'orbit-left' ? 0.15 : action === 'orbit-right' ? -0.15 : 0;
+      offset.phi = Math.max(
+        Math.PI / 8,
+        Math.min(
+          Math.PI / 2.2,
+          offset.phi + (action === 'orbit-up' ? -0.15 : action === 'orbit-down' ? 0.15 : 0),
+        ),
+      );
+      camera.position.setFromSpherical(offset).add(target);
+    } else {
+      const horizontal = action.endsWith('left') || action.endsWith('right');
+      const step =
+        camera instanceof OrthographicCamera
+          ? 30 / camera.zoom
+          : camera.position.distanceTo(target) * 0.08;
+      const delta = new Vector3()
+        .setFromMatrixColumn(camera.matrixWorld, horizontal ? 0 : 1)
+        .multiplyScalar(step * (action.endsWith('left') || action.endsWith('down') ? -1 : 1));
+      camera.position.add(delta);
+      target.add(delta);
+    }
+    controls.current.target.copy(target);
+    camera.lookAt(target);
+    camera.updateProjectionMatrix();
+    controls.current.update();
+    if (camera instanceof OrthographicCamera)
+      flatPose.current = { position: camera.position.clone(), target, zoom: camera.zoom };
+    else layerPose.current = { position: camera.position.clone(), target };
+    last.current = progress.get();
+    invalidate();
+  }, [request, get, visible, layout, transform, progress, width, height, mode]);
   return (
     <OrbitControls
       ref={controls}
@@ -207,6 +291,16 @@ export function PlaneCamera({
       makeDefault
       enableRotate={mode === 'layers'}
       enableDamping={false}
+      zoomToCursor
+      onStart={() => useOverview.setState({ hoveredNodeId: null, hoveredDetail: null })}
+      onEnd={() => {
+        const camera = get().camera,
+          target = controls.current?.target.clone();
+        if (!target) return;
+        if (camera instanceof OrthographicCamera)
+          flatPose.current = { position: camera.position.clone(), target, zoom: camera.zoom };
+        else layerPose.current = { position: camera.position.clone(), target };
+      }}
       minZoom={0.5}
       maxZoom={500}
       minPolarAngle={mode === 'layers' ? Math.PI / 8 : 0}
