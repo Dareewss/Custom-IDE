@@ -1,3 +1,4 @@
+import { useStaticMarkers } from './OverlayLayer';
 import { useMemo } from 'react';
 import { planeNames } from '../../core/model/layout/structure-types';
 import { lineSpan } from '../../core/model/layout/line-map';
@@ -18,6 +19,7 @@ import { nodeDetails } from './node-details';
 import { selectOverviewNode } from './selection';
 import { toggleOverviewNode } from './view-actions';
 export function PlaneInspector() {
+  const markers = useStaticMarkers();
   const model = useOverview((s) => s.model),
     indexes = useOverview((s) => s.indexes),
     selected = useOverview((s) => s.selectedNodeId),
@@ -151,6 +153,14 @@ export function PlaneInspector() {
       <ObjectSearch />
       <IsolationBar />
       <small>F fit all · Shift+F selection · C collapse · I isolate · Esc parent</small>
+      <details>
+        <summary>Markers ({markers.length})</summary>
+        <ul>
+          {markers.map((marker) => (
+            <li key={marker.id}>{marker.label}</li>
+          ))}
+        </ul>
+      </details>
       {node && details && (
         <section aria-label="Selected structure">
           <strong>{node.name}</strong>

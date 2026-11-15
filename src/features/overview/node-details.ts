@@ -21,8 +21,12 @@ export function nodeDetails(node: CodeNode, model: CodeModel, indexes: ModelInde
       (issue) =>
         issue.fileId === node.fileId &&
         node.range &&
-        issue.range.startLine <= node.range.endLine &&
-        issue.range.endLine >= node.range.startLine,
+        (issue.range.startLine < node.range.endLine ||
+          (issue.range.startLine === node.range.endLine &&
+            issue.range.startCol < node.range.endCol)) &&
+        (issue.range.endLine > node.range.startLine ||
+          (issue.range.endLine === node.range.startLine &&
+            issue.range.endCol > node.range.startCol)),
     ),
   };
 }

@@ -1,3 +1,4 @@
+import { OverlayLayer } from './OverlayLayer';
 import { PlaneMinimap, PlaneMapDrawing } from './PlaneMinimap';
 import { CameraTools } from './CameraTools';
 import { cameraKey, requestCamera } from './camera-actions';
@@ -297,6 +298,13 @@ function FlatContents({
         colors={colors}
       />
       <PlaneEdges
+        layout={layout}
+        fileId={fileId}
+        transform={transform}
+        progress={spring.t}
+        colors={colors}
+      />
+      <OverlayLayer
         layout={layout}
         fileId={fileId}
         transform={transform}
