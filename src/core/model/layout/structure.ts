@@ -1,3 +1,4 @@
+import { buildTileBvh } from './tile-bvh';
 import type { CodeModel, CodeNode } from '../types';
 import { lineSpan, mappedX, sourceKnots } from './line-map';
 import {
@@ -99,7 +100,7 @@ export function structureLayout(
         x,
         y: -(planes[level].firstRow + row + 1),
         width: Math.max(0, mappedX(lane.knots, endLine) - x),
-        height: 0.84,
+        height: 1,
         startLine,
         endLine,
       };
@@ -143,7 +144,14 @@ export function structureLayout(
     (a, b) =>
       a.lane - b.lane || a.level - b.level || a.row - b.row || a.x - b.x || compare(a.id, b.id),
   );
+  const picking = dictionary<ReturnType<typeof buildTileBvh>>();
+  for (const lane of lanes)
+    picking[lane.fileId] = buildTileBvh(
+      tiles,
+      tiles.flatMap((tile, index) => (tile.fileId === lane.fileId ? [index] : [])),
+    );
   return {
+    picking,
     lanes,
     planes,
     tiles,

@@ -1,10 +1,26 @@
+import { setPlaneMode, usePlaneView } from './plane-view';
 import { useSettings } from '../settings/store';
 
 export function OverviewSettings() {
   const settings = useSettings();
+  const mode = usePlaneView((s) => s.mode);
   return (
     <fieldset className="overview-settings">
       <legend>3D overview</legend>
+      <label className="field">
+        3D renderer
+        <select
+          aria-label="3D renderer"
+          value={mode}
+          onChange={(event) => {
+            const mode = event.target.value;
+            if (mode === 'flat' || mode === 'classic') setPlaneMode(mode);
+          }}
+        >
+          <option value="flat">Flat · layered source tiles</option>
+          <option value="classic">Classic · legacy shapes</option>
+        </select>
+      </label>
       <label className="field">
         3D quality
         <select

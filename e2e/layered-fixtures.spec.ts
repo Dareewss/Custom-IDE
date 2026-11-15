@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import JSZip from 'jszip';
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 for (const [size, lines] of [
   ['small', 25],
   ['medium', 50],
@@ -26,17 +28,24 @@ for (const [size, lines] of [
     const panel = page.getByRole('region', { name: 'Code overview', exact: true });
     const canvas = page.locator('.code-canvas canvas');
     await expect(panel).toHaveAttribute('aria-busy', 'false');
-    await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/, { timeout: 30000 });
+    await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/, { timeout: 30000 });
     await page
       .getByRole('group', { name: 'Workspace layout', exact: true })
       .getByRole('button', { name: '3D', exact: true })
       .click();
-    await page.getByRole('button', { name: 'Fit all objects (Home)', exact: true }).click();
+
     await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await expect
+      .poll(async () => {
+        const box = (await canvas.boundingBox())!;
+        const size = JSON.parse((await canvas.getAttribute('data-render-size'))!);
+        return Math.abs(box.width - size[0]) + Math.abs(box.height - size[1]);
+      })
+      .toBeLessThan(1);
     await page.addStyleTag({ content: 'body { background: #202522; }' });
     const folder = 'docs/screenshots/phase2.5';
     await mkdir(folder, { recursive: true });
-    await page.screenshot({ path: `${folder}/baseline-${size}.png` });
+    await page.screenshot({ path: `${folder}/flat-${size}.png` });
     const metrics = await panel.evaluate((element) => ({
       nodes: element.dataset.modelNodes,
       visible: element.dataset.visibleNodes,
@@ -44,7 +53,7 @@ for (const [size, lines] of [
       layoutMs: element.dataset.layoutMs,
       canvas: element.querySelector('.code-canvas canvas')?.getBoundingClientRect().toJSON(),
     }));
-    await writeFile(`${folder}/baseline-${size}.json`, JSON.stringify(metrics, null, 2));
+    await writeFile(`${folder}/flat-${size}.json`, JSON.stringify(metrics, null, 2));
     expect(Number(metrics.nodes)).toBeGreaterThan(20);
     expect(metrics.canvas.width).toBeGreaterThan(200);
     expect(metrics.canvas.height).toBeGreaterThan(150);

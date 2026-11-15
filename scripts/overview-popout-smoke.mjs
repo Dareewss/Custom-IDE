@@ -50,6 +50,10 @@ try {
       rendererErrors.push(message.text().slice(0, 1000));
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  // Keep the legacy scene lifecycle covered until Classic is retired at P11.
+  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
+  await page.getByRole('combobox', { name: '3D renderer', exact: true }).selectOption('classic');
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   const zip = new JSZip();
   zip.file('main.py', await readFile('tests/fixtures/python/shapes.py', 'utf8'));

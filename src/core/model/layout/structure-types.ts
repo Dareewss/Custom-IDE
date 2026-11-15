@@ -1,3 +1,4 @@
+import type { TileBvh } from './tile-bvh';
 import type { CodeModel, NodeKind } from '../types';
 
 export type PlaneLevel = 0 | 1 | 2 | 3 | 4;
@@ -36,6 +37,7 @@ export interface FileLane {
   knots: { line: number; x: number }[];
 }
 export interface StructureLayout {
+  picking: Record<string, TileBvh | null>;
   lanes: FileLane[];
   planes: { level: PlaneLevel; name: string; rows: number; firstRow: number }[];
   tiles: StructureTile[];

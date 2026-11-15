@@ -517,3 +517,51 @@
   width: 26px;
   height: 26px;
 }
+
+.plane-navigation {
+  position: relative;
+}
+.plane-track-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 7px 10px;
+  height: 32px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.plane-track-header strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plane-track-header span {
+  margin-left: auto;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 11px;
+}
+.plane-navigation > .code-canvas {
+  height: calc(100% - 32px);
+}
+.plane-row-label {
+  display: block;
+  width: 110px;
+
+  text-align: right;
+  font-size: 11px;
+  white-space: nowrap;
+  fill: var(--text);
+}
+.plane-ruler-tick {
+  font: 10px monospace;
+  fill: var(--muted);
+}
+.plane-chrome {
+  position: absolute;
+  inset: 32px 0 0;
+  width: 100%;
+  height: calc(100% - 32px);
+  overflow: hidden;
+  pointer-events: none;
+}

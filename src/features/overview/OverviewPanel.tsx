@@ -1,3 +1,4 @@
+import { usePlaneView } from './plane-view';
 import { lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { Box, ListTree, Shuffle, ExternalLink, PanelLeftClose } from 'lucide-react';
 import { useProjectModel } from './useProjectModel';
@@ -17,6 +18,7 @@ import { FunctionPositions } from './FunctionPositions';
 import './overview.css';
 
 const CodeScene = lazy(() => import('./CodeScene'));
+const PlaneScene = lazy(() => import('./PlaneScene'));
 
 export function OverviewPanel({
   onPopOut,
@@ -28,6 +30,7 @@ export function OverviewPanel({
   windowControls?: ReactNode;
 }) {
   useProjectModel();
+  const classic = usePlaneView((s) => s.mode === 'classic');
   const state = useOverview();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
@@ -79,7 +82,7 @@ export function OverviewPanel({
           >
             <Shuffle size={14} />
           </IconButton>
-          <EdgeOptions />
+          {classic && <EdgeOptions />}
           <IconButton
             label="Show code outline"
             aria-pressed={outline}
@@ -103,7 +106,7 @@ export function OverviewPanel({
       </header>
       <DepthControl />
       <ObjectSearch />
-      <FunctionPositions />
+      {classic && <FunctionPositions />}
       <IsolationBar />
       {state.error && (
         <p className="overview-notice" role="alert">
@@ -171,7 +174,10 @@ export function OverviewPanel({
                   </p>
                 }
               >
-                {state.layout && (
+                {!classic && state.structure && (
+                  <PlaneScene layout={state.structure} unavailable={fallback} />
+                )}
+                {classic && state.layout && (
                   <CodeScene
                     model={state.viewModel ?? model}
                     layout={state.layout}

@@ -9,6 +9,17 @@ export default defineConfig({
   snapshotPathTemplate: '{testDir}/fixtures/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:4173',
+    // Existing shape/camera regressions explicitly exercise the temporary Classic setting.
+    // Layered-view specs use an empty profile and verify the real Flat default.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: 'http://127.0.0.1:4173',
+          localStorage: [{ name: 'atlas-overview-renderer', value: 'classic' }],
+        },
+      ],
+    },
     channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
     viewport: { width: 1440, height: 960 },
     trace: 'retain-on-failure',

@@ -32,7 +32,7 @@ function noOverlap(layout: StructureLayout) {
       expect.arrayContaining([expect.any(Number)]),
     );
     expect(tile.width).toBeGreaterThan(0);
-    expect(tile.height).toBe(0.84);
+    expect(tile.height).toBe(1);
     const key = `${tile.lane}:${tile.level}:${tile.row}`;
     const row = rows.get(key) ?? [];
     row.push(tile);

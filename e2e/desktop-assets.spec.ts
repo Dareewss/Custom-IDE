@@ -17,6 +17,7 @@ test('renders local 3D text under the actual packaged desktop content policy', a
     expect(policy).not.toContain("'unsafe-eval'");
     expect(policy).toContain("object-src 'none'");
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.addInitScript(() => localStorage.setItem('atlas-overview-renderer', 'classic'));
     await page.goto(origin);
     expect(await page.evaluate(() => crossOriginIsolated)).toBe(true);
     const canvas = page.locator('.code-canvas canvas');
