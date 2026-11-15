@@ -1,3 +1,5 @@
+import { structureStrategy } from '../model/layout/structure';
+import type { StructureLayout } from '../model/layout/structure-types';
 import { buildModelIndexes } from '../model/indexes';
 import { automaticLayout } from '../model/layout/automatic';
 import type { GraphLayout, LayoutRequest } from '../model/layout/types';
@@ -6,7 +8,10 @@ import { diffModels } from '../model/diff';
 import { rememberLayout } from '../model/layout/history';
 import type { CodeModel } from '../model/types';
 
-const cache = new Map<string, { revision: number; layout: GraphLayout; model: CodeModel }>();
+const cache = new Map<
+  string,
+  { revision: number; layout: GraphLayout; model: CodeModel; structure: StructureLayout }
+>();
 
 self.onmessage = (event: MessageEvent<{ id: number; request: LayoutRequest }>) => {
   const { id, request } = event.data;
@@ -20,6 +25,11 @@ self.onmessage = (event: MessageEvent<{ id: number; request: LayoutRequest }>) =
       request.revision,
       new Set(projected.compactIds),
     );
+    const structure = structureStrategy.layout(
+      projected.model,
+      request.structureOptions,
+      before?.structure,
+    );
     cache.delete(request.projectId);
     const diff = diffModels(before?.model ?? null, request.model);
     cache.set(request.projectId, {
@@ -30,12 +40,14 @@ self.onmessage = (event: MessageEvent<{ id: number; request: LayoutRequest }>) =
         request.model,
       ),
       model: request.model,
+      structure,
     });
     if (cache.size > 3) cache.delete(cache.keys().next().value!);
     self.postMessage({
       id,
       result: {
         layout,
+        structure,
         indexes,
         viewModel: projected.model,
         ownerByNode: projected.ownerByNode,

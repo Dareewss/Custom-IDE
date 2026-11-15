@@ -1,3 +1,4 @@
+import type { StructureLayout } from '../../core/model/layout/structure-types';
 import { create } from 'zustand';
 import type { CodeModel, EdgeKind } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
@@ -12,6 +13,7 @@ import type { IsolateView } from '../../core/model/isolate';
 import type { FunctionOffsets } from '../../core/model/layout/offsets';
 
 interface OverviewState {
+  structure: StructureLayout | null;
   functionOffsets: FunctionOffsets;
   movingNodeId: string | null;
   outlineVisible: boolean;
@@ -50,6 +52,7 @@ interface OverviewState {
   focusRequest: { nodeId: string | null; sequence: number } | null;
 }
 export const useOverview = create<OverviewState>(() => ({
+  structure: null,
   functionOffsets: {},
   movingNodeId: null,
   outlineVisible: false,

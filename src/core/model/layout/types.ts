@@ -1,3 +1,4 @@
+import type { StructureLayout, StructureOptions } from './structure-types';
 import type { CollectionCell } from './collections';
 import type { BranchLane } from './control-flow';
 import type { CodeEdge, CodeModel } from '../types';
@@ -26,6 +27,7 @@ export interface LayoutEdge {
   clusteredPoints: Vec3[];
 }
 export interface LayoutResponse {
+  structure: StructureLayout;
   layout: GraphLayout;
   indexes: ModelIndexes;
   viewModel: CodeModel;
@@ -35,6 +37,7 @@ export interface LayoutResponse {
   diff: ModelDiff;
 }
 export interface LayoutRequest {
+  structureOptions?: StructureOptions;
   model: CodeModel;
   projectId: string;
   revision: number;
