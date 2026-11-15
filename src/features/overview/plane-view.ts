@@ -16,11 +16,17 @@ export const usePlaneView = create<{
   pixelsPerUnit: number;
   rootId: string | null;
   gap: number;
+  edges: 'none' | 'context' | 'all';
+  imports: boolean;
+  hiddenEdges: number;
 }>(() => ({
   mode: readMode(),
   pixelsPerUnit: 24,
   rootId: null,
   gap: 5,
+  edges: 'none',
+  imports: false,
+  hiddenEdges: 0,
 }));
 export function setPlaneMode(mode: PlaneMode) {
   usePlaneView.setState({ mode });

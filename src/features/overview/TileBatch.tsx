@@ -227,7 +227,6 @@ export function TileBatch({
         data.tileInstances = String(visible.length);
         data.tileMeshes = '1';
         data.tilePicking = 'bvh';
-        data.tileEdges = '0';
         data.dimmedTiles = String(
           related
             ? visible.filter(({ tile }) => !tile.nodeIds.some((id) => related.has(id))).length

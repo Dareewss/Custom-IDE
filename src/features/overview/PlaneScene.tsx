@@ -1,3 +1,4 @@
+import { PlaneEdges } from './PlaneEdges';
 import { useSpring } from '@react-spring/three';
 import { useReducedMotion } from 'motion/react';
 import { PlaneSheets } from './PlaneSheets';
@@ -33,7 +34,10 @@ export default function PlaneScene({
   const [lost, setLost] = useState(false);
   const rootId = usePlaneView((s) => s.rootId);
   const mode = usePlaneView((s) => s.mode),
-    gap = usePlaneView((s) => s.gap);
+    gap = usePlaneView((s) => s.gap),
+    edges = usePlaneView((s) => s.edges),
+    imports = usePlaneView((s) => s.imports),
+    hiddenEdges = usePlaneView((s) => s.hiddenEdges);
   const indexes = useOverview((s) => s.indexes),
     selected = useOverview((s) => s.selectedNodeId);
   const root = rootId ? indexes?.nodeById.get(rootId) : undefined;
@@ -103,6 +107,27 @@ export default function PlaneScene({
           ))}
         </nav>
         <span>{lastLine - 1} lines</span>
+        {hiddenEdges > 0 && <output aria-label="Hidden connections">+{hiddenEdges} hidden</output>}
+        <select
+          aria-label="Tile connections"
+          value={edges}
+          onChange={(e) =>
+            usePlaneView.setState({ edges: e.target.value as 'none' | 'context' | 'all' })
+          }
+        >
+          <option value="none">No edges</option>
+          <option value="context">Callers / callees</option>
+          <option value="all">All edges (200 max)</option>
+        </select>
+        <label>
+          <input
+            type="checkbox"
+            aria-label="Import bands"
+            checked={imports}
+            onChange={(e) => usePlaneView.setState({ imports: e.target.checked })}
+          />{' '}
+          Imports
+        </label>
         <select
           aria-label="Structure view mode"
           value={mode === 'layers' ? 'layers' : 'flat'}
@@ -272,6 +297,13 @@ function FlatContents({
       />
       <PlaneSheets layout={layout} transform={transform} progress={spring.t} color={colors.other} />
       <TileBatch
+        layout={layout}
+        fileId={fileId}
+        transform={transform}
+        progress={spring.t}
+        colors={colors}
+      />
+      <PlaneEdges
         layout={layout}
         fileId={fileId}
         transform={transform}
