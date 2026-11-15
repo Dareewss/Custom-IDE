@@ -38,22 +38,28 @@ export function OverviewSettings() {
           <option value="high">High · full detail</option>
         </select>
       </label>
-      <label className="field">
-        3D symbol size · {settings.overviewNodeSize}%
-        <input
-          type="range"
-          min={75}
-          max={125}
-          step={5}
-          value={settings.overviewNodeSize}
-          aria-label="3D symbol size"
-          aria-valuetext={`${settings.overviewNodeSize}%`}
-          onChange={(event) => settings.setSetting('overviewNodeSize', Number(event.target.value))}
-        />
-      </label>
-      <p className="muted">
-        Adjust symbols inside the file containers. Source positions and layout stay stable.
-      </p>
+      {mode === 'classic' && (
+        <>
+          <label className="field">
+            3D symbol size · {settings.overviewNodeSize}%
+            <input
+              type="range"
+              min={75}
+              max={125}
+              step={5}
+              value={settings.overviewNodeSize}
+              aria-label="3D symbol size"
+              aria-valuetext={`${settings.overviewNodeSize}%`}
+              onChange={(event) =>
+                settings.setSetting('overviewNodeSize', Number(event.target.value))
+              }
+            />
+          </label>
+          <p className="muted">
+            Adjust symbols inside the file containers. Source positions and layout stay stable.
+          </p>
+        </>
+      )}
       <label className="setting-toggle">
         <span>3D labels</span>
         <input

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ComponentRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, type ComponentRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import type { SpringValue } from '@react-spring/three';
@@ -118,6 +118,25 @@ export function PlaneCamera({
     last.current = -1;
     get().invalidate();
   }, [liveCamera, get]);
+  const saved = useRef(''),
+    timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useLayoutEffect(() => {
+    const poses = usePlaneView.getState().cameras;
+    if (poses.flat)
+      flatPose.current = {
+        position: new Vector3(...poses.flat.position),
+        target: new Vector3(...poses.flat.target),
+        zoom: poses.flat.zoom,
+      };
+    if (poses.layers)
+      layerPose.current = {
+        position: new Vector3(...poses.layers.position),
+        target: new Vector3(...poses.layers.target),
+      };
+    last.current = -1;
+    get().invalidate();
+  }, [get]);
   useFrame(({ gl, invalidate, set }) => {
     if (!cameras.current) return;
     const { flat, perspective } = cameras.current;
@@ -148,6 +167,25 @@ export function PlaneCamera({
     gl.domElement.dataset.cameraTarget = JSON.stringify(controls.current?.target.toArray() ?? []);
     gl.domElement.dataset.cameraPosition = JSON.stringify(camera.position.toArray());
     gl.domElement.dataset.cameraReady = `${Math.round(width)}x${Math.round(height)}`;
+    if (progress.idle && controls.current) {
+      const pose = {
+        position: camera.position.toArray() as Vec3,
+        target: controls.current.target.toArray() as Vec3,
+        zoom: camera.zoom,
+      };
+      const key = JSON.stringify([mode, pose]);
+      if (saved.current !== key) {
+        saved.current = key;
+        clearTimeout(timer.current);
+        const project = usePlaneView.getState().projectId;
+        timer.current = setTimeout(() => {
+          if (usePlaneView.getState().projectId === project)
+            usePlaneView.setState((s) => ({
+              cameras: { ...s.cameras, [mode === 'layers' ? 'layers' : 'flat']: pose },
+            }));
+        }, 250);
+      }
+    }
     if (!progress.idle) invalidate();
   }, -1);
   useLayoutEffect(() => {

@@ -8,7 +8,7 @@ import { useReducedMotion } from 'motion/react';
 import { PlaneSheets } from './PlaneSheets';
 import { planePoint, type PlaneTransform } from './plane-transform';
 import { useOverview } from './store';
-import { setPlaneMode, usePlaneView } from './plane-view';
+import { usePlaneView } from './plane-view';
 import { descendants, rootUp } from './tile-context';
 import { TileLabels } from './TileLabels';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -39,10 +39,7 @@ export default function PlaneScene({
   const [lost, setLost] = useState(false);
   const rootId = usePlaneView((s) => s.rootId);
   const mode = usePlaneView((s) => s.mode),
-    gap = usePlaneView((s) => s.gap),
-    edges = usePlaneView((s) => s.edges),
-    imports = usePlaneView((s) => s.imports),
-    hiddenEdges = usePlaneView((s) => s.hiddenEdges);
+    levels = usePlaneView((s) => s.levels);
   const indexes = useOverview((s) => s.indexes),
     selected = useOverview((s) => s.selectedNodeId);
   const root = rootId ? indexes?.nodeById.get(rootId) : undefined;
@@ -140,50 +137,6 @@ export default function PlaneScene({
           ))}
         </nav>
         <span>{lastLine - 1} lines</span>
-        {hiddenEdges > 0 && <output aria-label="Hidden connections">+{hiddenEdges} hidden</output>}
-        <select
-          aria-label="Tile connections"
-          value={edges}
-          onChange={(e) =>
-            usePlaneView.setState({ edges: e.target.value as 'none' | 'context' | 'all' })
-          }
-        >
-          <option value="none">No edges</option>
-          <option value="context">Callers / callees</option>
-          <option value="all">All edges (200 max)</option>
-        </select>
-        <label>
-          <input
-            type="checkbox"
-            aria-label="Import bands"
-            checked={imports}
-            onChange={(e) => usePlaneView.setState({ imports: e.target.checked })}
-          />{' '}
-          Imports
-        </label>
-        <select
-          aria-label="Structure view mode"
-          value={mode === 'layers' ? 'layers' : 'flat'}
-          onChange={(event) => setPlaneMode(event.target.value === 'layers' ? 'layers' : 'flat')}
-        >
-          <option value="flat">Flat</option>
-          <option value="layers">Layers</option>
-        </select>
-        {mode === 'layers' && (
-          <label className="plane-gap">
-            Gap{' '}
-            <input
-              aria-label="Plane gap"
-              type="range"
-              min="1"
-              max="12"
-              step=".5"
-              value={gap}
-              onChange={(event) => usePlaneView.setState({ gap: Number(event.target.value) })}
-            />
-            <output>{gap}</output>
-          </label>
-        )}
       </div>
       <Canvas
         className="code-canvas"
@@ -226,20 +179,22 @@ export default function PlaneScene({
       <CameraTools />
       <PlaneMinimap canvas={map} layout={layout} />
       <svg ref={axes} className="plane-chrome" aria-label="Source line ruler and levels">
-        {layout.planes.map((plane) => (
-          <text
-            key={`level-${plane.level}`}
-            className="plane-row-label"
-            textAnchor="end"
-            dominantBaseline="middle"
-            data-level={plane.level}
-            data-lane={lane.index}
-            data-world-x={-0.5}
-            data-world-y={-plane.firstRow - 0.5}
-          >
-            L{plane.level} · {plane.name}
-          </text>
-        ))}
+        {layout.planes
+          .filter((plane) => levels[plane.level])
+          .map((plane) => (
+            <text
+              key={`level-${plane.level}`}
+              className="plane-row-label"
+              textAnchor="end"
+              dominantBaseline="middle"
+              data-level={plane.level}
+              data-lane={lane.index}
+              data-world-x={-0.5}
+              data-world-y={-plane.firstRow - 0.5}
+            >
+              L{plane.level} · {plane.name}
+            </text>
+          ))}
         {[...new Set(ticks)].map((line) => (
           <text
             key={`tick-${line}`}

@@ -1,3 +1,4 @@
+import { usePlaneView } from './plane-view';
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import type { SpringValue } from '@react-spring/three';
@@ -16,6 +17,7 @@ export function PlaneSheets({
   progress: SpringValue<number>;
   color: string;
 }) {
+  const levels = usePlaneView((s) => s.levels);
   const geometry = useMemo(() => {
     const g = new BufferGeometry();
     g.setAttribute(
@@ -41,7 +43,7 @@ export function PlaneSheets({
     mesh = useRef<Mesh<BufferGeometry, MeshBasicMaterial>>(null);
   useEffect(() => {
     previous.current = -1;
-  }, [layout, transform]);
+  }, [layout, transform, levels]);
   useFrame(() => {
     const t = progress.get();
     if (previous.current === t) return;
@@ -51,6 +53,7 @@ export function PlaneSheets({
     let index = 0;
     for (const lane of layout.lanes)
       for (const plane of layout.planes) {
+        if (!levels[plane.level]) continue;
         const top = -plane.firstRow + 0.15,
           bottom = -plane.firstRow - plane.rows - 0.15;
         for (const [x, y] of [
@@ -65,6 +68,7 @@ export function PlaneSheets({
           attribute.setXYZ(index++, p[0], p[1] - 0.012 * t, p[2] - 0.012 * (1 - t));
         }
       }
+    geometry.setDrawRange(0, index);
     attribute.needsUpdate = true;
     geometry.computeBoundingSphere();
   });

@@ -3,6 +3,7 @@ import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import type { SpringValue } from '@react-spring/three';
 import {
   Color,
+  BoxGeometry,
   InstancedBufferAttribute,
   InstancedMesh,
   Matrix4,
@@ -50,8 +51,28 @@ export function TileBatch({
     () => new Map(visible.map((entry, index) => [entry.index, index])),
     [visible],
   );
+  const extrude = usePlaneView((s) => s.extrude),
+    indexes = useOverview((s) => s.indexes);
+  const thickness = useMemo(
+    () =>
+      visible.map(({ tile }) => {
+        const todo = [...tile.nodeIds],
+          seen = new Set<string>();
+        let count = 0;
+        while (todo.length) {
+          const id = todo.pop()!;
+          if (seen.has(id)) continue;
+          seen.add(id);
+          const n = indexes?.nodeById.get(id);
+          if (n?.kind === 'loop' || n?.kind === 'condition') count++;
+          todo.push(...(n?.children ?? []));
+        }
+        return Math.min(transform.gap * 0.4, 0.08 + count * 0.08);
+      }),
+    [visible, indexes, transform.gap],
+  );
   const geometry = useMemo(() => {
-    const geometry = new PlaneGeometry(1, 1);
+    const geometry = extrude ? new BoxGeometry(1, 1, 1) : new PlaneGeometry(1, 1);
     geometry.setAttribute(
       'tileSize',
       new InstancedBufferAttribute(new Float32Array(visible.length * 2), 2),
@@ -61,7 +82,7 @@ export function TileBatch({
       new InstancedBufferAttribute(new Float32Array(visible.length), 1),
     );
     return geometry;
-  }, [visible]);
+  }, [visible, extrude]);
   const material = useMemo(() => {
     const material = new MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: true });
     material.onBeforeCompile = (shader) => {
@@ -107,7 +128,7 @@ export function TileBatch({
     if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
     last.current = -1;
     get().invalidate();
-  }, [visible, colors, selected, hovered, related, transform, get]);
+  }, [visible, colors, selected, hovered, related, transform, extrude, thickness, get]);
   useFrame(() => {
     if (!mesh.current) return;
     const t = progress.get();
@@ -120,8 +141,12 @@ export function TileBatch({
       const pose = tilePose(tile, layout, transform, t);
       matrix
         .makeRotationX(pose.angle)
-        .scale(new Vector3(pose.width, pose.height, 1))
-        .setPosition(...pose.position);
+        .scale(new Vector3(pose.width, pose.height, extrude ? thickness[index] : 1))
+        .setPosition(
+          pose.position[0],
+          pose.position[1] + (extrude ? (Math.sin(pose.angle) * thickness[index]) / 2 : 0),
+          pose.position[2] - (extrude ? (Math.cos(pose.angle) * thickness[index]) / 2 : 0),
+        );
       mesh.current!.setMatrixAt(index, matrix);
       size.setXY(index, pose.width, pose.height);
       alpha.setX(index, tile.fileId === fileId ? 1 : t);
@@ -226,6 +251,8 @@ export function TileBatch({
           t = progress.get();
         data.tileInstances = String(visible.length);
         data.tileMeshes = '1';
+        data.tileExtrusion = String(extrude);
+        data.visibleLevels = JSON.stringify([...new Set(visible.map((e) => e.tile.level))]);
         data.tilePicking = 'bvh';
         data.dimmedTiles = String(
           related

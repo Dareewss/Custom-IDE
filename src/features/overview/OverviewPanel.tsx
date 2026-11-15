@@ -1,3 +1,4 @@
+import { PlaneInspector } from './PlaneInspector';
 import { usePlaneView } from './plane-view';
 import { lazy, Suspense, useMemo, type ReactNode } from 'react';
 import { Box, ListTree, Shuffle, ExternalLink, PanelLeftClose } from 'lucide-react';
@@ -69,19 +70,21 @@ export function OverviewPanel({
           3D overview
         </span>
         <div className="overview-actions">
-          <IconButton
-            label="Re-layout graph"
-            disabled={state.loading}
-            onClick={() => {
-              useOverview.setState({
-                layoutRevision: state.layoutRevision + 1,
-                functionOffsets: {},
-              });
-              saveFunctionOffsets();
-            }}
-          >
-            <Shuffle size={14} />
-          </IconButton>
+          {classic && (
+            <IconButton
+              label="Re-layout graph"
+              disabled={state.loading}
+              onClick={() => {
+                useOverview.setState({
+                  layoutRevision: state.layoutRevision + 1,
+                  functionOffsets: {},
+                });
+                saveFunctionOffsets();
+              }}
+            >
+              <Shuffle size={14} />
+            </IconButton>
+          )}
           {classic && <EdgeOptions />}
           <IconButton
             label="Show code outline"
@@ -104,10 +107,14 @@ export function OverviewPanel({
           {windowControls}
         </div>
       </header>
-      <DepthControl />
-      <ObjectSearch />
+      {classic && (
+        <>
+          <DepthControl />
+          <ObjectSearch />
+        </>
+      )}
       {classic && <FunctionPositions />}
-      <IsolationBar />
+      {classic && <IsolationBar />}
       {state.error && (
         <p className="overview-notice" role="alert">
           {state.error}
@@ -119,7 +126,8 @@ export function OverviewPanel({
           Some code is incomplete. Showing recovered structure.
         </p>
       )}
-      <div className="overview-body" data-outline={String(outline)}>
+      <div className="overview-body" data-outline={String(outline)} data-planes={String(!classic)}>
+        {!classic && model && <PlaneInspector />}
         {!outline && <NodeInfo />}
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">

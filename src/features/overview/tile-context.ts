@@ -35,6 +35,7 @@ export function useTileContext(layout: StructureLayout, fileId: string) {
   const indexes = useOverview((s) => s.indexes),
     selected = useOverview((s) => s.selectedNodeId);
   const rootId = usePlaneView((s) => s.rootId);
+  const levels = usePlaneView((s) => s.levels);
   const layers = usePlaneView((s) => s.mode === 'layers');
   const scope = useMemo(() => descendants(indexes, rootId), [indexes, rootId]);
   const model = useOverview((s) => s.model),
@@ -47,11 +48,13 @@ export function useTileContext(layout: StructureLayout, fileId: string) {
   const visible = useMemo(
     () =>
       layout.tiles.flatMap((tile, index) =>
-        (layers || tile.fileId === fileId) && (!scope || tile.nodeIds.some((id) => scope.has(id)))
+        levels[tile.level] &&
+        (layers || tile.fileId === fileId) &&
+        (!scope || tile.nodeIds.some((id) => scope.has(id)))
           ? [{ tile, index }]
           : [],
       ),
-    [layout, fileId, scope, layers],
+    [layout, fileId, scope, layers, levels],
   );
   return { visible, related };
 }

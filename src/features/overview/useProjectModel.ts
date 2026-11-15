@@ -1,4 +1,4 @@
-import { usePlaneView } from './plane-view';
+import { loadPlaneProject, usePlaneView } from './plane-view';
 import { useEffect } from 'react';
 import { useWorkspace } from '../explorer/store';
 import { languageForPath, type LanguageAdapter } from '../../core/language/adapter';
@@ -29,7 +29,7 @@ export function useProjectModel() {
     let cancelled = false;
     const changedProject = useOverview.getState().projectId !== projectId;
     const view = changedProject ? readView(projectId) : { collapsedIds, depth, isolate };
-    if (changedProject) usePlaneView.setState({ rootId: null });
+    const planePrefs = changedProject ? loadPlaneProject(projectId) : null;
     useOverview.setState({
       projectId,
       loading: true,
@@ -57,8 +57,8 @@ export function useProjectModel() {
             diff: emptyDiff(),
             ghosts: [],
             modelRevision: 0,
-            searchQuery: '',
-            searchKind: 'all',
+            searchQuery: planePrefs?.query ?? '',
+            searchKind: planePrefs?.kind ?? 'all',
             ...view,
           }
         : {}),
