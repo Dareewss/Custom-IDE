@@ -1,3 +1,4 @@
+import { tileColor } from './tile-labels';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import {
@@ -59,7 +60,7 @@ export function TileBatch({
   }, [visible, xScale, yScale]);
   const pixel = useMemo(() => ({ value: 0.03 }), []);
   const material = useMemo(() => {
-    const material = new MeshBasicMaterial({ transparent: true, opacity: 0.86, depthWrite: false });
+    const material = new MeshBasicMaterial({ transparent: true, opacity: 1, depthWrite: false });
     material.onBeforeCompile = (shader) => {
       shader.uniforms.tilePixel = pixel;
       shader.vertexShader =
@@ -86,13 +87,6 @@ export function TileBatch({
   useLayoutEffect(() => {
     if (!mesh.current) return;
     const matrix = new Matrix4();
-    const palette = [
-      colors.other,
-      colors.classFill,
-      colors.functionFill,
-      colors.active,
-      colors.fill,
-    ];
     visible.forEach(({ tile }, index) => {
       matrix.makeScale(tile.width * xScale, tile.height * yScale, 1);
       matrix.setPosition(
@@ -102,7 +96,7 @@ export function TileBatch({
       );
       mesh.current!.setMatrixAt(index, matrix);
       const active = tile.nodeIds.includes(selected ?? '') || tile.nodeIds.includes(hovered ?? '');
-      mesh.current!.setColorAt(index, new Color(active ? colors.active : palette[tile.level]));
+      mesh.current!.setColorAt(index, new Color(tileColor(tile.level, colors, active)));
     });
     mesh.current.instanceMatrix.needsUpdate = true;
     if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;

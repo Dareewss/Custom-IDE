@@ -35,10 +35,13 @@ for (const [size, lines] of [
       .click();
 
     await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+    await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/);
     await expect
       .poll(async () => {
-        const box = (await canvas.boundingBox())!;
-        const size = JSON.parse((await canvas.getAttribute('data-render-size'))!);
+        const box = await canvas.boundingBox();
+        const raw = await canvas.getAttribute('data-render-size');
+        if (!box || !raw) return Infinity;
+        const size = JSON.parse(raw);
         return Math.abs(box.width - size[0]) + Math.abs(box.height - size[1]);
       })
       .toBeLessThan(1);

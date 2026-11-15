@@ -1,3 +1,4 @@
+import { TileLabels } from './TileLabels';
 import { useRef, useState } from 'react';
 import { Vector3 } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -126,6 +127,7 @@ function FlatContents({
     <>
       <PlaneCamera rows={layout.height * yScale} fileId={fileId} zoom={zoom} />
       <TileBatch layout={layout} fileId={fileId} xScale={xScale} yScale={yScale} colors={colors} />
+      <TileLabels layout={layout} fileId={fileId} xScale={xScale} yScale={yScale} colors={colors} />
       <AxisPositions element={axes} yScale={yScale} />
     </>
   );

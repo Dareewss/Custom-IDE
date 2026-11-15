@@ -1,3 +1,4 @@
+import { usePlaneView } from './plane-view';
 import { useEffect } from 'react';
 import { useWorkspace } from '../explorer/store';
 import { languageForPath, type LanguageAdapter } from '../../core/language/adapter';
@@ -17,6 +18,7 @@ const layout = new WorkerClient<LayoutRequest, LayoutResponse>(
 );
 
 export function useProjectModel() {
+  useStructureZoom();
   const tree = useWorkspace((state) => state.tree);
   const projectId = useWorkspace((state) => state.projectId);
   const revision = useOverview((state) => state.layoutRevision);
@@ -81,7 +83,13 @@ export function useProjectModel() {
           issues: models.flatMap((m) => m.issues),
         };
         const layoutStarted = performance.now();
-        const result = await layout.call({ model, projectId, revision, view });
+        const result = await layout.call({
+          model,
+          projectId,
+          revision,
+          view,
+          structureOptions: { pixelsPerUnit: usePlaneView.getState().pixelsPerUnit },
+        });
         const layoutMs = performance.now() - layoutStarted;
         if (cancelled) return;
         if (view.isolate && !result.isolatedIds) setOverviewView({ isolate: null });
@@ -148,4 +156,45 @@ export function useProjectModel() {
       clearTimeout(timer);
     };
   }, [tree, projectId, revision, collapsedIds, depth, isolate]);
+}
+
+// Zoom changes only worker layout. Do not reparse source or reset hover/selection.
+function useStructureZoom() {
+  const scale = usePlaneView((s) => s.pixelsPerUnit);
+  const model = useOverview((s) => s.model),
+    projectId = useOverview((s) => s.projectId);
+  useEffect(() => {
+    if (!model || !projectId) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      const state = useOverview.getState();
+      if (state.loading || state.model !== model || state.projectId !== projectId) return;
+      void layout
+        .call({
+          model,
+          projectId,
+          revision: state.layoutRevision,
+          view: { depth: state.depth, collapsedIds: state.collapsedIds, isolate: state.isolate },
+          structureOptions: { pixelsPerUnit: scale },
+        })
+        .then((result) => {
+          if (
+            !cancelled &&
+            useOverview.getState().model === model &&
+            useOverview.getState().projectId === projectId &&
+            useOverview.getState().collapsedIds === state.collapsedIds &&
+            useOverview.getState().depth === state.depth &&
+            useOverview.getState().isolate === state.isolate
+          )
+            useOverview.setState({ structure: result.structure });
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) useOverview.setState({ error: String(error) });
+        });
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [scale, model, projectId]);
 }
