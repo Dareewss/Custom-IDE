@@ -2,11 +2,12 @@ import { expect, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import JSZip from 'jszip';
 
-export async function importPlaneFixture(page: Page) {
+export async function importPlaneFixture(page: Page, extra: Record<string, string> = {}) {
   await page.goto('/');
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   const zip = new JSZip();
   zip.file('main.py', await readFile('tests/fixtures/python/bug_small_25.py', 'utf8'));
+  for (const [path, source] of Object.entries(extra)) zip.file(path, source);
   await page.getByLabel('Import ZIP file', { exact: true }).setInputFiles({
     name: 'Flat.zip',
     mimeType: 'application/zip',

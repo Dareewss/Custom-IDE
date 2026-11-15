@@ -34,31 +34,45 @@ for (const [size, lines] of [
       .getByRole('button', { name: '3D', exact: true })
       .click();
 
-    await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
-    await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/);
-    await expect
-      .poll(async () => {
-        const box = await canvas.boundingBox();
-        const raw = await canvas.getAttribute('data-render-size');
-        if (!box || !raw) return Infinity;
-        const size = JSON.parse(raw);
-        return Math.abs(box.width - size[0]) + Math.abs(box.height - size[1]);
-      })
-      .toBeLessThan(1);
     await page.addStyleTag({ content: 'body { background: #202522; }' });
     const folder = 'docs/screenshots/phase2.5';
     await mkdir(folder, { recursive: true });
-    await page.screenshot({ path: `${folder}/flat-${size}.png` });
-    const metrics = await panel.evaluate((element) => ({
-      nodes: element.dataset.modelNodes,
-      visible: element.dataset.visibleNodes,
-      analysisMs: element.dataset.analysisMs,
-      layoutMs: element.dataset.layoutMs,
-      canvas: element.querySelector('.code-canvas canvas')?.getBoundingClientRect().toJSON(),
-    }));
-    await writeFile(`${folder}/flat-${size}.json`, JSON.stringify(metrics, null, 2));
-    expect(Number(metrics.nodes)).toBeGreaterThan(20);
-    expect(metrics.canvas.width).toBeGreaterThan(200);
-    expect(metrics.canvas.height).toBeGreaterThan(150);
+    for (const mode of ['flat', 'layers'] as const) {
+      if (mode === 'layers')
+        await page
+          .getByRole('combobox', { name: 'Structure view mode', exact: true })
+          .selectOption('layers');
+      await expect(canvas).toHaveAttribute('data-scene-kind', mode);
+      await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
+      if (mode === 'flat') await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/);
+      await expect
+        .poll(async () => {
+          const box = await canvas.boundingBox(),
+            raw = await canvas.getAttribute('data-render-size');
+          if (!box || !raw) return Infinity;
+          const dimensions = JSON.parse(raw);
+          return Math.abs(box.width - dimensions[0]) + Math.abs(box.height - dimensions[1]);
+        })
+        .toBeLessThan(1);
+      await expect
+        .poll(
+          async () =>
+            (await canvas.getAttribute('data-structure-scale')) ===
+            (await canvas.getAttribute('data-requested-scale')),
+        )
+        .toBe(true);
+      await page.screenshot({ path: `${folder}/${mode}-${size}.png` });
+      const metrics = await panel.evaluate((element) => ({
+        nodes: element.dataset.modelNodes,
+        visible: element.dataset.visibleNodes,
+        analysisMs: element.dataset.analysisMs,
+        layoutMs: element.dataset.layoutMs,
+        canvas: element.querySelector('.code-canvas canvas')?.getBoundingClientRect().toJSON(),
+      }));
+      await writeFile(`${folder}/${mode}-${size}.json`, JSON.stringify(metrics, null, 2));
+      expect(Number(metrics.nodes)).toBeGreaterThan(20);
+      expect(metrics.canvas.width).toBeGreaterThan(200);
+      expect(metrics.canvas.height).toBeGreaterThan(150);
+    }
     expect(errors).toEqual([]);
   });

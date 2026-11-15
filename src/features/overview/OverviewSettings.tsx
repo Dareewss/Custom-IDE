@@ -14,10 +14,11 @@ export function OverviewSettings() {
           value={mode}
           onChange={(event) => {
             const mode = event.target.value;
-            if (mode === 'flat' || mode === 'classic') setPlaneMode(mode);
+            if (mode === 'flat' || mode === 'layers' || mode === 'classic') setPlaneMode(mode);
           }}
         >
           <option value="flat">Flat · layered source tiles</option>
+          <option value="layers">Layers · exploded planes</option>
           <option value="classic">Classic · legacy shapes</option>
         </select>
       </label>

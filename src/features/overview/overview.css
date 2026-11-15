@@ -591,3 +591,30 @@
 .plane-track-header nav [aria-current] {
   color: var(--accent);
 }
+
+.plane-track-header select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  padding: 2px;
+}
+.plane-track-header > span {
+  margin-left: auto;
+}
+.plane-gap {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 11px;
+}
+.plane-gap input {
+  width: 70px;
+}
+.plane-lane-label {
+  fill: var(--text);
+  font:
+    11px Arial,
+    sans-serif;
+  text-shadow: 0 1px 2px #000;
+}

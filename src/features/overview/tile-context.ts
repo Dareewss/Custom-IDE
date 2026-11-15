@@ -34,16 +34,17 @@ export function useTileContext(layout: StructureLayout, fileId: string) {
   const indexes = useOverview((s) => s.indexes),
     selected = useOverview((s) => s.selectedNodeId);
   const rootId = usePlaneView((s) => s.rootId);
+  const layers = usePlaneView((s) => s.mode === 'layers');
   const scope = useMemo(() => descendants(indexes, rootId), [indexes, rootId]);
   const related = useMemo(() => relatedNodes(indexes, selected), [indexes, selected]);
   const visible = useMemo(
     () =>
       layout.tiles.flatMap((tile, index) =>
-        tile.fileId === fileId && (!scope || tile.nodeIds.some((id) => scope.has(id)))
+        (layers || tile.fileId === fileId) && (!scope || tile.nodeIds.some((id) => scope.has(id)))
           ? [{ tile, index }]
           : [],
       ),
-    [layout, fileId, scope],
+    [layout, fileId, scope, layers],
   );
   return { visible, related };
 }
