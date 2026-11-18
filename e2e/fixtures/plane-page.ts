@@ -25,3 +25,19 @@ export async function importPlaneFixture(page: Page, extra: Record<string, strin
     .toBe(true);
   return canvas;
 }
+
+export async function dockPlaneWindow(popup: Page) {
+  expect(popup.isClosed()).toBe(false);
+  try {
+    await popup.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
+  } catch (error) {
+    // Closing the clicked window can dispose its input channel before Chromium acknowledges mouse-up.
+    if (
+      !popup.isClosed() ||
+      !(error instanceof Error) ||
+      !error.message.includes('Target page, context or browser has been closed')
+    )
+      throw error;
+  }
+  await expect.poll(() => popup.isClosed()).toBe(true);
+}

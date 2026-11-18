@@ -1,3 +1,4 @@
+import { dockPlaneWindow } from './fixtures/plane-page';
 import { readFile } from 'node:fs/promises';
 import { test, expect, type Page } from '@playwright/test';
 import JSZip from 'jszip';
@@ -64,7 +65,7 @@ test('shares live code, selection, appearance and outline across pop-out and doc
   await page.getByRole('combobox', { name: 'Color theme', exact: true }).selectOption('light');
   await expect(popup.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.keyboard.press('Escape');
-  await popup.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
+  await dockPlaneWindow(popup);
   await expect.poll(() => popup.isClosed()).toBe(true);
   await expect(
     page.getByRole('treeitem', { name: 'function detached_update', exact: true }),
@@ -139,7 +140,7 @@ test('preserves source framing across differently sized popout and docked viewpo
   await expect(canvas).not.toHaveAttribute('data-camera-position', position!);
   const panned = await normalized(popup);
   expect(panned.target[0]).not.toBe(wanted.target[0]);
-  await popup.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
+  await dockPlaneWindow(popup);
   await expect.poll(() => normalized(page)).toEqual(panned);
 });
 

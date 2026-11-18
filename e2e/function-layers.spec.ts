@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { importPlaneFixture } from './fixtures/plane-page';
+import { importPlaneFixture, dockPlaneWindow } from './fixtures/plane-page';
 test('keeps nested functions on semantic rows and shares Layers spacing with the popout', async ({
   page,
 }) => {
@@ -27,7 +27,8 @@ test('keeps nested functions on semantic rows and shares Layers spacing with the
   const popup = await opened;
   await expect(popup.getByLabel('Structure view mode', { exact: true })).toHaveValue('layers');
   await popup.getByLabel('Plane gap', { exact: true }).fill('7');
-  await popup.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
+  await dockPlaneWindow(popup);
+  await expect(canvas).toHaveAttribute('data-scene-kind', 'layers');
   await expect(page.getByLabel('Plane gap', { exact: true })).toHaveValue('7');
   await page.reload();
   await expect(page.getByLabel('Structure view mode', { exact: true })).toHaveValue('layers');
