@@ -11,6 +11,7 @@ const bridge: CodeAtlasDesktop = {
   },
   setTheme: (theme) => ipcRenderer.send('atlas:theme', theme),
   minimize: () => ipcRenderer.send('atlas:window', 'minimize'),
+  focus: () => ipcRenderer.send('atlas:window', 'focus'),
   toggleExpand: () => ipcRenderer.send('atlas:window', 'expand'),
   close: () => ipcRenderer.send('atlas:window', 'close'),
   ready: () => ipcRenderer.send('atlas:window', 'ready'),

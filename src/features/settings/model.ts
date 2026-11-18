@@ -7,6 +7,10 @@ export interface Settings {
   performanceMode: boolean;
   desktopBlur: boolean;
   animationSpeed: number;
+  overviewQuality: 'low' | 'medium' | 'high';
+  overviewLabels: boolean;
+  overviewEdges: boolean;
+  overviewNodeSize: number;
   fontSize: number;
   tabSize: number;
   theme: 'dark' | 'light';
@@ -24,6 +28,10 @@ export const defaultSettings: Settings = {
   performanceMode: false,
   desktopBlur: true,
   animationSpeed: 1,
+  overviewQuality: 'high',
+  overviewLabels: true,
+  overviewEdges: true,
+  overviewNodeSize: 100,
   fontSize: 14,
   tabSize: 4,
   theme: 'dark',
@@ -35,7 +43,13 @@ export const defaultSettings: Settings = {
 export function parseSettings(input: unknown): Settings {
   const value = input && typeof input === 'object' ? (input as Record<string, unknown>) : {};
   const number = (
-    key: 'fontSize' | 'tabSize' | 'autosaveDelay' | 'backgroundTransparency' | 'blurStrength',
+    key:
+      | 'fontSize'
+      | 'tabSize'
+      | 'autosaveDelay'
+      | 'backgroundTransparency'
+      | 'blurStrength'
+      | 'overviewNodeSize',
     min: number,
     max: number,
   ) =>
@@ -67,6 +81,13 @@ export function parseSettings(input: unknown): Settings {
       Number.isInteger(value.animationSpeed * 4)
         ? value.animationSpeed
         : 1,
+    overviewQuality:
+      value.overviewQuality === 'low' || value.overviewQuality === 'medium'
+        ? value.overviewQuality
+        : 'high',
+    overviewLabels: typeof value.overviewLabels === 'boolean' ? value.overviewLabels : true,
+    overviewEdges: typeof value.overviewEdges === 'boolean' ? value.overviewEdges : true,
+    overviewNodeSize: number('overviewNodeSize', 75, 125),
     fontSize: number('fontSize', 10, 32),
     tabSize: number('tabSize', 1, 8),
     autosaveDelay: number('autosaveDelay', 100, 10000),

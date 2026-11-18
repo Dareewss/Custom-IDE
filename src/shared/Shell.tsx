@@ -24,6 +24,9 @@ interface ShellProps {
   palette?: ReactNode;
   explorer?: ReactNode;
   editor?: ReactNode;
+  overview?: ReactNode;
+  overviewDetached?: boolean;
+  onFocusOverview?: () => void;
   console?: ReactNode;
   variables?: ReactNode;
   callStack?: ReactNode;
@@ -39,10 +42,12 @@ const subscribe = (notify: () => void) => {
   return () => window.removeEventListener('resize', notify);
 };
 const getWide = () => window.innerWidth >= 1100;
+const getSourceHorizontal = () => window.innerWidth >= 760;
 
 export function Shell(props: ShellProps) {
   const ui = useUI();
   const wide = useSyncExternalStore(subscribe, getWide, () => true);
+  const sourceHorizontal = useSyncExternalStore(subscribe, getSourceHorizontal, () => true);
   const docked = ui.layout === 'split' && wide;
   const content = {
     Console: props.console,
@@ -54,6 +59,7 @@ export function Shell(props: ShellProps) {
     { id: 'code', label: 'Code', icon: <Code2 size={14} /> },
     { id: 'split', label: 'Split', icon: <Columns2 size={14} /> },
     { id: 'focus', label: 'Focus', icon: <Focus size={14} /> },
+    { id: '3d', label: '3D', icon: <Box size={14} /> },
   ];
   return (
     <main
@@ -87,10 +93,16 @@ export function Shell(props: ShellProps) {
             {layouts.map((layout) => (
               <button
                 key={layout.id}
-                aria-label={layout.label}
+                aria-label={
+                  layout.id === '3d' && props.overviewDetached ? 'Focus 3D window' : layout.label
+                }
                 title={`${layout.label} layout`}
                 aria-pressed={ui.layout === layout.id}
-                onClick={() => ui.setLayout(layout.id)}
+                onClick={() =>
+                  layout.id === '3d' && props.overviewDetached
+                    ? props.onFocusOverview?.()
+                    : ui.setLayout(layout.id)
+                }
               >
                 {layout.icon}
                 <span>{layout.label}</span>
@@ -157,19 +169,45 @@ export function Shell(props: ShellProps) {
           <Panel minSize="200px">
             <Group className="editor-layout" orientation={docked ? 'horizontal' : 'vertical'}>
               <Panel minSize={docked ? '250px' : '120px'} defaultSize={docked ? '68%' : '72%'}>
-                <GlassPanel className="editor-card" variant="editor">
-                  <div className="editor-toolbar">
-                    <span className="editor-section-label">
-                      <Code2 size={14} />
-                      <span>Workspace</span>
-                      <span className="editor-language">{props.languageName ?? 'Python'}</span>
-                    </span>
-                    <div className="toolbar-actions">{props.actions}</div>
-                  </div>
-                  <section className="editor-surface" aria-label="Editor">
-                    {props.editor}
-                  </section>
-                </GlassPanel>
+                <Group
+                  className="source-overview-layout"
+                  orientation={sourceHorizontal ? 'horizontal' : 'vertical'}
+                >
+                  {(ui.layout !== '3d' || props.overviewDetached) && (
+                    <Panel minSize={sourceHorizontal ? '180px' : '80px'}>
+                      <GlassPanel className="editor-card" variant="editor">
+                        <div className="editor-toolbar">
+                          <span className="editor-section-label">
+                            <Code2 size={14} />
+                            <span>Workspace</span>
+                            <span className="editor-language">
+                              {props.languageName ?? 'Python'}
+                            </span>
+                          </span>
+                          <div className="toolbar-actions">{props.actions}</div>
+                        </div>
+                        <section className="editor-surface" aria-label="Editor">
+                          {props.editor}
+                        </section>
+                      </GlassPanel>
+                    </Panel>
+                  )}
+                  {(ui.layout === 'split' || ui.layout === '3d') && props.overview && (
+                    <>
+                      {ui.layout === 'split' && (
+                        <Separator
+                          className={`separator ${sourceHorizontal ? 'vertical' : 'horizontal'}`}
+                          aria-label="Resize code overview"
+                        />
+                      )}
+                      <Panel minSize={sourceHorizontal ? '180px' : '80px'}>
+                        <GlassPanel className="overview-card" variant="editor">
+                          {props.overview}
+                        </GlassPanel>
+                      </Panel>
+                    </>
+                  )}
+                </Group>
               </Panel>
               {ui.bottom && (
                 <>

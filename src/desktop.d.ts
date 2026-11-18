@@ -6,6 +6,7 @@ interface CodeAtlasDesktop {
   onDesktopBlurError?: (callback: (message: string) => void) => () => void;
   setTheme: (theme: 'dark' | 'light') => void;
   minimize: () => void;
+  focus: () => void;
   toggleExpand: () => void;
   close: () => void;
   ready: () => void;

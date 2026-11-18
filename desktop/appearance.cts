@@ -10,6 +10,20 @@ const helper = app.isPackaged
 export const desktopBlurSupported =
   process.platform === 'win32' && Number(release().split('.')[2]) >= 17763 && existsSync(helper);
 
+const requests = new Map<BrowserWindow, (enabled: boolean) => Promise<boolean>>();
+ipcMain.handle('atlas:desktop-blur', (event, enabled: unknown) => {
+  for (const [window, apply] of requests) {
+    if (
+      !window.isDestroyed() &&
+      event.sender === window.webContents &&
+      event.senderFrame === window.webContents.mainFrame &&
+      typeof enabled === 'boolean'
+    )
+      return apply(enabled);
+  }
+  throw new Error('Invalid appearance request');
+});
+
 export function attachAppearance(window: BrowserWindow, origin: string) {
   let desired = false;
   let applied: boolean | undefined;
@@ -60,10 +74,10 @@ export function attachAppearance(window: BrowserWindow, origin: string) {
     );
   };
   ipcMain.on('atlas:theme', setTheme);
-  ipcMain.handle('atlas:desktop-blur', (event, enabled: unknown) => {
-    if (!trusted(event) || typeof enabled !== 'boolean')
+  requests.set(window, (enabled) => {
+    if (!window.webContents.getURL().startsWith(`${origin}/`))
       throw new Error('Invalid appearance request');
-    if (!desktopBlurSupported) return false;
+    if (!desktopBlurSupported) return Promise.resolve(false);
     desired = enabled;
     return enqueue(() => apply(enabled));
   });
@@ -71,6 +85,6 @@ export function attachAppearance(window: BrowserWindow, origin: string) {
   window.on('restore', reapply);
   window.on('closed', () => {
     ipcMain.removeListener('atlas:theme', setTheme);
-    ipcMain.removeHandler('atlas:desktop-blur');
+    requests.delete(window);
   });
 }

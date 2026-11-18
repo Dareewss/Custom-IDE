@@ -910,3 +910,31 @@ button:hover:not(:disabled) {
 .primary-button:hover:not(:disabled) {
   color: var(--on-accent);
 }
+
+.editor-card {
+  container-type: inline-size;
+  container-name: source-pane;
+}
+@container source-pane (max-width: 390px) {
+  .editor-section-label {
+    display: none;
+  }
+  .editor-toolbar {
+    padding-inline: 8px;
+  }
+}
+
+@container source-pane (max-width: 260px) {
+  .editor-toolbar {
+    height: auto;
+  }
+  .toolbar-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .toolbar-actions > * {
+    flex-shrink: 0;
+  }
+}

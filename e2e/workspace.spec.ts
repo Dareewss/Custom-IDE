@@ -259,7 +259,7 @@ test('formats Python, completes contextually, validates syntax and persists sett
   await expect(page.getByRole('button', { name: 'Format Document', exact: true })).toBeEnabled();
   await expect(page.locator('.view-lines')).toContainText('print(value)');
   await page.keyboard.press('Control+Shift+P');
-  await page.getByRole('combobox').fill('Open settings');
+  await page.getByRole('dialog').getByRole('combobox').fill('Open settings');
   await page.keyboard.press('Enter');
   await page.getByLabel('Color theme').selectOption('light');
   await page.getByLabel('Editor font size').fill('18');
@@ -318,7 +318,7 @@ test('creates, renames, moves and deletes files and projects with keyboard palet
   await page.getByLabel('Name', { exact: true }).fill('pkg');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.keyboard.press('Control+Shift+P');
-  await page.getByRole('combobox').fill('New file');
+  await page.getByRole('dialog').getByRole('combobox').fill('New file');
   await page.keyboard.press('Enter');
   await page.getByLabel('Project path').fill('pkg/module.py');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
@@ -331,7 +331,7 @@ test('creates, renames, moves and deletes files and projects with keyboard palet
   await page.getByLabel('Destination path (including name)').fill('renamed.py');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await page.keyboard.press('Control+p');
-  await page.getByRole('combobox').fill('main.py');
+  await page.getByRole('dialog').getByRole('combobox').fill('main.py');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('tab', { name: 'main.py', exact: true })).toHaveAttribute(
     'aria-selected',

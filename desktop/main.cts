@@ -1,16 +1,9 @@
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  Menu,
-  nativeTheme,
-  screen,
-  type Rectangle,
-} from 'electron';
+import { app, BrowserWindow, dialog, Menu, nativeTheme, screen } from 'electron';
 import { join, resolve } from 'node:path';
 import { serveDesktop } from './server.js';
 import { attachAppearance, desktopBlurSupported } from './appearance.cjs';
+import { attachWindowControls } from './window-controls.cjs';
+import { attachOverviewPopup } from './overview-popup.cjs';
 
 app.setName('Code Atlas');
 app.setPath(
@@ -20,10 +13,7 @@ app.setPath(
 app.setAppUserModelId('com.codeatlas.desktop');
 let window: BrowserWindow | null = null;
 let origin = '';
-let allowClose = false;
-let rendererReady = false;
-let normalBounds: Rectangle | null = null;
-let resizing: { edge: string; x: number; y: number; bounds: Rectangle } | null = null;
+let allowClose: (() => void) | undefined;
 let stopServer: (() => void) | undefined;
 
 if (!app.requestSingleInstanceLock()) app.quit();
@@ -79,96 +69,14 @@ else {
         origin,
         storages: ['serviceworkers', 'cachestorage'],
       });
-      window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+      attachOverviewPopup(window, origin, root);
       window.webContents.on('will-navigate', (event, url) => {
         if (new URL(url).origin !== origin) event.preventDefault();
       });
       window.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) =>
         callback(false),
       );
-      const trusted = (event: Electron.IpcMainEvent) =>
-        window &&
-        event.sender === window.webContents &&
-        event.senderFrame === window.webContents.mainFrame &&
-        event.senderFrame.url.startsWith(`${origin}/`);
-      const publishVisibility = () => {
-        if (window && !window.isDestroyed() && !window.webContents.isDestroyed())
-          window.webContents.send('atlas:visibility', window.isVisible() && !window.isMinimized());
-      };
-      window.on('show', publishVisibility);
-      window.on('hide', publishVisibility);
-      window.on('minimize', publishVisibility);
-      window.on('restore', publishVisibility);
-      ipcMain.on('atlas:window', (event, action: unknown) => {
-        if (!trusted(event) || !window) return;
-        if (action === 'ready') {
-          rendererReady = true;
-          publishVisibility();
-        }
-        if (action === 'minimize') window.minimize();
-        if (action === 'close') {
-          allowClose = true;
-          window.close();
-        }
-        if (action === 'expand') {
-          if (normalBounds) {
-            window.setBounds(normalBounds);
-            normalBounds = null;
-          } else {
-            normalBounds = window.getBounds();
-            window.setBounds(screen.getDisplayMatching(normalBounds).workArea);
-          }
-        }
-      });
-      // Manual edge resizing preserves WS_EX_LAYERED; native thick frames remove alpha on Windows.
-      ipcMain.on('atlas:resize', (event, phase: unknown, edge: unknown, x: unknown, y: unknown) => {
-        if (
-          !trusted(event) ||
-          !window ||
-          typeof edge !== 'string' ||
-          !['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].includes(edge) ||
-          typeof x !== 'number' ||
-          typeof y !== 'number' ||
-          !Number.isFinite(x) ||
-          !Number.isFinite(y)
-        )
-          return;
-        if (phase === 'end') {
-          resizing = null;
-          return;
-        }
-        if (phase === 'start') {
-          normalBounds = null;
-          resizing = { edge, x, y, bounds: window.getBounds() };
-        } else if (phase === 'move' && resizing && resizing.edge === edge) {
-          const b = resizing.bounds;
-          const dx = x - resizing.x;
-          const dy = y - resizing.y;
-          const width = Math.max(
-            800,
-            Math.min(7680, b.width + (edge.includes('w') ? -dx : edge.includes('e') ? dx : 0)),
-          );
-          const height = Math.max(
-            560,
-            Math.min(4320, b.height + (edge.includes('n') ? -dy : edge.includes('s') ? dy : 0)),
-          );
-          window.setBounds({
-            x: edge.includes('w') ? b.x + b.width - width : b.x,
-            y: edge.includes('n') ? b.y + b.height - height : b.y,
-            width,
-            height,
-          });
-        }
-      });
-      window.on('close', (event) => {
-        if (!allowClose && rendererReady && !window?.webContents.isDestroyed()) {
-          event.preventDefault();
-          window?.webContents.send('atlas:before-close');
-        }
-      });
-      window.webContents.on('render-process-gone', () => {
-        rendererReady = false;
-      });
+      allowClose = attachWindowControls(window, origin, true);
       window.once('ready-to-show', () => {
         if (process.env.CODE_ATLAS_TEST_MODE !== '1') window?.show();
       });
@@ -178,7 +86,7 @@ else {
       if (process.env.CODE_ATLAS_TEST_MODE === '1')
         console.error('Code Atlas could not open', error);
       else dialog.showErrorBox('Code Atlas could not open', String(error));
-      allowClose = true;
+      allowClose?.();
       app.quit();
     });
 }

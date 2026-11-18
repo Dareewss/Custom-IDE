@@ -24,14 +24,17 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
   const supported =
     request.mode === 'navigate' ||
-    ['/assets/', '/runtime/', '/icons/'].some((prefix) => url.pathname.startsWith(prefix)) ||
+    ['/assets/', '/runtime/', '/icons/', '/fonts/'].some((prefix) =>
+      url.pathname.startsWith(prefix),
+    ) ||
     url.pathname === '/manifest.webmanifest';
   if (!supported) return;
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
       const cached = await cache.match(request, { ignoreVary: true });
-      if (cached && url.pathname.startsWith('/assets/')) return cached;
+      if (cached && ['/assets/', '/fonts/'].some((prefix) => url.pathname.startsWith(prefix)))
+        return cached;
       try {
         const response = await fetch(request);
         if (response.ok && response.type === 'basic') await cache.put(request, response.clone());

@@ -1,4 +1,5 @@
 import type { FileTree } from '../fs/vfs';
+import type { CodeModel } from '../model/types';
 export interface Diagnostic {
   path: string;
   line: number;
@@ -25,6 +26,7 @@ export interface LanguageAdapter {
   id: string;
   extensions: readonly string[];
   monacoLanguage: string;
+  analyze?: (files: FileTree) => Promise<CodeModel>;
   runner?: (path: string, tree: FileTree) => Promise<void>;
   diagnostics?: (path: string, content: string) => Promise<Diagnostic[]>;
   completion?: (
@@ -40,6 +42,7 @@ export const python: LanguageAdapter = {
   id: 'python',
   extensions: ['.py', '.pyw'],
   monacoLanguage: 'python',
+  analyze: (files) => import('./python-analysis').then((service) => service.analyzePython(files)),
   templates: [],
 };
 const adapters: LanguageAdapter[] = [python];

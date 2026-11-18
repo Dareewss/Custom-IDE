@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { monaco } from './monaco';
 import './completion';
@@ -11,6 +11,7 @@ import { useSettings } from '../settings/store';
 import { useRunner } from '../runner/store';
 import { useReducedMotion } from 'motion/react';
 import { glassEditorTheme } from './glass-theme';
+import { attachOverviewSync } from '../overview/editor-sync';
 
 function decorate(
   editor: monaco.editor.IStandaloneCodeEditor,
@@ -69,6 +70,7 @@ export default function CodeEditor() {
   const pauseLocation = useRunner((s) => s.pauseLocation);
   const collection = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const ref = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const focusInterrupted = useRef(false);
   const node = active ? tree[active] : undefined;
   const diagnostics = useDiagnostics();
   const target = useLocation((s) => s.target);
@@ -76,14 +78,17 @@ export default function CodeEditor() {
     const location = useLocation.getState().target;
     if (location?.path === useWorkspace.getState().active) {
       editor.setPosition({ lineNumber: location.line, column: location.column });
+      const position = editor.getPosition();
+      if (position) useCursor.setState({ line: position.lineNumber, column: position.column });
       editor.revealLineInCenter(location.line);
-      editor.focus();
+      if (!focusInterrupted.current) editor.focus();
     }
   };
   const onMount: OnMount = (editor) => {
     monaco.editor.defineTheme('atlas-glass', glassEditorTheme());
     monaco.editor.setTheme('atlas-glass');
     ref.current = editor;
+    attachOverviewSync(editor);
     collection.current = editor.createDecorationsCollection();
     decorate(editor, collection.current);
     const toggle = () => {
@@ -109,7 +114,7 @@ export default function CodeEditor() {
     editor.onDidChangeCursorPosition((event) =>
       useCursor.setState({ line: event.position.lineNumber, column: event.position.column }),
     );
-    editor.focus();
+    if (!focusInterrupted.current) editor.focus();
     reveal(editor);
   };
   useEffect(() => {
@@ -117,6 +122,49 @@ export default function CodeEditor() {
   }, [active, breakpoints, pauseLocation]);
   useEffect(() => {
     if (ref.current && target?.path === active) reveal(ref.current);
+  }, [target, active]);
+  useLayoutEffect(() => {
+    const editor = ref.current;
+    if (!target || target.path !== active) return;
+    focusInterrupted.current = false;
+    const previousFocus = document.activeElement;
+    let userInteracted = false;
+    const interrupt = () => {
+      userInteracted = true;
+      focusInterrupted.current = true;
+    };
+    const events = ['pointerdown', 'keydown', 'input'] as const;
+    for (const event of events) document.addEventListener(event, interrupt, true);
+    const detach = () => {
+      for (const event of events) document.removeEventListener(event, interrupt, true);
+    };
+    if (!editor) return detach;
+    // A click's default focus and panel resize can follow the source reveal.
+    let handoff = 0;
+    const frame = requestAnimationFrame(() => {
+      handoff = requestAnimationFrame(() => {
+        detach();
+        if (
+          userInteracted ||
+          ref.current !== editor ||
+          useLocation.getState().target !== target ||
+          editor.hasTextFocus()
+        )
+          return;
+        const current = document.activeElement;
+        if (
+          current === previousFocus ||
+          current === document.body ||
+          (current && editor.getDomNode()?.contains(current))
+        )
+          editor.focus();
+      });
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(handoff);
+      detach();
+    };
   }, [target, active]);
   useEffect(() => {
     if (!active || node?.kind !== 'file') return;
@@ -179,6 +227,27 @@ export default function CodeEditor() {
         model.dispose();
     }
   }, [projectId, tabs, tree]);
+  const options = useMemo<monaco.editor.IStandaloneEditorConstructionOptions>(
+    () => ({
+      fontFamily: "'Cascadia Code', 'Consolas', monospace",
+      fontSize: settings.fontSize,
+      lineHeight: Math.round(settings.fontSize * 1.65),
+      padding: { top: 19, bottom: 20 },
+      minimap: { enabled: settings.minimap },
+      wordWrap: settings.wordWrap ? 'on' : 'off',
+      scrollBeyondLastLine: false,
+      smoothScrolling: !reducedMotion,
+      cursorBlinking: reducedMotion ? 'solid' : 'smooth',
+      bracketPairColorization: { enabled: true },
+      automaticLayout: true,
+      tabSize: settings.tabSize,
+      renderLineHighlight: 'line',
+      overviewRulerBorder: false,
+      glyphMargin: true,
+      fixedOverflowWidgets: true,
+    }),
+    [settings.fontSize, settings.minimap, settings.wordWrap, settings.tabSize, reducedMotion],
+  );
   if (!active || node?.kind !== 'file') return null;
   return (
     <Editor
@@ -194,24 +263,7 @@ export default function CodeEditor() {
         if (value !== undefined && value !== node.content)
           useWorkspace.getState().edit(active, value);
       }}
-      options={{
-        fontFamily: "'Cascadia Code', 'Consolas', monospace",
-        fontSize: settings.fontSize,
-        lineHeight: Math.round(settings.fontSize * 1.65),
-        padding: { top: 19, bottom: 20 },
-        minimap: { enabled: settings.minimap },
-        wordWrap: settings.wordWrap ? 'on' : 'off',
-        scrollBeyondLastLine: false,
-        smoothScrolling: !reducedMotion,
-        cursorBlinking: reducedMotion ? 'solid' : 'smooth',
-        bracketPairColorization: { enabled: true },
-        automaticLayout: true,
-        tabSize: settings.tabSize,
-        renderLineHighlight: 'line',
-        overviewRulerBorder: false,
-        glyphMargin: true,
-        fixedOverflowWidgets: true,
-      }}
+      options={options}
     />
   );
 }
