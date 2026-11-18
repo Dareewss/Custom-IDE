@@ -151,7 +151,7 @@ test('keeps real 3D render space at the minimum desktop viewport', async ({ page
   const body = await page.locator('.overview-body').boundingBox();
   expect(body?.height).toBeGreaterThan(60);
   expect(body?.width).toBeGreaterThan(170);
-  expect((await canvas.boundingBox())?.width).toBeGreaterThan(100);
+  await expect.poll(async () => (await canvas.boundingBox())?.width ?? 0).toBeGreaterThan(100);
   await expect(
     page.getByRole('button', { name: 'Expand structure inspector', exact: true }),
   ).toBeVisible();

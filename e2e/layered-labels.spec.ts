@@ -63,3 +63,29 @@ test.describe('Flat font failure', () => {
     await expect(page.getByRole('treeitem', { name: 'file main.py', exact: true })).toBeVisible();
   });
 });
+
+test.describe('Delayed local font', () => {
+  test.use({ serviceWorkers: 'block' });
+  test('keeps source geometry mounted while the local SDF font loads', async ({ page }) => {
+    let release!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await page.route('**/fonts/JetBrainsMono-Regular.ttf', async (route) => {
+      await ready;
+      await route.continue();
+    });
+    try {
+      await page.goto('/');
+      const canvas = page.locator('.code-canvas canvas');
+      await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
+      const original = await canvas.elementHandle();
+      expect(Number((await canvas.getAttribute('data-labels-ready')) ?? 0)).toBe(0);
+      release();
+      await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/, { timeout: 30000 });
+      expect(await original!.evaluate((element) => element.isConnected)).toBe(true);
+    } finally {
+      release();
+    }
+  });
+});

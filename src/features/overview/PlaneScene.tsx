@@ -12,7 +12,7 @@ import { useOverview } from './store';
 import { usePlaneView } from './plane-view';
 import { descendants, rootUp } from './tile-context';
 import { TileLabels } from './TileLabels';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Vector3 } from 'three';
 import type { SpringValue } from '@react-spring/three';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -321,13 +321,15 @@ function FlatContents({
         progress={spring.t}
         colors={colors}
       />
-      <TileLabels
-        layout={layout}
-        fileId={fileId}
-        transform={transform}
-        progress={spring.t}
-        colors={colors}
-      />
+      <Suspense fallback={null}>
+        <TileLabels
+          layout={layout}
+          fileId={fileId}
+          transform={transform}
+          progress={spring.t}
+          colors={colors}
+        />
+      </Suspense>
       <PlaneMapDrawing
         getCanvas={() => map.current}
         layout={layout}

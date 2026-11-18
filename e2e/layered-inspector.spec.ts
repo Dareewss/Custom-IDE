@@ -22,9 +22,32 @@ test('inspects actual stats, filters levels and restores project modes, camera a
   await page.keyboard.press('ArrowRight');
   await inspector.getByLabel('Tile connections', { exact: true }).selectOption('context');
   await page.getByRole('group', { name: '3D navigation', exact: true }).focus();
+  const beforePan = JSON.parse((await canvas.getAttribute('data-camera-target'))!);
   await page.keyboard.press('Shift+ArrowRight');
+  await expect
+    .poll(async () => {
+      const x = JSON.parse((await canvas.getAttribute('data-camera-target')) ?? '[]')[0];
+      return Number.isFinite(x) && Math.abs(x - beforePan[0]) > 0.1;
+    })
+    .toBe(true);
   const target = await canvas.getAttribute('data-camera-target');
-  await page.waitForTimeout(600);
+  await expect
+    .poll(() =>
+      page.evaluate((wanted: number[]) => {
+        return Object.entries(localStorage).some(([key, value]) => {
+          if (!key.startsWith('atlas-overview-planes-')) return false;
+          const prefs = JSON.parse(value);
+          const saved =
+            prefs.mode === 'layers' && prefs.gap === 5.5 ? prefs.cameras?.layers?.target : null;
+          return (
+            Array.isArray(saved) &&
+            saved.length === 3 &&
+            saved.every((v: number, i: number) => Math.abs(v - wanted[i]) < 0.01)
+          );
+        });
+      }, JSON.parse(target!)),
+    )
+    .toBe(true);
   await page.reload();
   await expect(canvas).toHaveAttribute('data-layer-progress', '1');
   await expect(inspector.getByLabel('Show Values', { exact: true })).not.toBeChecked();
