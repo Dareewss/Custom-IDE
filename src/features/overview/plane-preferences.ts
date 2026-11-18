@@ -5,6 +5,7 @@ export interface PlanePose {
   position: Vec3;
   target: Vec3;
   zoom: number;
+  rowScale?: number;
 }
 export interface PlanePreferences {
   mode: 'flat' | 'layers' | 'classic';
@@ -34,7 +35,17 @@ export function parsePlanePreferences(value: unknown): PlanePreferences {
       Number.isFinite(p.zoom) &&
       p.zoom >= 0.5 &&
       p.zoom <= 500
-      ? { position: p.position, target: p.target, zoom: p.zoom }
+      ? {
+          position: p.position,
+          target: p.target,
+          zoom: p.zoom,
+          ...(typeof p.rowScale === 'number' &&
+          Number.isFinite(p.rowScale) &&
+          p.rowScale > 0 &&
+          p.rowScale < 1000
+            ? { rowScale: p.rowScale }
+            : {}),
+        }
       : null;
   };
   const cameras =

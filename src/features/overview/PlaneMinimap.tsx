@@ -133,11 +133,13 @@ export function PlaneMapDrawing({
     }
     ctx.globalAlpha = 1;
     ctx.fillStyle = colors.active;
+    ctx.beginPath();
     for (const { tile } of visible) {
       const pose = tilePose(tile, layout, transform, progress.get()),
         [x, y] = project(map(pose.position, tile.lane));
-      ctx.fillRect(x, y, Math.max(1, pose.width * scale), 1);
+      ctx.rect(x, y, Math.max(1, pose.width * scale), 1);
     }
+    ctx.fill();
     const target = (controls as { target?: Vector3 } | null)?.target ?? new Vector3();
     const plane = new Plane(
         layers ? new Vector3(0, 1, 0) : new Vector3(0, 0, 1),

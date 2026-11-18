@@ -36,7 +36,7 @@ export function PlaneCamera({
   const focus = useOverview((s) => s.focusRequest),
     request = useOverview((s) => s.cameraRequest);
   const focused = useRef(useOverview.getState().handledFocusSequence),
-    processed = useRef(0),
+    processed = useRef(useOverview.getState().cameraRequest?.sequence ?? 0),
     last = useRef(-1),
     previousMode = useRef(mode);
   const flatPose = useRef({
@@ -44,6 +44,8 @@ export function PlaneCamera({
     target: new Vector3(14, (-layout.height * transform.yScale) / 2, 0),
     zoom,
   });
+  const viewKey = useRef(''),
+    rowScale = useRef(transform.yScale);
   const layerPose = useRef({ position: new Vector3(30, 40, 30), target: new Vector3() });
   useLayoutEffect(() => {
     if (!cameras.current) {
@@ -55,13 +57,29 @@ export function PlaneCamera({
     const { flat, perspective } = cameras.current;
     const current = get().camera,
       changed = previousMode.current !== mode;
+    const key = JSON.stringify([
+      rootId,
+      mode === 'flat' ? fileId : null,
+      transform.gap,
+      layout.height,
+      layout.lanes.length,
+    ]);
+    const reset = viewKey.current !== key;
+    viewKey.current = key;
+    if (!reset && rowScale.current !== transform.yScale) {
+      const ratio = transform.yScale / rowScale.current;
+      flatPose.current.position.y *= ratio;
+      flatPose.current.target.y *= ratio;
+      flatPose.current.zoom = Math.max(0.5, Math.min(500, flatPose.current.zoom / ratio));
+    }
+    rowScale.current = transform.yScale;
     if (changed && previousMode.current === 'flat')
       flatPose.current = {
         position: current.position.clone(),
         target: controls.current?.target.clone() ?? flatPose.current.target,
         zoom: current.zoom,
       };
-    else if (!changed)
+    else if (!changed && reset)
       flatPose.current = {
         position: new Vector3(14, (-layout.height * transform.yScale) / 2, 100),
         target: new Vector3(14, (-layout.height * transform.yScale) / 2, 0),
@@ -72,7 +90,7 @@ export function PlaneCamera({
         position: current.position.clone(),
         target: controls.current?.target.clone() ?? layerPose.current.target,
       };
-    else {
+    else if (reset || changed) {
       const min: Vec3 = [Infinity, Infinity, Infinity],
         max: Vec3 = [-Infinity, -Infinity, -Infinity];
       for (const { tile } of visible) {
@@ -100,7 +118,7 @@ export function PlaneCamera({
     previousMode.current = mode;
     last.current = -1;
     get().invalidate();
-    // Fit on an explicit mode/scope/spacing/viewport change; zoom aggregation never resets the camera.
+    // Resize updates projection without discarding saved/manual pose; scope/spacing changes refit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     mode,
@@ -118,17 +136,26 @@ export function PlaneCamera({
     last.current = -1;
     get().invalidate();
   }, [liveCamera, get]);
+  const pendingSave = useRef<(() => void) | null>(null);
   const saved = useRef(''),
     timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(timer.current);
+      pendingSave.current?.();
+    },
+    [],
+  );
   useLayoutEffect(() => {
     const poses = usePlaneView.getState().cameras;
-    if (poses.flat)
+    if (poses.flat) {
+      const ratio = rowScale.current / (poses.flat.rowScale ?? rowScale.current);
       flatPose.current = {
-        position: new Vector3(...poses.flat.position),
-        target: new Vector3(...poses.flat.target),
-        zoom: poses.flat.zoom,
+        position: new Vector3(...poses.flat.position).multiply(new Vector3(1, ratio, 1)),
+        target: new Vector3(...poses.flat.target).multiply(new Vector3(1, ratio, 1)),
+        zoom: Math.max(0.5, Math.min(500, poses.flat.zoom / ratio)),
       };
+    }
     if (poses.layers)
       layerPose.current = {
         position: new Vector3(...poses.layers.position),
@@ -172,18 +199,20 @@ export function PlaneCamera({
         position: camera.position.toArray() as Vec3,
         target: controls.current.target.toArray() as Vec3,
         zoom: camera.zoom,
+        rowScale: transform.yScale,
       };
       const key = JSON.stringify([mode, pose]);
       if (saved.current !== key) {
         saved.current = key;
         clearTimeout(timer.current);
         const project = usePlaneView.getState().projectId;
-        timer.current = setTimeout(() => {
+        pendingSave.current = () => {
           if (usePlaneView.getState().projectId === project)
             usePlaneView.setState((s) => ({
               cameras: { ...s.cameras, [mode === 'layers' ? 'layers' : 'flat']: pose },
             }));
-        }, 250);
+        };
+        timer.current = setTimeout(() => pendingSave.current?.(), 250);
       }
     }
     if (!progress.idle) invalidate();

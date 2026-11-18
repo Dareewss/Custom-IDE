@@ -717,3 +717,18 @@
     left: 155px;
   }
 }
+
+.plane-navigation > .camera-tools {
+  top: 40px;
+}
+@media (forced-colors: active) {
+  .plane-inspector {
+    border-color: CanvasText;
+  }
+  .plane-inspector input:focus-visible,
+  .plane-inspector button:focus-visible,
+  .plane-inspector select:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}

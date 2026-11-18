@@ -1,3 +1,4 @@
+import { useOverviewBudget } from './preferences';
 import { use, useEffect, useMemo, useRef, useState } from 'react';
 import { Text } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
@@ -42,6 +43,8 @@ export function TileLabels({
   progress: SpringValue<number>;
   colors: SceneColors;
 }) {
+  const quality = useOverviewBudget();
+  const labelBudget = Math.min(tileLabelBudget, Math.round(quality.labels * 6.25));
   use(sceneFontReady);
   assertSceneFont();
   const get = useThree((s) => s.get),
@@ -70,7 +73,7 @@ export function TileLabels({
   useEffect(() => {
     pose.current = '';
     get().invalidate();
-  }, [candidates, colors, hovered, enabled, transform, related, get]);
+  }, [candidates, colors, hovered, enabled, transform, related, labelBudget, get]);
   useFrame(({ camera, size, gl }) => {
     if (group.current) group.current.visible = progress.idle;
     if (!progress.idle) {
@@ -115,8 +118,11 @@ export function TileLabels({
         up = new Vector3(0, Math.cos(p.angle), Math.sin(p.angle)),
         normal = new Vector3(0, -Math.sin(p.angle), Math.cos(p.angle));
       const screen = (v: Vector3) => screenPoint(v.toArray(), camera, size.width, size.height);
-      const c = screen(center),
-        u = screen(center.clone().add(new Vector3(1, 0, 0))),
+      const c = screen(center);
+      // A label must fit entirely on screen; reject its offscreen center before extra projections.
+      if (c[0] < 0 || c[0] > size.width || c[1] < 0 || c[1] > size.height || c[2] < -1 || c[2] > 1)
+        continue;
+      const u = screen(center.clone().add(new Vector3(1, 0, 0))),
         v = screen(center.clone().add(up));
       const unitX = Math.hypot(u[0] - c[0], u[1] - c[1]),
         unitY = Math.hypot(v[0] - c[0], v[1] - c[1]);
@@ -186,7 +192,7 @@ export function TileLabels({
         height: h - 2,
         tile: [x, y, w, h],
       });
-      if (next.length >= tileLabelBudget) break;
+      if (next.length >= labelBudget) break;
     }
     // Use the active lane's actual projection for worker aggregation, including perspective zoom.
     if (sourceScale > 0) {
@@ -198,7 +204,7 @@ export function TileLabels({
         usePlaneView.setState({ pixelsPerUnit: scale });
     }
     gl.domElement.dataset.tileLabelBounds = JSON.stringify(bounds);
-    gl.domElement.dataset.tileLabelBudget = String(tileLabelBudget);
+    gl.domElement.dataset.tileLabelBudget = String(labelBudget);
     gl.domElement.dataset.tileLabels = String(next.length);
     setLabels(next);
   });
