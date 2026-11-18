@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import { parsePlanePreferences } from './plane-preferences';
 it('validates project preferences and rejects malformed cameras without hiding the view', () => {
+  expect(parsePlanePreferences({ mode: 'classic' }).mode).toBe('flat');
   expect(parsePlanePreferences(null)).toMatchObject({
     mode: 'flat',
     gap: 5,

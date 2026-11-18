@@ -5,7 +5,9 @@ test('zooms at cursor, pans, fits, maps and preserves editor shortcuts', async (
   const canvas = await importPlaneFixture(page, { 'helper.py': 'def helper():\n    return 1\n' });
   const nav = page.getByRole('group', { name: '3D navigation', exact: true });
   await nav.focus();
+  const unfitted = await canvas.getAttribute('data-camera-target');
   await page.keyboard.press('f');
+  await expect(canvas).not.toHaveAttribute('data-camera-target', unfitted!);
   const before = Number(await canvas.getAttribute('data-camera-zoom')),
     box = (await canvas.boundingBox())!;
   const target = await canvas.getAttribute('data-camera-target');

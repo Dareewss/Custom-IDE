@@ -33,7 +33,7 @@ export function cameraKey(key: string, shift: boolean): CameraAction | undefined
   if (direction) return `${shift ? 'pan' : 'orbit'}-${direction}` as CameraAction;
   if (key === '+' || key === '=') return 'zoom-in';
   if (key === '-') return 'zoom-out';
-  if (key.toLowerCase() === 'f') return 'fit-selection';
+  if (key.toLowerCase() === 'f') return shift ? 'fit-selection' : 'fit-all';
   if (key.toLowerCase() === 'r') return 'reset';
   if (key === 'Home') return 'fit-all';
 }

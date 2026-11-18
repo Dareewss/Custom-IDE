@@ -28,7 +28,9 @@ test('floats search above the unchanged workspace and supports click, filtering 
   expect(await page.locator('.workspace').boundingBox()).toEqual(before);
   await expect(page.getByRole('dialog').getByRole('combobox')).toBeFocused();
   await page.getByRole('dialog').getByRole('combobox').fill('New file');
-  await expect(page.getByRole('option')).toHaveCount(1);
+  await expect(
+    page.getByRole('dialog', { name: 'Command palette', exact: true }).getByRole('option'),
+  ).toHaveCount(1);
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'New file', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();

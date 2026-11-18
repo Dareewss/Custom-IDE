@@ -6,8 +6,6 @@ import { ensureOverviewVisible } from './view-actions';
 
 export function selectOverviewNode(node: CodeNode) {
   ensureOverviewVisible(node.id);
-  if (node.kind === 'external')
-    useOverview.setState({ showExternal: true, externalExpanded: true });
   useOverview.setState((state) => ({
     selectedNodeId: node.id,
     hoveredNodeId: null,

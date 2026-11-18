@@ -14,7 +14,7 @@ async function openFixture(page: Page) {
     buffer: await zip.generateAsync({ type: 'nodebuffer' }),
   });
   await expect(page.locator('.workspace-title')).toContainText('Popout');
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4');
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-tile-instances', /[1-9]/);
 }
 
 async function popOut(page: Page) {
@@ -34,7 +34,7 @@ test('shares live code, selection, appearance and outline across pop-out and doc
   const popup = await popOut(page);
   popup.on('pageerror', (error) => errors.push(error.message));
   const canvas = popup.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   expect(
     await canvas.evaluate(
       (element) =>
@@ -102,43 +102,59 @@ test('keeps the view usable and explains a blocked pop-up', async ({ page }) => 
   });
   await page.getByRole('button', { name: 'Pop out 3D view', exact: true }).click();
   await expect(page.locator('.error-toast')).toContainText('Allow pop-ups for Code Atlas');
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4');
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-tile-instances', /[1-9]/);
 });
 
-test('keeps the camera through both moves and accepts navigation in the separate window', async ({
+test('preserves source framing across differently sized popout and docked viewports', async ({
   page,
 }) => {
   await openFixture(page);
+  const normalized = async (owner: Page) =>
+    owner.locator('.code-canvas canvas').evaluate((el) => {
+      const d = (el as HTMLCanvasElement).dataset,
+        scale = Number(d.cameraRowScale);
+      const vector = (s: string | undefined) =>
+        JSON.parse(s ?? '[]').map((v: number, i: number) =>
+          Number((i === 1 ? v / scale : v).toFixed(4)),
+        );
+      return {
+        position: vector(d.cameraPosition),
+        target: vector(d.cameraTarget),
+        zoom: Number((Number(d.cameraZoom) * scale).toFixed(4)),
+      };
+    });
   const mainCanvas = page.locator('.code-canvas canvas');
-  await expect(mainCanvas).toHaveAttribute('data-camera-target', /\[/);
+  await expect(mainCanvas).toHaveAttribute('data-camera-row-scale', /[1-9]/);
   const initial = await mainCanvas.getAttribute('data-camera-target');
   await page.getByRole('group', { name: '3D navigation', exact: true }).focus();
   await page.keyboard.press('Shift+ArrowRight');
   await expect(mainCanvas).not.toHaveAttribute('data-camera-target', initial!);
-  const target = await mainCanvas.getAttribute('data-camera-target');
+  const wanted = await normalized(page);
   const popup = await popOut(page);
+  await expect.poll(() => normalized(popup)).toEqual(wanted);
   const canvas = popup.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-camera-target', target!);
-  await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
   const position = await canvas.getAttribute('data-camera-position');
   await popup.getByRole('group', { name: '3D navigation', exact: true }).focus();
   await popup.keyboard.press('ArrowLeft');
   await expect(canvas).not.toHaveAttribute('data-camera-position', position!);
-  await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
-  const rotated = await canvas.getAttribute('data-camera-position');
+  const panned = await normalized(popup);
+  expect(panned.target[0]).not.toBe(wanted.target[0]);
   await popup.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
-  await expect(mainCanvas).toHaveAttribute('data-camera-position', rotated!);
-  await expect(mainCanvas).toHaveAttribute('data-camera-target', target!);
+  await expect.poll(() => normalized(page)).toEqual(panned);
 });
 
 test('keeps real 3D render space at the minimum desktop viewport', async ({ page }) => {
   await page.setViewportSize({ width: 800, height: 560 });
   await openFixture(page);
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   const body = await page.locator('.overview-body').boundingBox();
   expect(body?.height).toBeGreaterThan(60);
   expect(body?.width).toBeGreaterThan(170);
+  expect((await canvas.boundingBox())?.width).toBeGreaterThan(100);
+  await expect(
+    page.getByRole('button', { name: 'Expand structure inspector', exact: true }),
+  ).toBeVisible();
   await expect(page.locator('.monaco-editor')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Pop out 3D view', exact: true })).toBeVisible();
 });

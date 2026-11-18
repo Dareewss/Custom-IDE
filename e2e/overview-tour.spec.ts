@@ -25,7 +25,7 @@ test('runs the multi-file 3D Tour and explores its real source structure', async
   await expect(page.getByRole('log')).toContainText('Accepted: [3, 4, 5, 6]');
   await expect(page.getByRole('log')).toContainText('Total: 18');
   await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/);
-  await expect(canvas).toHaveAttribute('data-label-materials-opaque', 'true');
+  await expect(canvas).toHaveAttribute('data-tile-meshes', '1');
   await page.addStyleTag({ content: 'body { background: #202522; }' });
   await mkdir('docs/screenshots/phase2', { recursive: true });
   await page.screenshot({ path: 'docs/screenshots/phase2/tour-split.png' });
@@ -48,13 +48,10 @@ test('runs the multi-file 3D Tour and explores its real source structure', async
   await expect(page.locator('.statusbar')).toContainText('Ln 1, Col 1');
 
   const info = await page.getByRole('tooltip').boundingBox();
-  const map = await page
-    .getByRole('button', {
-      name: '3D minimap',
-      exact: true,
-    })
-    .boundingBox();
-  if (info && map) expect(info.y + info.height).toBeLessThanOrEqual(map.y);
+  const map = await page.getByRole('button', { name: '3D minimap', exact: true }).boundingBox();
+  expect(info).not.toBeNull();
+  expect(map).not.toBeNull();
+  expect(info!.y + info!.height).toBeLessThanOrEqual(map!.y);
   await page.getByRole('button', { name: 'Isolate selected structure', exact: true }).click();
   await expect(panel).toHaveAttribute('data-isolated', 'true');
   await page.getByRole('button', { name: 'Exit isolate', exact: true }).click();
@@ -72,7 +69,7 @@ test('runs the multi-file 3D Tour and explores its real source structure', async
   await page.getByLabel('Object kind filter', { exact: true }).selectOption('all');
   const layouts = page.getByRole('group', { name: 'Workspace layout', exact: true });
   await layouts.getByRole('button', { name: '3D', exact: true }).click();
-  await page.getByRole('button', { name: 'Fit all objects (Home)', exact: true }).click();
+  await page.getByRole('button', { name: 'Fit all objects (F)', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
   await page.getByRole('button', { name: 'Workbench', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-camera-moving', 'false');

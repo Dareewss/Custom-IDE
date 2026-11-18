@@ -49,16 +49,15 @@ test('defaults to transparent orthographic flat tiles in one BVH-picked batch wi
   await expect(page.locator('.breadcrumbs')).toContainText('main.py');
   expect(errors).toEqual([]);
 });
-test('retains Classic only through the renderer setting and keeps the actual outline available', async ({
+test('migrates a legacy renderer preference to Flat and retains the actual outline', async ({
   page,
 }) => {
-  await importFixture(page);
+  await page.addInitScript(() => localStorage.setItem('atlas-overview-renderer', 'classic'));
+  const canvas = await importFixture(page);
+  await expect(canvas).toHaveAttribute('data-scene-kind', 'flat');
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
-  await page.getByRole('combobox', { name: '3D renderer', exact: true }).selectOption('classic');
+  await expect(page.getByLabel('3D renderer', { exact: true })).toHaveCount(0);
   await page.keyboard.press('Escape');
-  const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', /[1-9]/, { timeout: 30000 });
-  await expect(page.locator('.plane-track-header')).toHaveCount(0);
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
   await expect(page.getByRole('treeitem', { name: 'class Counter', exact: true })).toBeVisible();
 });

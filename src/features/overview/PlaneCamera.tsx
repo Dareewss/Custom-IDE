@@ -187,6 +187,7 @@ export function PlaneCamera({
       controls.current?.update();
     }
     if (controls.current) controls.current.enabled = progress.idle;
+    gl.domElement.dataset.cameraRowScale = String(transform.yScale);
     gl.domElement.dataset.cameraMoving = String(!progress.idle);
     gl.domElement.dataset.cameraProjection =
       camera instanceof OrthographicCamera ? 'orthographic' : 'perspective';

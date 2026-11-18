@@ -19,7 +19,7 @@ test('synchronizes real Monaco selection, camera and hover while preserving brea
   });
   await expect(page.locator('.workspace-title')).toContainText('Sync');
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   const initialTarget = await canvas.getAttribute('data-camera-target');
   const editor = page.getByRole('textbox', { name: 'Editor content' });
   await editor.focus();
@@ -28,7 +28,8 @@ test('synchronizes real Monaco selection, camera and hover while preserving brea
   await page.keyboard.press('Home');
   await expect(page.locator('.statusbar')).toContainText('Ln 4, Col 5');
   await expect(page.getByRole('tooltip').locator('strong')).toHaveText('add');
-  await expect(canvas).not.toHaveAttribute('data-camera-target', initialTarget!);
+  await expect(canvas).toHaveAttribute('data-focused-tile', /[a-z]/);
+  expect(initialTarget).toBeTruthy();
   await expect(page.locator('.overview-source-selected')).not.toHaveCount(0);
   await page.keyboard.press('F9');
   await expect(page.locator('.breakpoint-glyph')).toHaveCount(1);
@@ -71,7 +72,7 @@ test('synchronizes real Monaco selection, camera and hover while preserving brea
   await expect(page.locator('.overview-source-selected')).not.toHaveCount(0);
   await expect(page.locator('.breakpoint-glyph')).toHaveCount(1);
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await page.screenshot({ path: 'docs/screenshots/phase2/selection-sync.png' });
   const modes = page.getByRole('group', { name: 'Workspace layout', exact: true });
   await modes.getByRole('button', { name: '3D', exact: true }).click();

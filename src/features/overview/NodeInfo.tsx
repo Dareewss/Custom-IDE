@@ -1,5 +1,4 @@
 import { nodeDetails } from './node-details';
-import { usePlaneView } from './plane-view';
 import { collectionEntries } from '../../core/model/layout/collections';
 import { useOverview } from './store';
 
@@ -12,7 +11,6 @@ export function NodeInfo() {
     state.indexes?.nodeById.get(state.hoveredNodeId ?? state.selectedNodeId ?? ''),
   );
   const indexes = useOverview((s) => s.indexes);
-  const classic = usePlaneView((s) => s.mode === 'classic');
   const detail = useOverview((state) => state.hoveredDetail);
   if (edge)
     return (
@@ -52,8 +50,8 @@ export function NodeInfo() {
           {node.fileId}:{node.range.startLine}:{node.range.startCol}
         </small>
       )}
-      {!classic && <small>{node.kind}</small>}
-      {metrics && !classic && (
+      <small>{node.kind}</small>
+      {metrics && (
         <>
           <p>
             {metrics.lines} lines{metrics.share !== null ? ` - ${metrics.share}% of parent` : ''}
@@ -102,11 +100,7 @@ export function NodeInfo() {
       )}
       {detail && <small>{detail}</small>}
       {node.children.length > 0 && (
-        <small>
-          {classic
-            ? 'Double-click or press C in the scene to collapse or expand.'
-            : 'Double-click to explore this structure. Esc goes up.'}
-        </small>
+        <small>Double-click to explore this structure. Esc goes up.</small>
       )}
     </aside>
   );

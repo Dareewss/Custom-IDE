@@ -160,34 +160,6 @@
   color: var(--text);
   border: 1px solid var(--border);
 }
-.overview-options {
-  position: relative;
-  font-size: 11px;
-}
-.overview-options summary {
-  cursor: pointer;
-  padding: 8px;
-}
-.overview-options fieldset {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 50;
-  width: 205px;
-  padding: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-}
-.overview-options label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 32px;
-}
-.overview-options legend {
-  font-size: 11px;
-  color: var(--muted);
-}
 .overview-toolbar > span {
   display: flex;
   align-items: center;
@@ -483,41 +455,6 @@
   padding: 0 8px;
 }
 
-.function-position-bar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  gap: 4px;
-  align-items: center;
-  height: 36px;
-  flex-shrink: 0;
-  padding: 3px 8px;
-  border-bottom: 1px solid var(--border);
-  font-size: 11px;
-}
-.function-position-bar label {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-  min-width: 0;
-}
-.function-position-bar input {
-  width: 100%;
-  min-width: 0;
-  padding: 3px;
-  font-size: 11px;
-}
-.function-position-bar small {
-  grid-column: 1 / -1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--muted);
-}
-.function-position-bar .icon-button {
-  width: 26px;
-  height: 26px;
-}
-
 .plane-navigation {
   position: relative;
 }
@@ -702,6 +639,7 @@
   min-width: 0;
 }
 .overview-body[data-planes='true'] > .overview-node-info {
+  bottom: 130px;
   left: 215px;
 }
 @container overview-body (max-width:600px) {
@@ -731,4 +669,22 @@
     outline: 2px solid Highlight;
     outline-offset: 2px;
   }
+}
+
+.plane-inspector[data-expanded='false'] {
+  flex-basis: 32px;
+  width: 32px;
+  padding: 4px;
+}
+.plane-inspector .plane-inspector-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px;
+  border: 0;
+  background: transparent;
+}
+.overview-body:has(> .plane-inspector[data-expanded='false']) > .overview-node-info {
+  left: 42px;
 }

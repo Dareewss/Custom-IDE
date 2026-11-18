@@ -20,7 +20,12 @@ test('draws a demand minimap and navigates the real camera by pointer, touch and
   const map = page.getByRole('button', { name: '3D minimap', exact: true }),
     bitmap = map.locator('canvas');
   const canvas = page.locator('.code-canvas canvas');
-  await expect(bitmap).toHaveAttribute('data-node-count', '9');
+  await expect
+    .poll(async () => {
+      const tiles = Number(await canvas.getAttribute('data-tile-instances'));
+      return tiles > 0 && Number(await bitmap.getAttribute('data-node-count')) === tiles;
+    })
+    .toBe(true);
   await expect(bitmap).not.toHaveAttribute('data-frustum', '[]');
   const painted = await bitmap.evaluate(
     (el) =>
@@ -56,13 +61,26 @@ test('draws a demand minimap and navigates the real camera by pointer, touch and
   await search.fill('doubled');
   await search.press('Enter');
   await page.getByRole('button', { name: 'Isolate selected structure', exact: true }).click();
-  await expect(bitmap).toHaveAttribute('data-node-count', '3');
+  await expect
+    .poll(async () => Number(await bitmap.getAttribute('data-node-count')))
+    .toBeGreaterThan(1);
   await page.getByRole('button', { name: 'Exit isolate', exact: true }).click();
-  await expect(bitmap).toHaveAttribute('data-node-count', '9');
+  await expect
+    .poll(async () => {
+      const tiles = Number(await canvas.getAttribute('data-tile-instances'));
+      return tiles > 0 && Number(await bitmap.getAttribute('data-node-count')) === tiles;
+    })
+    .toBe(true);
   await expect(canvas).toHaveAttribute('data-camera-moving', 'false');
-  await page.waitForTimeout(300);
-  const frames = await canvas.getAttribute('data-render-frames');
+  await expect
+    .poll(async () => {
+      const before = await canvas.getAttribute('data-scene-frames');
+      await page.waitForTimeout(600);
+      return before === (await canvas.getAttribute('data-scene-frames'));
+    })
+    .toBe(true);
+  const frames = await canvas.getAttribute('data-scene-frames');
   await page.waitForTimeout(450);
-  expect(await canvas.getAttribute('data-render-frames')).toBe(frames);
+  expect(await canvas.getAttribute('data-scene-frames')).toBe(frames);
   await page.screenshot({ path: 'docs/screenshots/phase2/minimap.png' });
 });

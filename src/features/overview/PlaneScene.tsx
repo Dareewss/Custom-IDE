@@ -61,9 +61,18 @@ export default function PlaneScene({
     ancestor = ancestor.parentId ? indexes?.nodeById.get(ancestor.parentId) : undefined;
   }
   const lane = layout.lanes.find((lane) => lane.fileId === active) ?? layout.lanes[0];
+  // Keep source coordinates stable through edits; entering a different scope calibrates its width.
+  const scales = useMemo(
+    () => ({
+      flat: 32 / Math.max(0.01, scopeRect?.width ?? lane?.width ?? 32),
+      layers: rootId ? 32 / Math.max(0.01, scopeRect?.width ?? 32) : 32 / Math.max(1, layout.width),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [rootId, lane?.fileId],
+  );
   if (lost) return unavailable;
   if (!lane) return <p className="overview-message">No source tiles in this view.</p>;
-  const xScale = 32 / Math.max(0.01, scopeRect?.width ?? lane.width);
+  const xScale = scales.flat;
   const xOffset = -(scopeRect?.x ?? 0) * xScale;
   const lastLine = lane.knots.at(-1)?.line ?? 1;
   const ticks = Array.from({ length: 7 }, (_, i) =>
@@ -171,6 +180,7 @@ export default function PlaneScene({
           layout={layout}
           fileId={lane.fileId}
           xScale={xScale}
+          layerXScale={scales.layers}
           xOffset={xOffset}
           colors={colors}
           axes={axes}
@@ -233,6 +243,7 @@ function FlatContents({
   layout,
   fileId,
   xScale,
+  layerXScale,
   xOffset,
   colors,
   axes,
@@ -241,6 +252,7 @@ function FlatContents({
   layout: StructureLayout;
   fileId: string;
   xScale: number;
+  layerXScale: number;
   xOffset: number;
   colors: ReturnType<typeof useSceneColors>;
   axes: React.RefObject<SVGSVGElement | null>;
@@ -251,8 +263,7 @@ function FlatContents({
   const zoom = Math.max(1, (width - Math.min(140, width * 0.25)) / 36);
   const yScale = Math.max(1, 24 / zoom);
   const mode = usePlaneView((s) => s.mode),
-    gap = usePlaneView((s) => s.gap),
-    rootId = usePlaneView((s) => s.rootId);
+    gap = usePlaneView((s) => s.gap);
   const reduced = useReducedMotion();
   const [spring, api] = useSpring(() => ({ t: mode === 'layers' ? 1 : 0 }));
   useLayoutEffect(() => {
@@ -267,7 +278,6 @@ function FlatContents({
     };
   }, [mode, reduced, api, get]);
   const activeLane = layout.lanes.find((lane) => lane.fileId === fileId)?.index ?? 0;
-  const layerXScale = rootId ? xScale : 32 / Math.max(1, layout.width);
   const transform = useMemo<PlaneTransform>(
     () => ({
       xScale,

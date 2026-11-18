@@ -1,27 +1,10 @@
-import { setPlaneMode, usePlaneView } from './plane-view';
 import { useSettings } from '../settings/store';
 
 export function OverviewSettings() {
   const settings = useSettings();
-  const mode = usePlaneView((s) => s.mode);
   return (
     <fieldset className="overview-settings">
       <legend>3D overview</legend>
-      <label className="field">
-        3D renderer
-        <select
-          aria-label="3D renderer"
-          value={mode}
-          onChange={(event) => {
-            const mode = event.target.value;
-            if (mode === 'flat' || mode === 'layers' || mode === 'classic') setPlaneMode(mode);
-          }}
-        >
-          <option value="flat">Flat · layered source tiles</option>
-          <option value="layers">Layers · exploded planes</option>
-          <option value="classic">Classic · legacy shapes</option>
-        </select>
-      </label>
       <label className="field">
         3D quality
         <select
@@ -38,28 +21,6 @@ export function OverviewSettings() {
           <option value="high">High · full detail</option>
         </select>
       </label>
-      {mode === 'classic' && (
-        <>
-          <label className="field">
-            3D symbol size · {settings.overviewNodeSize}%
-            <input
-              type="range"
-              min={75}
-              max={125}
-              step={5}
-              value={settings.overviewNodeSize}
-              aria-label="3D symbol size"
-              aria-valuetext={`${settings.overviewNodeSize}%`}
-              onChange={(event) =>
-                settings.setSetting('overviewNodeSize', Number(event.target.value))
-              }
-            />
-          </label>
-          <p className="muted">
-            Adjust symbols inside the file containers. Source positions and layout stay stable.
-          </p>
-        </>
-      )}
       <label className="setting-toggle">
         <span>3D labels</span>
         <input

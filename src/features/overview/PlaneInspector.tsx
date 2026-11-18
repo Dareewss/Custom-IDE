@@ -1,5 +1,6 @@
 import { useStaticMarkers } from './OverlayLayer';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { planeNames } from '../../core/model/layout/structure-types';
 import { lineSpan } from '../../core/model/layout/line-map';
 import type { SourceRange } from '../../core/model/types';
@@ -19,6 +20,7 @@ import { nodeDetails } from './node-details';
 import { selectOverviewNode } from './selection';
 import { toggleOverviewNode } from './view-actions';
 export function PlaneInspector() {
+  const [expanded, setExpanded] = useState(() => window.innerWidth > 900);
   const markers = useStaticMarkers();
   const model = useOverview((s) => s.model),
     indexes = useOverview((s) => s.indexes),
@@ -63,163 +65,183 @@ export function PlaneInspector() {
     details = node && model && indexes ? nodeDetails(node, model, indexes) : null;
   const tile = selected ? structure?.rects[selected] : null;
   return (
-    <aside className="plane-inspector" aria-label="Structure inspector">
-      <strong>Scope</strong>
-      <dl aria-label="Scope statistics">
-        {Object.entries(stats).map(([key, value]) => (
-          <div key={key}>
-            <dt>{key}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-      <label>
-        Mode{' '}
-        <select
-          aria-label="Structure view mode"
-          value={prefs.mode}
-          onChange={(e) => setPlaneMode(e.target.value === 'layers' ? 'layers' : 'flat')}
-        >
-          <option value="flat">Flat</option>
-          <option value="layers">Layers</option>
-        </select>
-      </label>
-      {prefs.mode === 'layers' && (
-        <label>
-          Plane gap{' '}
-          <input
-            aria-label="Plane gap"
-            type="range"
-            min={1}
-            max={12}
-            step={0.5}
-            value={prefs.gap}
-            onChange={(e) => usePlaneView.setState({ gap: Number(e.target.value) })}
-          />
-          <output>{prefs.gap}</output>
-        </label>
-      )}
-      <fieldset>
-        <legend>Levels / legend</legend>
-        {planeNames.map((name, level) => (
-          <label key={name}>
+    <aside
+      className="plane-inspector"
+      aria-label="Structure inspector"
+      data-expanded={String(expanded)}
+    >
+      <button
+        className="plane-inspector-toggle"
+        aria-label={expanded ? 'Collapse structure inspector' : 'Expand structure inspector'}
+        aria-expanded={expanded}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? <PanelLeftClose size={14} /> : <PanelLeftOpen size={14} />}
+        {expanded && <strong>Scope</strong>}
+      </button>
+      {expanded && (
+        <div className="plane-inspector-content">
+          <dl aria-label="Scope statistics">
+            {Object.entries(stats).map(([key, value]) => (
+              <div key={key}>
+                <dt>{key}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <label>
+            Mode{' '}
+            <select
+              aria-label="Structure view mode"
+              value={prefs.mode}
+              onChange={(e) => setPlaneMode(e.target.value === 'layers' ? 'layers' : 'flat')}
+            >
+              <option value="flat">Flat</option>
+              <option value="layers">Layers</option>
+            </select>
+          </label>
+          {prefs.mode === 'layers' && (
+            <label>
+              Plane gap{' '}
+              <input
+                aria-label="Plane gap"
+                type="range"
+                min={1}
+                max={12}
+                step={0.5}
+                value={prefs.gap}
+                onChange={(e) => usePlaneView.setState({ gap: Number(e.target.value) })}
+              />
+              <output>{prefs.gap}</output>
+            </label>
+          )}
+          <fieldset>
+            <legend>Levels / legend</legend>
+            {planeNames.map((name, level) => (
+              <label key={name}>
+                <input
+                  type="checkbox"
+                  aria-label={`Show ${name}`}
+                  checked={prefs.levels[level]}
+                  onChange={(e) =>
+                    usePlaneView.setState({
+                      levels: prefs.levels.map((v, i) => (i === level ? e.target.checked : v)),
+                    })
+                  }
+                />
+                <i style={{ background: tileColor(level, colors) }} />L{level} · {name}
+              </label>
+            ))}
+          </fieldset>
+          <label>
             <input
               type="checkbox"
-              aria-label={`Show ${name}`}
-              checked={prefs.levels[level]}
-              onChange={(e) =>
-                usePlaneView.setState({
-                  levels: prefs.levels.map((v, i) => (i === level ? e.target.checked : v)),
-                })
-              }
+              checked={prefs.extrude}
+              onChange={(e) => usePlaneView.setState({ extrude: e.target.checked })}
             />
-            <i style={{ background: tileColor(level, colors) }} />L{level} · {name}
+            Extrude by complexity
           </label>
-        ))}
-      </fieldset>
-      <label>
-        <input
-          type="checkbox"
-          checked={prefs.extrude}
-          onChange={(e) => usePlaneView.setState({ extrude: e.target.checked })}
-        />
-        Extrude by complexity
-      </label>
-      <label>
-        Connections{' '}
-        <select
-          aria-label="Tile connections"
-          value={prefs.edges}
-          onChange={(e) => usePlaneView.setState({ edges: e.target.value as typeof prefs.edges })}
-        >
-          <option value="none">No edges</option>
-          <option value="context">Callers / callees</option>
-          <option value="all">All edges (200 max)</option>
-        </select>
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          aria-label="Import bands"
-          checked={prefs.imports}
-          onChange={(e) => usePlaneView.setState({ imports: e.target.checked })}
-        />
-        Import bands
-      </label>
-      {prefs.hiddenEdges > 0 && (
-        <output aria-label="Hidden connections">+{prefs.hiddenEdges} hidden</output>
-      )}
-      <DepthControl />
-      <ObjectSearch />
-      <IsolationBar />
-      <small>F fit all · Shift+F selection · C collapse · I isolate · Esc parent</small>
-      <details>
-        <summary>Markers ({markers.length})</summary>
-        <ul>
-          {markers.map((marker) => (
-            <li key={marker.id}>{marker.label}</li>
-          ))}
-        </ul>
-      </details>
-      {node && details && (
-        <section aria-label="Selected structure">
-          <strong>{node.name}</strong>
-          <p>
-            {node.kind} · {details.lines} lines
-            {details.share !== null ? ` · ${details.share}% of parent` : ''}
-          </p>
-          <small>
-            {node.fileId}:{node.range?.startLine}:{node.range?.startCol}
-          </small>
-          <p>
-            {details.children} children · {details.diagnostics.length} diagnostics
-          </p>
-          {node.children.length > 0 && (
-            <button onClick={() => toggleOverviewNode(node.id)}>
-              {compact.includes(node.id) ? 'Expand selected' : 'Collapse selected'}
-            </button>
+          <label>
+            Connections{' '}
+            <select
+              aria-label="Tile connections"
+              value={prefs.edges}
+              onChange={(e) =>
+                usePlaneView.setState({ edges: e.target.value as typeof prefs.edges })
+              }
+            >
+              <option value="none">No edges</option>
+              <option value="context">Callers / callees</option>
+              <option value="all">All edges (200 max)</option>
+            </select>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              aria-label="Import bands"
+              checked={prefs.imports}
+              onChange={(e) => usePlaneView.setState({ imports: e.target.checked })}
+            />
+            Import bands
+          </label>
+          {prefs.hiddenEdges > 0 && (
+            <output aria-label="Hidden connections">+{prefs.hiddenEdges} hidden</output>
           )}
-          {(['callers', 'callees'] as const).map((kind) => (
-            <div key={kind}>
-              <strong>
-                {kind} ({details[kind].length})
-              </strong>
-              <ul>
-                {details[kind].map((edge) => {
-                  const target = indexes?.nodeById.get(kind === 'callers' ? edge.from : edge.to);
-                  return (
-                    <li key={edge.id}>
-                      <button
-                        disabled={!target || target.kind === 'external'}
-                        onClick={() => target && selectOverviewNode(target)}
-                      >
-                        {target?.name ?? 'Unknown'}
-                        {!edge.resolved ? ' (unresolved)' : ''}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-          {tile && tile.nodeIds.length > 1 && (
-            <div>
-              <strong>{tile.nodeIds.length} aggregated objects</strong>
-              <ul>
-                {tile.nodeIds.map((id) => {
-                  const member = indexes?.nodeById.get(id);
-                  return (
-                    <li key={id}>
-                      <button onClick={() => member && selectOverviewNode(member)}>
-                        {member?.name}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+          <DepthControl />
+          <ObjectSearch />
+          <IsolationBar />
+          <small>F fit all · Shift+F selection · C collapse · I isolate · Esc parent</small>
+          <details>
+            <summary>Markers ({markers.length})</summary>
+            <ul>
+              {markers.map((marker) => (
+                <li key={marker.id}>{marker.label}</li>
+              ))}
+            </ul>
+          </details>
+          {node && details && (
+            <section aria-label="Selected structure">
+              <strong>{node.name}</strong>
+              <p>
+                {node.kind} · {details.lines} lines
+                {details.share !== null ? ` · ${details.share}% of parent` : ''}
+              </p>
+              <small>
+                {node.fileId}:{node.range?.startLine}:{node.range?.startCol}
+              </small>
+              <p>
+                {details.children} children · {details.diagnostics.length} diagnostics
+              </p>
+              {node.children.length > 0 && (
+                <button onClick={() => toggleOverviewNode(node.id)}>
+                  {compact.includes(node.id) ? 'Expand selected' : 'Collapse selected'}
+                </button>
+              )}
+              {(['callers', 'callees'] as const).map((kind) => (
+                <div key={kind}>
+                  <strong>
+                    {kind} ({details[kind].length})
+                  </strong>
+                  <ul>
+                    {details[kind].map((edge) => {
+                      const target = indexes?.nodeById.get(
+                        kind === 'callers' ? edge.from : edge.to,
+                      );
+                      return (
+                        <li key={edge.id}>
+                          <button
+                            disabled={!target || target.kind === 'external'}
+                            onClick={() => target && selectOverviewNode(target)}
+                          >
+                            {target?.name ?? 'Unknown'}
+                            {!edge.resolved ? ' (unresolved)' : ''}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+              {tile && tile.nodeIds.length > 1 && (
+                <div>
+                  <strong>{tile.nodeIds.length} aggregated objects</strong>
+                  <ul>
+                    {tile.nodeIds.map((id) => {
+                      const member = indexes?.nodeById.get(id);
+                      return (
+                        <li key={id}>
+                          <button onClick={() => member && selectOverviewNode(member)}>
+                            {member?.name}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </section>
           )}
-        </section>
+        </div>
       )}
     </aside>
   );

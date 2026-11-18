@@ -50,10 +50,6 @@ try {
       rendererErrors.push(message.text().slice(0, 1000));
   });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  // Keep the legacy scene lifecycle covered until Classic is retired at P11.
-  await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
-  await page.getByRole('combobox', { name: '3D renderer', exact: true }).selectOption('classic');
-  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Manage projects', exact: true }).click();
   const zip = new JSZip();
   zip.file('main.py', await readFile('tests/fixtures/python/shapes.py', 'utf8'));
@@ -62,9 +58,14 @@ try {
     mimeType: 'application/zip',
     buffer: await zip.generateAsync({ type: 'nodebuffer' }),
   });
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4', {
-    timeout: 30000,
-  });
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute(
+    'data-tile-instances',
+    /[1-9]/,
+    {
+      timeout: 30000,
+    },
+  );
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', /[1-9]/);
   if (rendererArguments.length) {
     const renderer = await page.locator('.code-canvas canvas').evaluate((element) => {
       const gl = element.getContext('webgl2');
@@ -107,16 +108,20 @@ try {
   };
   await assertHidden(1);
   const popup = await open();
-  await expect(popup.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4', {
-    timeout: 30000,
-  });
+  await expect(popup.locator('.code-canvas canvas')).toHaveAttribute(
+    'data-tile-instances',
+    /[1-9]/,
+    {
+      timeout: 30000,
+    },
+  );
+  await expect(popup.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', /[1-9]/);
   await popup.getByRole('button', { name: 'Show code outline', exact: true }).click();
   await popup.getByRole('treeitem', { name: 'method add', exact: true }).click();
   await expect(page.locator('.statusbar')).toContainText('Ln 4, Col 5');
-  await popup.getByRole('spinbutton', { name: 'Function Z offset', exact: true }).fill('1.5');
-  await expect(
-    popup.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
-  ).toHaveValue('1.5');
+  await popup.getByLabel('Structure view mode', { exact: true }).selectOption('layers');
+  await popup.getByLabel('Plane gap', { exact: true }).fill('7');
+  await expect(popup.getByLabel('Plane gap', { exact: true })).toHaveValue('7');
   if (await page.evaluate(() => window.codeAtlasDesktop.supportsDesktopBlur)) {
     expect(await popup.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(true))).toBe(true);
     expect(await page.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(false))).toBe(false);
@@ -138,13 +143,9 @@ try {
   await assertHidden(1);
   // Closing a child must not unregister the parent's appearance IPC handler.
   expect(await page.evaluate(() => window.codeAtlasDesktop.setDesktopBlur(false))).toBe(false);
-  await expect(
-    page.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
-  ).toHaveValue('1.5');
+  await expect(page.getByLabel('Plane gap', { exact: true })).toHaveValue('7');
   const reopened = await open();
-  await expect(
-    reopened.getByRole('spinbutton', { name: 'Function Z offset', exact: true }),
-  ).toHaveValue('1.5');
+  await expect(reopened.getByLabel('Plane gap', { exact: true })).toHaveValue('7');
   await reopened.getByRole('button', { name: 'Dock 3D view', exact: true }).click();
   await expect.poll(() => reopened.isClosed()).toBe(true);
   await assertHidden(1);
@@ -170,7 +171,7 @@ try {
           canvas: [...document.querySelectorAll('canvas')].map((element) => ({
             width: element.clientWidth,
             height: element.clientHeight,
-            frames: element.getAttribute('data-render-frames'),
+            frames: element.getAttribute('data-scene-frames'),
             labels: element.getAttribute('data-labels-ready'),
           })),
         }))

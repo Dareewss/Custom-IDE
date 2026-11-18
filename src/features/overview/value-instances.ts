@@ -2,7 +2,17 @@ import type { CodeModel } from '../../core/model/types';
 import type { GraphLayout } from '../../core/model/layout/types';
 import { collectionEntries } from '../../core/model/layout/collections';
 import { headerPosition } from '../../core/model/layout/metrics';
-import type { ValueInstance } from './ValueInstances';
+import type { CodeNode, ValueKind } from '../../core/model/types';
+import type { Vec3 } from '../../core/model/layout/types';
+interface ValueInstance {
+  node: CodeNode;
+  position: Vec3;
+  kind?: ValueKind;
+  detail?: string;
+  muted?: boolean;
+  slot?: string;
+  radiusScale?: number;
+}
 import { geometryTokens as tokens } from '../../core/model/layout/tokens';
 
 export function valueInstances(model: CodeModel, layout: GraphLayout) {

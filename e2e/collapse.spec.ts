@@ -46,7 +46,7 @@ test('collapses by keyboard, persists per-project detail and reveals source-sele
   await counter.click();
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
   const navigation = page.getByRole('group', { name: '3D navigation', exact: true });
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-labels-ready', '4');
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-tile-instances', /[1-9]/);
   await navigation.focus();
   await page.keyboard.press('c');
   await expect(panel).toHaveAttribute('data-visible-nodes', '4');

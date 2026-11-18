@@ -1,7 +1,6 @@
 import { PlaneInspector } from './PlaneInspector';
-import { usePlaneView } from './plane-view';
 import { lazy, Suspense, useMemo, type ReactNode } from 'react';
-import { Box, ListTree, Shuffle, ExternalLink, PanelLeftClose } from 'lucide-react';
+import { Box, ListTree, ExternalLink, PanelLeftClose } from 'lucide-react';
 import { useProjectModel } from './useProjectModel';
 import { useOverview } from './store';
 import { useWorkspace } from '../explorer/store';
@@ -10,15 +9,8 @@ import { IconButton } from '../../shared/IconButton';
 import { Outline } from './Outline';
 import { SceneBoundary } from './SceneBoundary';
 import { NodeInfo } from './NodeInfo';
-import { EdgeOptions } from './EdgeOptions';
-import { DepthControl } from './DepthControl';
-import { ObjectSearch } from './ObjectSearch';
-import { IsolationBar } from './IsolationBar';
-import { saveFunctionOffsets } from './function-positions';
-import { FunctionPositions } from './FunctionPositions';
 import './overview.css';
 
-const CodeScene = lazy(() => import('./CodeScene'));
 const PlaneScene = lazy(() => import('./PlaneScene'));
 
 export function OverviewPanel({
@@ -31,7 +23,6 @@ export function OverviewPanel({
   windowControls?: ReactNode;
 }) {
   useProjectModel();
-  const classic = usePlaneView((s) => s.mode === 'classic');
   const state = useOverview();
   const projectId = useWorkspace((s) => s.projectId);
   const tree = useWorkspace((s) => s.tree);
@@ -59,7 +50,6 @@ export function OverviewPanel({
       data-removed-nodes={state.diff.removed.length}
       data-model-revision={state.modelRevision}
       data-hovered-node={state.hoveredNodeId ?? ''}
-      data-moving-node={state.movingNodeId ?? ''}
       data-selected-node={state.selectedNodeId ?? ''}
       data-analysis-ms={state.analysisMs.toFixed(1)}
       data-layout-ms={state.layoutMs.toFixed(1)}
@@ -70,22 +60,6 @@ export function OverviewPanel({
           3D overview
         </span>
         <div className="overview-actions">
-          {classic && (
-            <IconButton
-              label="Re-layout graph"
-              disabled={state.loading}
-              onClick={() => {
-                useOverview.setState({
-                  layoutRevision: state.layoutRevision + 1,
-                  functionOffsets: {},
-                });
-                saveFunctionOffsets();
-              }}
-            >
-              <Shuffle size={14} />
-            </IconButton>
-          )}
-          {classic && <EdgeOptions />}
           <IconButton
             label="Show code outline"
             aria-pressed={outline}
@@ -107,14 +81,6 @@ export function OverviewPanel({
           {windowControls}
         </div>
       </header>
-      {classic && (
-        <>
-          <DepthControl />
-          <ObjectSearch />
-        </>
-      )}
-      {classic && <FunctionPositions />}
-      {classic && <IsolationBar />}
       {state.error && (
         <p className="overview-notice" role="alert">
           {state.error}
@@ -126,8 +92,8 @@ export function OverviewPanel({
           Some code is incomplete. Showing recovered structure.
         </p>
       )}
-      <div className="overview-body" data-outline={String(outline)} data-planes={String(!classic)}>
-        {!classic && model && <PlaneInspector />}
+      <div className="overview-body" data-outline={String(outline)} data-planes="true">
+        {model && <PlaneInspector />}
         {!outline && <NodeInfo />}
         {!model && !state.error && (
           <p className="overview-message" aria-live="polite">
@@ -182,16 +148,7 @@ export function OverviewPanel({
                   </p>
                 }
               >
-                {!classic && state.structure && (
-                  <PlaneScene layout={state.structure} unavailable={fallback} />
-                )}
-                {classic && state.layout && (
-                  <CodeScene
-                    model={state.viewModel ?? model}
-                    layout={state.layout}
-                    unavailable={fallback}
-                  />
-                )}
+                {state.structure && <PlaneScene layout={state.structure} unavailable={fallback} />}
               </Suspense>
             </SceneBoundary>
           ))}

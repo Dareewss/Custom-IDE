@@ -3,21 +3,11 @@ import { useOverview } from './store';
 import { create } from 'zustand';
 import { useUI } from '../../shared/ui-store';
 
-type PlaneMode = 'flat' | 'layers' | 'classic';
-const rendererKey = 'atlas-overview-renderer';
-function readMode(): PlaneMode {
-  try {
-    const mode = localStorage.getItem(rendererKey);
-    return mode === 'classic' || mode === 'layers' ? mode : 'flat';
-  } catch {
-    return 'flat';
-  }
-}
+type PlaneMode = PlanePreferences['mode'];
 export const usePlaneView = create<
   PlanePreferences & { projectId: string | null; pixelsPerUnit: number; hiddenEdges: number }
 >(() => ({
   ...parsePlanePreferences(null),
-  mode: readMode(),
   projectId: null,
   pixelsPerUnit: 24,
   hiddenEdges: 0,
@@ -30,7 +20,6 @@ export function loadPlaneProject(projectId: string) {
     /* Invalid saved preferences safely use defaults. */
   }
   const prefs = parsePlanePreferences(value);
-  if (value === null) prefs.mode = readMode() === 'classic' ? 'classic' : 'flat';
   usePlaneView.setState({ ...prefs, projectId, pixelsPerUnit: 24, hiddenEdges: 0 });
   return prefs;
 }
@@ -58,9 +47,4 @@ useOverview.subscribe((state, previous) => {
 });
 export function setPlaneMode(mode: PlaneMode) {
   usePlaneView.setState({ mode });
-  try {
-    localStorage.setItem(rendererKey, mode);
-  } catch (error) {
-    useUI.getState().reportError(error);
-  }
 }

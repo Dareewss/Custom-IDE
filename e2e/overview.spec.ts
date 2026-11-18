@@ -9,7 +9,7 @@ test('shows transparent real 3D in Split, keeps outline accessible and stops ren
   await expect(overview).not.toHaveAttribute('data-model-nodes', '0');
   const canvas = overview.locator('.code-canvas canvas');
   await expect(canvas).toBeVisible();
-  await expect(canvas).toHaveAttribute('data-render-frames', /[1-9]/);
+  await expect(canvas).toHaveAttribute('data-scene-frames', /[1-9]/);
   await expect(page.locator('.editor-card')).toBeVisible();
   await expect(page.locator('.output-card')).toBeVisible();
   await expect(overview.locator('.code-canvas')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
@@ -20,9 +20,9 @@ test('shows transparent real 3D in Split, keeps outline accessible and stops ren
   expect(context?.alpha).toBe(true);
   expect(context?.premultipliedAlpha).toBe(true);
   await page.waitForTimeout(700);
-  const frames = await canvas.getAttribute('data-render-frames');
+  const frames = await canvas.getAttribute('data-scene-frames');
   await page.waitForTimeout(500);
-  expect(await canvas.getAttribute('data-render-frames')).toBe(frames);
+  expect(await canvas.getAttribute('data-scene-frames')).toBe(frames);
   const isolate = await page.addStyleTag({
     content:
       '.workspace *{visibility:hidden!important}.code-canvas,.code-canvas canvas{visibility:visible!important}.background-pane,.orb-plane{visibility:hidden!important}html,body,#root,.layer-stack,.workspace,.glass{background:transparent!important;backdrop-filter:none!important;border-color:transparent!important;box-shadow:none!important}',

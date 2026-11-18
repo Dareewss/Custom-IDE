@@ -1,36 +1,26 @@
 import type { StructureLayout } from '../../core/model/layout/structure-types';
 import { create } from 'zustand';
-import type { CodeModel, EdgeKind } from '../../core/model/types';
+import type { CodeModel } from '../../core/model/types';
 import type { ModelIndexes } from '../../core/model/indexes';
-import type { GraphLayout, LayoutItem, Vec3 } from '../../core/model/layout/types';
-import type { CodeNode } from '../../core/model/types';
+import type { Vec3 } from '../../core/model/layout/types';
 import { emptyDiff, type ModelDiff } from '../../core/model/diff';
-import type { CollectionCell } from '../../core/model/layout/collections';
 import type { CameraAction } from './camera-actions';
 import type { DepthPreset } from '../../core/model/view';
 import type { SearchKind } from '../../core/model/search';
 import type { IsolateView } from '../../core/model/isolate';
-import type { FunctionOffsets } from '../../core/model/layout/offsets';
 
 interface OverviewState {
   structure: StructureLayout | null;
-  functionOffsets: FunctionOffsets;
-  movingNodeId: string | null;
   outlineVisible: boolean;
   projectId: string | null;
   model: CodeModel | null;
   indexes: ModelIndexes | null;
-  layout: GraphLayout | null;
   loading: boolean;
   error: string | null;
   selectedNodeId: string | null;
   hoveredNodeId: string | null;
   hoveredDetail: string | null;
   hoveredEdgeId: string | null;
-  edgeKinds: Record<EdgeKind, boolean>;
-  showExternal: boolean;
-  externalExpanded: boolean;
-  layoutRevision: number;
   cameraRequest: { action: CameraAction; sequence: number; point?: Vec3 } | null;
   viewModel: CodeModel | null;
   ownerByNode: Record<string, string | null>;
@@ -44,7 +34,6 @@ interface OverviewState {
   isolatedIds: Set<string> | null;
   fitAfterView: boolean;
   diff: ModelDiff;
-  ghosts: { node: CodeNode; item: LayoutItem; cells: CollectionCell[] }[];
   modelRevision: number;
   handledFocusSequence: number;
   analysisMs: number;
@@ -53,23 +42,16 @@ interface OverviewState {
 }
 export const useOverview = create<OverviewState>(() => ({
   structure: null,
-  functionOffsets: {},
-  movingNodeId: null,
   outlineVisible: false,
   projectId: null,
   model: null,
   indexes: null,
-  layout: null,
   loading: false,
   error: null,
   selectedNodeId: null,
   hoveredNodeId: null,
   hoveredDetail: null,
   hoveredEdgeId: null,
-  edgeKinds: { import: true, call: true, inherits: true },
-  showExternal: true,
-  externalExpanded: false,
-  layoutRevision: 0,
   cameraRequest: null,
   viewModel: null,
   ownerByNode: {},
@@ -83,7 +65,6 @@ export const useOverview = create<OverviewState>(() => ({
   isolatedIds: null,
   fitAfterView: false,
   diff: emptyDiff(),
-  ghosts: [],
   modelRevision: 0,
   handledFocusSequence: 0,
   analysisMs: 0,

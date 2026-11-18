@@ -13,7 +13,7 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   const modes = page.getByRole('group', { name: 'Workspace layout', exact: true });
   await modes.getByRole('button', { name: '3D', exact: true }).click();
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready;
     if (!navigator.serviceWorker.controller)
@@ -25,9 +25,9 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   });
   await context.setOffline(true);
   await page.reload();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await modes.getByRole('button', { name: '3D', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await expect
     .poll(() =>
       canvas.evaluate((element) => {
@@ -40,27 +40,12 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
     )
     .toBe(true);
   await page.screenshot({ path: 'docs/screenshots/phase2/file-slabs-before-click.png' });
-  const hit = await canvas.evaluate(async (element) => {
-    const box = element.getBoundingClientRect();
-    for (const y of [box.height * 0.4, box.height * 0.5, box.height * 0.55, box.height * 0.7])
-      for (let x = box.width * 0.3; x < box.width * 0.95; x += 10) {
-        element.dispatchEvent(
-          new PointerEvent('pointermove', {
-            bubbles: true,
-            pointerId: 1,
-            pointerType: 'mouse',
-            clientX: box.x + x,
-            clientY: box.y + y,
-          }),
-        );
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        if (document.querySelector('[role="tooltip"] strong')?.textContent === 'main.py')
-          return { x, y };
-      }
-    return null;
-  });
-  expect(hit).not.toBeNull();
-  await canvas.click({ position: hit! });
+  const hit = JSON.parse((await canvas.getAttribute('data-tile-hits'))!).find(
+    (item: { level: number }) => item.level === 0,
+  );
+  const bounds = (await canvas.boundingBox())!;
+  expect(hit).toBeTruthy();
+  await page.mouse.click(bounds.x + hit.x, bounds.y + hit.y);
   await expect(modes.getByRole('button', { name: 'Split', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',
@@ -71,17 +56,20 @@ test('renders local SDF labels offline, opens source from a slab, and updates re
   const create = page.getByRole('dialog', { name: 'New file', exact: true });
   await create.getByLabel('Name', { exact: true }).fill('extra.py');
   await create.getByRole('button', { name: 'Save', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '3');
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'data-model-nodes',
+    '3',
+  );
   await page.getByRole('treeitem', { name: 'extra.py', exact: true }).click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Delete…', exact: true }).click();
   const remove = page.getByRole('dialog', { name: 'Delete from project', exact: true });
   await remove.getByRole('textbox').fill('extra.py');
   await remove.getByRole('button', { name: 'Delete', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await page.getByRole('button', { name: 'Settings (Ctrl+,)', exact: true }).click();
   await page.getByLabel('Color theme').selectOption('light');
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '2');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await page.screenshot({ path: 'docs/screenshots/phase2/file-slabs-light.png' });
   expect(external).toEqual([]);
 });

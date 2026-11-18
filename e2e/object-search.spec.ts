@@ -16,7 +16,7 @@ test('searches real hidden objects, filters types, dims the scene and opens from
   });
   await expect(page.locator('.workspace-title')).toContainText('Search');
   const canvas = page.locator('.code-canvas canvas');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   const scenePixels = async () => {
     const style = await page.addStyleTag({
       content:

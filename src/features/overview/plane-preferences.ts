@@ -8,7 +8,7 @@ export interface PlanePose {
   rowScale?: number;
 }
 export interface PlanePreferences {
-  mode: 'flat' | 'layers' | 'classic';
+  mode: 'flat' | 'layers';
   gap: number;
   edges: 'none' | 'context' | 'all';
   imports: boolean;
@@ -51,7 +51,7 @@ export function parsePlanePreferences(value: unknown): PlanePreferences {
   const cameras =
     d.cameras && typeof d.cameras === 'object' ? (d.cameras as Record<string, unknown>) : {};
   return {
-    mode: d.mode === 'layers' || d.mode === 'classic' ? d.mode : 'flat',
+    mode: d.mode === 'layers' ? 'layers' : 'flat',
     gap: typeof d.gap === 'number' && Number.isFinite(d.gap) ? Math.max(1, Math.min(12, d.gap)) : 5,
     edges: d.edges === 'context' || d.edges === 'all' ? d.edges : 'none',
     imports: d.imports === true,

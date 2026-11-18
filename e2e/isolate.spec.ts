@@ -29,7 +29,7 @@ test('isolates a static caller/callee neighborhood, changes depth and exits on a
   await expect(page.locator('.isolation-bar')).toContainText('Isolated · function build');
   await page.getByLabel('Isolation depth', { exact: true }).selectOption('2');
   await expect(panel).toHaveAttribute('data-visible-nodes', '8');
-  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-dashed-edge-count', '1');
+  await expect(page.locator('.code-canvas canvas')).toHaveAttribute('data-tile-edges', '0');
   await page.getByLabel('Isolation depth', { exact: true }).selectOption('0');
   await expect(panel).toHaveAttribute('data-visible-nodes', '2');
   await page.getByRole('button', { name: 'Exit isolate', exact: true }).click();

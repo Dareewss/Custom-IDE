@@ -43,7 +43,8 @@ it('has finite small/empty targets and complete local keyboard equivalents', () 
   expect(cameraKey('ArrowRight', true)).toBe('pan-right');
   expect(cameraKey('+', false)).toBe('zoom-in');
   expect(cameraKey('-', false)).toBe('zoom-out');
-  expect(cameraKey('f', false)).toBe('fit-selection');
+  expect(cameraKey('f', false)).toBe('fit-all');
+  expect(cameraKey('f', true)).toBe('fit-selection');
   expect(cameraKey('Home', false)).toBe('fit-all');
   expect(cameraKey('r', false)).toBe('reset');
   expect(cameraKey('a', false)).toBeUndefined();

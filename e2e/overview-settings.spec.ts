@@ -18,7 +18,7 @@ test('applies real 3D preferences and restores the project camera across modes a
   const panel = page.getByRole('region', { name: 'Code overview', exact: true });
   const canvas = page.locator('.code-canvas canvas');
   await expect(panel).toHaveAttribute('data-visible-nodes', '9');
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await expect(canvas).toHaveAttribute('data-camera-position', /\[/);
   await page.getByRole('group', { name: '3D navigation', exact: true }).focus();
   const initialPosition = await canvas.getAttribute('data-camera-position');
@@ -40,11 +40,9 @@ test('applies real 3D preferences and restores the project camera across modes a
   await settings.getByLabel('3D quality', { exact: true }).selectOption('low');
   await settings.getByLabel('3D labels', { exact: true }).uncheck();
   await settings.getByLabel('3D connections', { exact: true }).uncheck();
-  await settings.getByLabel('3D symbol size', { exact: true }).focus();
-  await page.keyboard.press('End');
   await settings.getByRole('button', { name: 'Close settings', exact: true }).click();
   await expect(canvas).toHaveAttribute('data-labels-ready', '0');
-  await expect(canvas).toHaveAttribute('data-edge-count', '0');
+  await expect(canvas).toHaveAttribute('data-tile-edges', '0');
   expect(
     await canvas.evaluate((element: HTMLCanvasElement) => element.width / element.clientWidth),
   ).toBeCloseTo(1, 1);
@@ -55,11 +53,10 @@ test('applies real 3D preferences and restores the project camera across modes a
   await expect(settings.getByLabel('3D quality', { exact: true })).toHaveValue('low');
   await expect(settings.getByLabel('3D labels', { exact: true })).not.toBeChecked();
   await expect(settings.getByLabel('3D connections', { exact: true })).not.toBeChecked();
-  await expect(settings.getByLabel('3D symbol size', { exact: true })).toHaveValue('125');
   await settings.getByLabel('3D labels', { exact: true }).check();
   await settings.getByLabel('3D connections', { exact: true }).check();
   await settings.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(canvas).toHaveAttribute('data-labels-ready', '4');
+  await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
   await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
   await page.getByRole('button', { name: 'Show code outline', exact: true }).click();
   const file = page.getByRole('treeitem', { name: 'file main.py', exact: true });

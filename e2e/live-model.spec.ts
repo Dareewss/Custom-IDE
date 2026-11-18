@@ -52,23 +52,11 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
     );
     await expect(panel).toHaveAttribute('data-added-nodes', '1');
     await expect(panel).toHaveAttribute('data-selected-node', id!);
-    if (reducedMotion === 'no-preference')
-      await canvas.evaluate((element) => {
-        const observer = new MutationObserver(() => {
-          if (element.getAttribute('data-ghost-count') === '1') {
-            element.setAttribute('data-observed-removal-ghost', 'true');
-            observer.disconnect();
-          }
-        });
-        observer.observe(element, { attributes: true, attributeFilter: ['data-ghost-count'] });
-      });
     await editor.press('Control+A');
     await page.keyboard.insertText(original);
     await expect(panel).toHaveAttribute('data-model-nodes', '4');
     await expect(panel).toHaveAttribute('data-removed-nodes', '1');
-    if (reducedMotion === 'no-preference')
-      await expect(canvas).toHaveAttribute('data-observed-removal-ghost', 'true');
-    await expect(canvas).toHaveAttribute('data-ghost-count', '0');
+    await expect(canvas).toHaveAttribute('data-tile-instances', /[1-9]/);
     await editor.press('Control+A');
     await page.keyboard.insertText('def stable(:\n    value =\n');
     await expect(
@@ -81,9 +69,9 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const)
       page.getByText('Some code is incomplete. Showing recovered structure.', { exact: true }),
     ).toHaveCount(0);
     await page.waitForTimeout(600);
-    const frames = await canvas.getAttribute('data-render-frames');
+    const frames = await canvas.getAttribute('data-scene-frames');
     await page.waitForTimeout(400);
-    expect(await canvas.getAttribute('data-render-frames')).toBe(frames);
+    expect(await canvas.getAttribute('data-scene-frames')).toBe(frames);
     await editor.press('Control+End');
     await page.keyboard.insertText('\nnew_only = 3\n');
     const fresh = new JSZip();

@@ -28,7 +28,6 @@ export interface LayoutEdge {
 }
 export interface LayoutResponse {
   structure: StructureLayout;
-  layout: GraphLayout;
   indexes: ModelIndexes;
   viewModel: CodeModel;
   ownerByNode: Record<string, string | null>;
@@ -40,6 +39,5 @@ export interface LayoutRequest {
   structureOptions?: StructureOptions;
   model: CodeModel;
   projectId: string;
-  revision: number;
   view: ModelView;
 }
