@@ -58,6 +58,15 @@ try {
     mimeType: 'application/zip',
     buffer: await zip.generateAsync({ type: 'nodebuffer' }),
   });
+  await expect(page.locator('.workspace-title')).toContainText('Native popout');
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'data-model-nodes',
+    '9',
+  );
+  await expect(page.getByRole('region', { name: 'Code overview', exact: true })).toHaveAttribute(
+    'aria-busy',
+    'false',
+  );
   await expect(page.locator('.code-canvas canvas')).toHaveAttribute(
     'data-tile-instances',
     /[1-9]/,
